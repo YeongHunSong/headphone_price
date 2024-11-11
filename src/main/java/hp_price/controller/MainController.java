@@ -27,7 +27,7 @@ public class MainController {
             Connection connection = Jsoup.connect(url);
             Document doc = connection.get(); // post()
 //            Elements el = doc.select("section div ul li");
-            Elements el = doc.select(".gall_list");
+            Elements el = doc.select(".gall_list .us-post");
 
             System.out.println(el);
 
@@ -35,7 +35,7 @@ public class MainController {
 
             return el.toString();
         }catch(IOException e) {
-            e.printStackTrace();
+            System.out.println("실패 : " + e);
             return "1";
         }
 
