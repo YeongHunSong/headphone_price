@@ -25,6 +25,9 @@ public class MainController {
             Document doc = Jsoup.connect(url).get();
             Elements el = doc.select("section div ul li");
             System.out.println(el);
+            System.out.println(el);
+            System.out.println(el);
+
 
 
             return el.toString();
