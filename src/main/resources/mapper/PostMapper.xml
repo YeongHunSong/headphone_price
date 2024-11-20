@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hpPrice.repository.mybatis.PostMapper">
+
+    <!--  MySQL 의 경우 Boolean 을 반환하지 않고, 1, 0으로 반환 -->
+    <select id="isCheckDup" resultType="Boolean">
+        SELECT
+            EXISTS (
+                SELECT
+                    1
+                FROM
+                    POST
+                WHERE
+                    POST_NUM = #{postNum}
+                )
+    </select>
+
+    <select id="findAll" resultType="Post">
+        SELECT
+            *
+        FROM
+            POST
+    </select>
+
+    <insert id="newPost">
+        INSERT INTO
+            POST
+                (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
+            VALUES
+                (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
+    </insert>
+
+
+</mapper>

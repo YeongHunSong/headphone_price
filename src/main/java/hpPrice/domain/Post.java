@@ -1,4 +1,4 @@
-package hp_price.domain;
+package hpPrice.domain;
 
 import lombok.Data;
 
@@ -16,18 +16,20 @@ public class Post {
 
     private String userId;
 
-    private LocalDateTime date;
+    private String userUrl; // NullAble
 
-    private Post() {
+    private LocalDateTime wDate;
+
+    public Post() {
     }
 
-    private Post(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {
+    private Post(Long postNum, String title, String url, String nickname, String userId, LocalDateTime wDate) {
         this.postNum = postNum;
         this.title = title;
         this.url = url;
         this.nickname = nickname;
         this.userId = userId;
-        this.date = date;
+        this.wDate = wDate;
     }
 
     public static Post newPost(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {

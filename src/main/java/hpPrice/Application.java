@@ -1,4 +1,4 @@
-package hp_price;
+package hpPrice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
