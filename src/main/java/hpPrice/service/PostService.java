@@ -14,7 +14,6 @@ public class PostService {
     private final PostRepository postRepository;
 
     public void newPostDC(Post post) {
-        post.setUrl(fullUrlDC(post.getUrl()));
         post.setUserUrl(gallLogDc(post.getUserId()));
         log.info("post = {}", post);
         postRepository.newPost(post);
@@ -29,12 +28,6 @@ public class PostService {
 //        return postRepository.findByPostNum(postNum);
 //    }
 
-
-
-
-    private String fullUrlDC(String url) {
-        return "https://gall.dcinside.com" + url;
-    }
 
     private String gallLogDc(String userId) {
         return "https://gallog.dcinside.com/" + userId;
