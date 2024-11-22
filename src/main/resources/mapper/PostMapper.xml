@@ -8,13 +8,25 @@
         SELECT
             EXISTS (
                 SELECT
-                    1
+                    *
                 FROM
                     POST
                 WHERE
                     POST_NUM = #{postNum}
                 )
     </select>
+
+    <select id="lastPostNum" resultType="Long">
+        SELECT
+            POST_NUM
+        FROM
+            POST
+        ORDER BY
+            W_DATE DESC
+        LIMIT
+            1
+    </select>
+
 
     <select id="findAll" resultType="Post">
         SELECT

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.lang.Thread.sleep;
 
@@ -36,36 +34,33 @@ public class MainController {
         try {
             // &page=1
             String url = "https://gall.dcinside.com/mgallery/board/lists/?id=newheadphone&search_head=120";
-            Connection connection = Jsoup.connect(url);
+            Connection connection = Jsoup.connect(url); // TODO user-agent 추가
             Document doc = connection.get(); // post()
 
             String pageUrl = doc.select(".page_end").attr("href");
             int lastPage = Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=")+5, pageUrl.indexOf("&search")));
 //            int lastPage = Integer.parseInt(pageUrl.split("page=")[1].split("&search")[0]);
+            Long lastPostNum = postService.lastPostNum();
 
 
-            // 1Page 내용만 긁어오기
-            Elements elements = doc.select(".gall_list .us-post");
-            for (Element el : elements) {
-                if (postService.isCheckDup(Long.valueOf(el.selectFirst(".gall_num").text()))) {
-                    continue; // 이미 저장한 게시글의 경우 넘어감
+            pageLoop:
+            for (int i=1; i<=lastPage; i++) {
+                sleep(3000);
+                Elements els = Jsoup.connect(url + "&page=" + i).get().select(".gall_list .us-post");
+                log.info("파싱 페이지 = {}page", i);
+                for (Element el : els) {
+                    if (Long.valueOf(el.selectFirst(".gall_num").text()).equals(lastPostNum)) {
+                        log.info("DB 최신글 갱신 완료 = {}", el.selectFirst(".gall_tit [href]").text());
+                        log.info("break 페이지 = {}page", i);
+                        break pageLoop; // 필요한 게시글까지 다 받아온 경우
+                    }
+                    if (postService.isCheckDup(Long.valueOf(el.selectFirst(".gall_num").text()))) {
+                        log.info("continue 페이지 = {}page", i);
+                        continue; // 이미 저장한 게시글의 경우 넘어감
+                    }
+                    parseDcPage(el);
                 }
-
-                postService.newPostDC(
-                        Post.newPost(Long.valueOf(el.selectFirst(".gall_num").text()),
-                                el.selectFirst(".gall_tit [href]").text(),
-                                el.selectFirst(".gall_tit a").absUrl("href"),
-                                el.selectFirst(".nickname em").text(),
-                                el.selectFirst(".gall_writer").attr("data-uid"),
-                                LocalDateTime.parse(el.selectFirst(".gall_date").attr("title"), DATE_FORMATTER)));
             }
-            sleep(500); // 혹시나 해서
-
-            // 2Page ~ 내용도 긁어오기
-
-
-
-
 
 //            Element ele = elements.get(0);
 //            System.out.println(LocalDateTime.parse("2024-11-19 17:08:43", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -78,7 +73,7 @@ public class MainController {
 //            System.out.println("date  = " + LocalDateTime.parse(ele.selectFirst(".gall_date").attr("title"), DATE_FORMATTER));
 
 
-            return elements.get(0).toString();
+            return "good";
         }catch(IOException e) {
             log.error("IOException = ", e);
             return "1";
@@ -87,6 +82,16 @@ public class MainController {
             return "1";
         }
 
+    }
+
+    private void parseDcPage(Element el) {
+        postService.newPostDC(
+                Post.newPost(Long.valueOf(el.selectFirst(".gall_num").text()),
+                        el.selectFirst(".gall_tit [href]").text(),
+                        el.selectFirst(".gall_tit a").absUrl("href"),
+                        el.selectFirst(".nickname em").text(),
+                        el.selectFirst(".gall_writer").attr("data-uid"),
+                        LocalDateTime.parse(el.selectFirst(".gall_date").attr("title"), DATE_FORMATTER)));
     }
 
 }

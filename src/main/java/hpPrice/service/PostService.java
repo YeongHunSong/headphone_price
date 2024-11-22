@@ -15,12 +15,16 @@ public class PostService {
 
     public void newPostDC(Post post) {
         post.setUserUrl(gallLogDc(post.getUserId()));
-        log.info("post = {}", post);
+        log.info("저장한 게시글 = {}", post.getTitle());
         postRepository.newPost(post);
     }
 
     public Boolean isCheckDup(Long postNum) {
         return postRepository.isCheckDup(postNum);
+    }
+
+    public Long lastPostNum() {
+        return postRepository.lastPostNum();
     }
 
 

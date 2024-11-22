@@ -27,6 +27,11 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
+    public Long lastPostNum() {
+        return postMapper.lastPostNum();
+    }
+
+    @Override
     public List<Post> findAll() {
         return postMapper.findAll();
     }
