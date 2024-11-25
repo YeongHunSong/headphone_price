@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,10 +29,10 @@ public class PostService {
         return postRepository.lastPostNum();
     }
 
+    public List<Post> findAll() {
+        return postRepository.findAll();
+    }
 
-//    public Long findByPostNum(Long postNum) {
-//        return postRepository.findByPostNum(postNum);
-//    }
 
 
     private String gallLogDc(String userId) {

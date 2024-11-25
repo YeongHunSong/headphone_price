@@ -10,6 +10,8 @@ public class Post {
 
     private String title;
 
+    private String modTitle;
+
     private String url;
 
     private String nickname;
@@ -35,4 +37,5 @@ public class Post {
     public static Post newPost(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {
         return new Post(postNum, title, url, nickname, userId, date);
     }
+
 }

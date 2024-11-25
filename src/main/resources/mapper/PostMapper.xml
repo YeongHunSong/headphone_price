@@ -33,6 +33,10 @@
             *
         FROM
             POST
+        ORDER BY
+            W_DATE DESC
+        LIMIT
+            50
     </select>
 
     <insert id="newPost">
