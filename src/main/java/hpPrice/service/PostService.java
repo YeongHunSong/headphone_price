@@ -21,18 +21,15 @@ public class PostService {
         postRepository.newPost(post);
     }
 
-    public Boolean isCheckDup(Long postNum) {
-        return postRepository.isCheckDup(postNum);
-    }
-
     public Long lastPostNum() {
-        return postRepository.lastPostNum();
+        Long lastPostNum = postRepository.lastPostNum();
+        // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        return lastPostNum == null ? 0 : lastPostNum;
     }
 
     public List<Post> findAll() {
         return postRepository.findAll();
     }
-
 
 
     private String gallLogDc(String userId) {

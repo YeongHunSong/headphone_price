@@ -20,12 +20,6 @@ public class MybatisPostRepository implements PostRepository {
         postMapper.newPost(post);
     }
 
-    // MySQL 의 경우 Boolean 을 반환하지 않고, 1, 0으로 반환
-    @Override
-    public Boolean isCheckDup(Long postNum) {
-        return postMapper.isCheckDup(postNum);
-    }
-
     @Override
     public Long lastPostNum() {
         return postMapper.lastPostNum();

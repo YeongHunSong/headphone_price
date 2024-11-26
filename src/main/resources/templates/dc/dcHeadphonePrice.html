@@ -92,7 +92,6 @@
       <tbody>
       <tr th:each="post : ${postList}">
         <td class="p-1"><p th:text="|${post.postNum}|">글 번호</p></td>
-        <!--                <td><p th:text="${post.category}">카테고리</p></td>-->
         <td class="p-1"><a class="d-inline-block text-truncate text-nowrap w-100" href="" th:href="@{|${post.url}|}" th:text="${post.title}">제목</a></td>
         <td class="p-1"><p class="text-nowrap w-100" th:text="${#temporals.format(post.wDate, 'yyyy-MM-dd HH:mm:ss')}">작성일</p></td> <!-- 날짜 포맷 수정 -->
         <td class="p-1"><a class="d-inline-block text-truncate text-nowrap w-100" href="" th:text="${post.nickname}">닉네임</a></td>
