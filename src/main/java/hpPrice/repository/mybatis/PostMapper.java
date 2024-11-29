@@ -1,7 +1,9 @@
 package hpPrice.repository.mybatis;
 
 import hpPrice.domain.Post;
+import hpPrice.paging.PageDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,5 +14,7 @@ public interface PostMapper {
 
     Long lastPostNum();
 
-    List<Post> findAll();
+    int totalCount();
+
+    List<Post> findAll(@Param("pageDto") PageDto pageDto);
 }

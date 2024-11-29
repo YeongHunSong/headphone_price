@@ -10,11 +10,12 @@
 <body>
 <div class="container">
 
+
   <div class="row">
-    <table class="table table-hover text-center" style="table-layout: fixed">
-      <!-- TODO bootstrap 적용해서 테이블 디자인 만들기 - 컬러 추가
-           TODO 페이징 추가
-           TODO 검색 기능 추가
+    <table class="table table-hover text-center table-striped" style="table-layout: fixed">
+      <!--
+       TODO 링크 클릭 시 새 탭으로 띄우기
+       TODO 검색 기능 추가
        -->
       <thead>
       <tr>
@@ -38,6 +39,52 @@
       </tbody>
     </table>
     <p class="text-center" th:if="${#lists.size(postList) == 0}">게시글이 없습니다.</p>
+  </div>
+
+  <div>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:if="${pageControl.prev}">
+          <form th:action method="get">
+            <input type="hidden" th:field="${pageDto.pageView}">
+            <input type="hidden" name="page" th:value="${pageControl.firstPage}">
+            <input type="submit" class="page-link" aria-hidden="true" value="&laquo;" aria-label="first">
+          </form>
+        </li>
+        <li class="page-item" th:if="${pageControl.prev}">
+          <form th:action method="get">
+            <input type="hidden" th:field="${pageDto.pageView}">
+            <input type="hidden" name="page" th:value="${pageControl.dpStartPage-1}">
+            <input type="submit" class="page-link" aria-hidden="true" value="&lt;" aria-label="prev">
+          </form>
+        </li>
+        <li th:each="page : ${#numbers.sequence({pageControl.dpStartPage}, {pageControl.dpEndPage})}" class="page-item"
+            th:class="${pageControl.pageDto.page} == ${page} ? 'page-item active' : 'page-item'">
+          <form th:action method="get">
+            <input type="hidden" th:field="${pageDto.pageView}">
+            <input type="hidden" name="page" th:value="${page}">
+            <!-- th:field -> id, name, value 매핑 / th:filed 와 th:value 동시 사용해도 th:field 쪽에 우선순위가 있어 th:value 값이 적용이 안 됨
+                    예외 : checkbox 의 경우에는 체크 상태 확인을 위해 th:field 와 th:value 를 같이 사용해야 한다. -->
+            <input type="submit" class="page-link" th:value="${page}" aria-label="page"
+                   th:class="${pageControl.pageDto.page} == ${page} ? 'page-link active' : 'page-link'">
+          </form>
+        </li>
+        <li class="page-item" th:if="${pageControl.next}">
+          <form th:action method="get">
+            <input type="hidden" th:field="${pageDto.pageView}">
+            <input type="hidden" name="page" th:value="${pageControl.dpEndPage+1}">
+            <input type="submit" class="page-link" aria-hidden="true" value="&gt;" aria-label="next">
+          </form>
+        </li>
+        <li class="page-item" th:if="${pageControl.next}">
+          <form th:action method="get">
+            <input type="hidden" th:field="${pageDto.pageView}">
+            <input type="hidden" name="page" th:value="${pageControl.lastPage}">
+            <input type="submit" class="page-link" aria-hidden="true" value="&raquo;" aria-label="last">
+          </form>
+        </li>
+      </ul>
+    </nav>
   </div>
 
 </div> <!-- /container -->

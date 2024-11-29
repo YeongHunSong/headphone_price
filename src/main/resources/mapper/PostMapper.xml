@@ -3,6 +3,13 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="hpPrice.repository.mybatis.PostMapper">
 
+    <sql id="paging">
+        <if test="pageDto != null">
+            LIMIT #{pageDto.pageCount}, #{pageDto.pageView}
+        </if>
+    </sql>
+
+
     <select id="lastPostNum" resultType="Long">
         SELECT
             POST_NUM
@@ -14,6 +21,13 @@
             1
     </select>
 
+    <select id="totalCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            POST
+    </select>
+
     <select id="findAll" resultType="Post">
         SELECT
             *
@@ -21,8 +35,7 @@
             POST
         ORDER BY
             W_DATE DESC
-        LIMIT
-            50
+        <include refid="paging"/>
     </select>
 
     <insert id="newPost">

@@ -1,6 +1,7 @@
 package hpPrice.service;
 
 import hpPrice.domain.Post;
+import hpPrice.paging.PageDto;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,12 @@ public class PostService {
         return lastPostNum == null ? 0 : lastPostNum;
     }
 
-    public List<Post> findAll() {
-        return postRepository.findAll();
+    public int postCount() {
+        return postRepository.totalCount();
+    }
+
+    public List<Post> findAll(PageDto pageDto) {
+        return postRepository.findAll(pageDto);
     }
 
 
