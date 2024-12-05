@@ -14,14 +14,13 @@
   <div class="row">
     <table class="table table-hover text-center table-striped" style="table-layout: fixed">
       <!--
-       TODO 링크 클릭 시 새 탭으로 띄우기
        TODO 검색 기능 추가
        -->
       <thead>
       <tr>
         <th class="col-1">글번호</th>
         <th class="col-5">제목</th>
-        <th class="col-2">작성일</th>
+        <th class="col-1">작성일</th>
         <th class="col-3">닉네임</th>
         <th class="col-2">아이디</th>
         <th class="col-1">갤로그</th>
@@ -30,11 +29,11 @@
       <tbody>
       <tr th:each="post : ${postList}">
         <td class="p-1"><p th:text="|${post.postNum}|">글 번호</p></td>
-        <td class="p-1"><a class="d-inline-block text-truncate text-nowrap w-100" href="" th:href="@{|${post.url}|}" th:text="${post.title}">제목</a></td>
-        <td class="p-1"><p class="text-nowrap w-100" th:text="${#temporals.format(post.wDate, 'yyyy-MM-dd HH:mm:ss')}">작성일</p></td> <!-- 날짜 포맷 수정 -->
-        <td class="p-1"><p class="d-inline-block text-truncate text-nowrap w-100" href="" th:text="${post.nickname}">닉네임</p></td>
-        <td class="p-1"><p th:text="|${post.userId}|">아이디</p></td>
-        <td class="p-1"><a href="" th:href="@{|${post.userUrl}|}" >링크</a></td>
+        <td class="p-1"><a th:text="|${post.title}|" th:href="@{|${post.url}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
+        <td class="p-1"><p th:text="${#temporals.format(post.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
+        <td class="p-1"><p th:text="|${post.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>
+        <td class="p-1"><p th:text="|${post.userId}|" th:classappend="${post.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>
+        <td class="p-1"><a th:text="링크" th:href="@{|${post.userUrl}|}" th:classappend="${post.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
       </tr>
       </tbody>
     </table>

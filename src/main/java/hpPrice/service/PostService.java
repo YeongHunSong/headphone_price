@@ -17,7 +17,12 @@ public class PostService {
     private final PostRepository postRepository;
 
     public void newPostDC(Post post) {
-        post.setUserUrl(gallLogDc(post.getUserId()));
+        if (post.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
+            post.setUserId("유동");
+            post.setUserUrl("");
+        } else {
+            post.setUserUrl(gallLogDc(post.getUserId()));
+        }
         log.info("저장한 게시글 = {}", post.getTitle());
         postRepository.newPost(post);
     }
