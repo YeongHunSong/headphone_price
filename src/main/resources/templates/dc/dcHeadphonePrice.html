@@ -12,10 +12,30 @@
 
 
   <div class="row">
+    <div class="py-3">
+      <button class="w-auto btn btn-success float-start row"
+              th:onclick="|location.href='@{/dcheadphone}'|" type="button">전체글</button>
+      <form th:action method="get" class="row float-end">
+        <div class="col-auto">
+          <label>
+            <select class="form-select" th:field="${cond.searchType}">
+              <option th:value="title" selected>제목</option>
+              <option th:value="nickname">닉네임</option>
+              <option th:value="userId">아이디</option>
+            </select>
+          </label>
+        </div>
+        <div class="col-auto">
+          <input type="text" class="form-control" placeholder="검색어를 입력해주세요"
+                 th:field="${cond.keyword}">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" type="submit">검색</button>
+        </div>
+      </form>
+    </div>
+
     <table class="table table-hover text-center table-striped" style="table-layout: fixed">
-      <!--
-       TODO 검색 기능 추가
-       -->
       <thead>
       <tr>
         <th class="col-1">글번호</th>
@@ -45,6 +65,8 @@
       <ul class="pagination justify-content-center">
         <li class="page-item" th:if="${pageControl.prev}">
           <form th:action method="get">
+            <input type="hidden" th:field="${cond.searchType}">
+            <input type="hidden" th:field="${cond.searchKeyword}">
             <input type="hidden" th:field="${pageDto.pageView}">
             <input type="hidden" name="page" th:value="${pageControl.firstPage}">
             <input type="submit" class="page-link" aria-hidden="true" value="&laquo;" aria-label="first">
@@ -60,6 +82,8 @@
         <li th:each="page : ${#numbers.sequence({pageControl.dpStartPage}, {pageControl.dpEndPage})}" class="page-item"
             th:class="${pageControl.pageDto.page} == ${page} ? 'page-item active' : 'page-item'">
           <form th:action method="get">
+            <input type="hidden" th:field="${cond.searchType}">
+            <input type="hidden" th:field="${cond.searchKeyword}">
             <input type="hidden" th:field="${pageDto.pageView}">
             <input type="hidden" name="page" th:value="${page}">
             <!-- th:field -> id, name, value 매핑 / th:filed 와 th:value 동시 사용해도 th:field 쪽에 우선순위가 있어 th:value 값이 적용이 안 됨
@@ -70,6 +94,8 @@
         </li>
         <li class="page-item" th:if="${pageControl.next}">
           <form th:action method="get">
+            <input type="hidden" th:field="${cond.searchType}">
+            <input type="hidden" th:field="${cond.searchKeyword}">
             <input type="hidden" th:field="${pageDto.pageView}">
             <input type="hidden" name="page" th:value="${pageControl.dpEndPage+1}">
             <input type="submit" class="page-link" aria-hidden="true" value="&gt;" aria-label="next">
@@ -77,6 +103,8 @@
         </li>
         <li class="page-item" th:if="${pageControl.next}">
           <form th:action method="get">
+            <input type="hidden" th:field="${cond.searchType}">
+            <input type="hidden" th:field="${cond.searchKeyword}">
             <input type="hidden" th:field="${pageDto.pageView}">
             <input type="hidden" name="page" th:value="${pageControl.lastPage}">
             <input type="submit" class="page-link" aria-hidden="true" value="&raquo;" aria-label="last">

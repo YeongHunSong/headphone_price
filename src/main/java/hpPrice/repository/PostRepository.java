@@ -1,6 +1,7 @@
 package hpPrice.repository;
 
 import hpPrice.domain.Post;
+import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface PostRepository {
 
     Long lastPostNum();
 
-    int totalCount();
+    int totalCount(SearchCond cond);
 
-    List<Post> findAll(PageDto pageDto); // TODO 검색 조건 관련 추가하기
+    List<Post> findAll(PageDto pageDto, SearchCond cond);
 }

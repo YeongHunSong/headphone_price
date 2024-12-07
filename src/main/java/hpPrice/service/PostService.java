@@ -1,6 +1,7 @@
 package hpPrice.service;
 
 import hpPrice.domain.Post;
+import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,12 @@ public class PostService {
         return lastPostNum == null ? 0 : lastPostNum;
     }
 
-    public int postCount() {
-        return postRepository.totalCount();
+    public int postCount(SearchCond cond) {
+        return postRepository.totalCount(cond);
     }
 
-    public List<Post> findAll(PageDto pageDto) {
-        return postRepository.findAll(pageDto);
+    public List<Post> findAll(PageDto pageDto, SearchCond cond) {
+        return postRepository.findAll(pageDto, cond);
     }
 
 

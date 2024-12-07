@@ -9,6 +9,20 @@
         </if>
     </sql>
 
+    <sql id="search">
+        <where>
+            <if test="cond != null and cond.searchType == 'title' and cond.keyword != ''">
+                TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+            </if>
+            <if test="cond != null and cond.searchType == 'nickname' and cond.keyword != ''">
+                NICKNAME LIKE CONCAT('%', #{cond.keyword}, '%')
+            </if>
+            <if test="cond != null and cond.searchType == 'userId' and cond.keyword != ''">
+                USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+            </if>
+        </where>
+    </sql>
+
 
     <select id="lastPostNum" resultType="Long">
         SELECT
@@ -26,6 +40,7 @@
             COUNT(*)
         FROM
             POST
+        <include refid="search"/>
     </select>
 
     <select id="findAll" resultType="Post">
@@ -33,6 +48,7 @@
             *
         FROM
             POST
+        <include refid="search"/>
         ORDER BY
             W_DATE DESC
         <include refid="paging"/>

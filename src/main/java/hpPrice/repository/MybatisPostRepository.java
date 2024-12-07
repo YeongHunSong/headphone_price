@@ -1,6 +1,7 @@
 package hpPrice.repository;
 
 import hpPrice.domain.Post;
+import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.mybatis.PostMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +28,12 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public int totalCount() {
-        return postMapper.totalCount();
+    public int totalCount(SearchCond cond) {
+        return postMapper.totalCount(cond);
     }
 
     @Override
-    public List<Post> findAll(PageDto pageDto) {
-        return postMapper.findAll(pageDto);
+    public List<Post> findAll(PageDto pageDto, SearchCond cond) {
+        return postMapper.findAll(pageDto, cond);
     }
 }
