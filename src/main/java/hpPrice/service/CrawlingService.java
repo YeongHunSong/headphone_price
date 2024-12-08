@@ -25,9 +25,12 @@ public class CrawlingService {
 
     private final PostService postService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final String POST_URL = "https://gall.dcinside.com/mgallery/board/view/?id=newheadphone&no=";
 
-    @Scheduled(fixedDelay = 60000) // 60초 주기로 크롤링
-    public void crawlingDC() {
+
+
+//    @Scheduled(fixedDelay = 60000) // 60초 주기로 크롤링
+    public void crawlingDcTitle() {
         log.info("크롤링 동작 중 [{}]", LocalDateTime.now().format(DATE_FORMATTER));
 
         try { // lastPageSearch
@@ -45,7 +48,7 @@ public class CrawlingService {
 
             pageLoop: // crawlingAndParsing
             for (int i = 1; i <= lastPage; i++) {
-                sleep(500);
+                sleep(200);
                 Elements elements = Jsoup.connect(url + "&page=" + i).get().select(".gall_list .us-post");
                 log.info("현재 파싱 페이지 -> [{}]page", i);
                 for (Element element : elements) {
