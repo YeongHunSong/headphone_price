@@ -24,11 +24,11 @@
     </sql>
 
 
-    <select id="lastPostNum" resultType="Long">
+    <select id="lastListNum" resultType="Long">
         SELECT
             POST_NUM
         FROM
-            POST
+            POST_LIST
         ORDER BY
             W_DATE DESC
         LIMIT
@@ -39,27 +39,35 @@
         SELECT
             COUNT(*)
         FROM
-            POST
+            POST_LIST
         <include refid="search"/>
     </select>
 
-    <select id="findAll" resultType="Post">
+    <select id="findAll" resultType="PostList">
         SELECT
             *
         FROM
-            POST
+            POST_LIST
         <include refid="search"/>
         ORDER BY
             W_DATE DESC
         <include refid="paging"/>
     </select>
 
-    <insert id="newPost">
+    <insert id="newPostList">
         INSERT INTO
-            POST
+            POST_LIST
                 (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
             VALUES
                 (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
+    </insert>
+
+    <insert id="newPost">
+        INSERT INTO
+            POST
+                (POST_NUM, CONTENT)
+            VALUES
+                (#{postNum}, #{content})
     </insert>
 
 

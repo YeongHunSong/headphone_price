@@ -1,6 +1,7 @@
 package hpPrice.repository;
 
 import hpPrice.domain.Post;
+import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.mybatis.PostMapper;
@@ -18,13 +19,18 @@ public class MybatisPostRepository implements PostRepository {
     private final PostMapper postMapper;
 
     @Override
+    public void newPostList(PostList postList) {
+        postMapper.newPostList(postList);
+    }
+
+    @Override
     public void newPost(Post post) {
         postMapper.newPost(post);
     }
 
     @Override
-    public Long lastPostNum() {
-        return postMapper.lastPostNum();
+    public Long lastListNum() {
+        return postMapper.lastListNum();
     }
 
     @Override
@@ -33,7 +39,7 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> findAll(PageDto pageDto, SearchCond cond) {
+    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
         return postMapper.findAll(pageDto, cond);
     }
 }

@@ -1,6 +1,7 @@
 package hpPrice.repository.mybatis;
 
 import hpPrice.domain.Post;
+import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -11,12 +12,14 @@ import java.util.List;
 @Mapper
 public interface PostMapper {
 
+    void newPostList(PostList postList);
+
     void newPost(Post post);
 
-    Long lastPostNum();
+    Long lastListNum();
 
     int totalCount(@Param("cond")SearchCond cond);
 
-    List<Post> findAll(@Param("pageDto") PageDto pageDto,
-                       @Param("cond") SearchCond cond);
+    List<PostList> findAll(@Param("pageDto") PageDto pageDto,
+                           @Param("cond") SearchCond cond);
 }

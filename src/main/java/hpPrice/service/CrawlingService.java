@@ -1,6 +1,7 @@
 package hpPrice.service;
 
 import hpPrice.domain.Post;
+import hpPrice.domain.PostList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -25,7 +26,9 @@ public class CrawlingService {
 
     private final PostService postService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    public static final String POST_URL = "https://gall.dcinside.com/mgallery/board/view/?id=newheadphone&no=";
+    public static final String DC_HEADPHONE_URL = "https://gall.dcinside.com/mgallery/board/view/?id=newheadphone&no=";
+    public static final String DC_IMG_HOST_BEFORE = "dcimg8";
+    public static final String DC_IMG_HOST_AFTER = "dcimg3";
 
 
 
@@ -43,12 +46,13 @@ public class CrawlingService {
                 throw new SQLException();
             }
             int lastPage = Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
-            Long lastPostNum = postService.lastPostNum(); // PostService 에서 null 발생 시 0으로 반환 (DB에 저장값이 없는 경우)
+            Long lastPostNum = postService.lastListNum(); // PostService 에서 null 발생 시 0으로 반환 (DB에 저장값이 없는 경우)
 
 
             pageLoop: // crawlingAndParsing
             for (int i = 1; i <= lastPage; i++) {
-                sleep(200);
+                // ## 게시글 리스트 파싱 ##
+                sleep(250);
                 Elements elements = Jsoup.connect(url + "&page=" + i).get().select(".gall_list .us-post");
                 log.info("현재 파싱 페이지 -> [{}]page", i);
                 for (Element element : elements) {
@@ -57,7 +61,34 @@ public class CrawlingService {
                         log.info("DB 갱신 완료: break 페이지 -> [{}]page", i);
                         break pageLoop; // 필요한 게시글까지 다 받아온 경우
                     }
-                    parseDcPage(element);
+                    parseDcPage(element); // 리스트에서 한줄씩 착착착 DB에 저장
+
+                    // ## 게시글 내용 파싱 ##
+                    sleep(250);
+                    Elements els = Jsoup.connect(DC_HEADPHONE_URL + element.selectFirst(".gall_num").text()).get().select(".write_div > *");
+                    els.removeIf(ele -> ele.children().is("iframe") // 업로드 동영상 링크 삭제
+                                    || (ele.children().hasAttr("src") && ele.children().attr("src").charAt(13) == '5')); // 디시콘 삭제
+
+                    for (Element el : els) {
+                        Elements children = el.children();
+                        String imageUrl = children.attr("src"); // 업로드 이미지 URL
+
+                        if (children.hasAttr("src") && (imageUrl.charAt(13)) == '8') {
+                            children.attr("src", imageUrl.replace(DC_IMG_HOST_BEFORE, DC_IMG_HOST_AFTER)); // 외부에서 불러올 수 있는 이미지 HOST 변경
+                        }
+
+                        if (children.is("a")) {
+                            children.select("img.og-img").attr("src", children.select("img.og-img").attr("src").replace(DC_IMG_HOST_BEFORE, DC_IMG_HOST_AFTER)); // 링크 썸네일 이미지 HOST 변경
+                        }
+                    }
+
+                    // DB에 저장하는 코드
+                    postService.newPostDC(
+                            Post.newPost(
+                                    Long.valueOf(element.selectFirst(".gall_num").text()),
+                                    els.html()));
+                    
+
                 }
             }
         } catch (SQLException e) {
@@ -73,8 +104,8 @@ public class CrawlingService {
 
 
     private void parseDcPage(Element element) {
-        postService.newPostDC(
-                Post.newPost(
+        postService.newPostListDC(
+                PostList.newPostList(
                         Long.valueOf(element.selectFirst(".gall_num").text()),
                         element.selectFirst(".gall_tit [href]").text(),
                         element.selectFirst(".gall_tit a").absUrl("href"),

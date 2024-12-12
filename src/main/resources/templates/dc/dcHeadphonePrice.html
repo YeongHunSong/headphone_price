@@ -10,7 +10,6 @@
 <body>
 <div class="container">
 
-
   <div class="row">
     <div class="py-3">
       <button class="w-auto btn btn-success float-start row"
@@ -47,13 +46,13 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="post : ${postList}">
-        <td class="p-1"><p th:text="|${post.postNum}|">글 번호</p></td>
-        <td class="p-1"><a th:text="|${post.title}|" th:href="@{|${post.url}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
-        <td class="p-1"><p th:text="${#temporals.format(post.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
-        <td class="p-1"><p th:text="|${post.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>
-        <td class="p-1"><p th:text="|${post.userId}|" th:classappend="${post.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>
-        <td class="p-1"><a th:text="링크" th:href="@{|${post.userUrl}|}" th:classappend="${post.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
+      <tr th:each="postList : ${postList}">
+        <td class="p-1"><p th:text="|${postList.postNum}|">글 번호</p></td>
+        <td class="p-1"><a th:text="|${postList.title}|" th:href="@{|${postList.url}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
+        <td class="p-1"><p th:text="${#temporals.format(postList.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
+        <td class="p-1"><p th:text="|${postList.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>
+        <td class="p-1"><p th:text="|${postList.userId}|" th:classappend="${postList.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>
+        <td class="p-1"><a th:text="링크" th:href="@{|${postList.userUrl}|}" th:classappend="${postList.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
       </tr>
       </tbody>
     </table>
@@ -86,10 +85,7 @@
             <input type="hidden" th:field="${cond.keyword}">
             <input type="hidden" th:field="${pageDto.pageView}">
             <input type="hidden" name="page" th:value="${page}">
-            <!-- th:field -> id, name, value 매핑 / th:filed 와 th:value 동시 사용해도 th:field 쪽에 우선순위가 있어 th:value 값이 적용이 안 됨
-                    예외 : checkbox 의 경우에는 체크 상태 확인을 위해 th:field 와 th:value 를 같이 사용해야 한다. -->
-            <input type="submit" class="page-link" th:value="${page}" aria-label="page"
-                   th:class="${pageControl.pageDto.page} == ${page} ? 'page-link active' : 'page-link'">
+            <input type="submit" class="page-link" th:value="${page}" aria-label="page" th:class="${pageControl.pageDto.page} == ${page} ? 'page-link active' : 'page-link'">
           </form>
         </li>
         <li class="page-item" th:if="${pageControl.next}">
@@ -112,7 +108,7 @@
         </li>
       </ul>
     </nav>
-  </div>
+  </div> <!-- paging 관련 -->
 
 </div> <!-- /container -->
 </body>

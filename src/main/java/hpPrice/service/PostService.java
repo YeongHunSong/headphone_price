@@ -1,6 +1,7 @@
 package hpPrice.service;
 
 import hpPrice.domain.Post;
+import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.PostRepository;
@@ -17,19 +18,23 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public void newPostDC(Post post) {
-        if (post.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
-            post.setUserId("유동");
-            post.setUserUrl("");
+    public void newPostListDC(PostList postList) {
+        if (postList.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
+            postList.setUserId("유동");
+            postList.setUserUrl("");
         } else {
-            post.setUserUrl(gallLogDc(post.getUserId()));
+            postList.setUserUrl(gallLogDc(postList.getUserId()));
         }
-        log.info("저장한 게시글 = {}", post.getTitle());
+        log.info("저장한 게시글 = {}", postList.getTitle());
+        postRepository.newPostList(postList);
+    }
+
+    public void newPostDC(Post post) {
         postRepository.newPost(post);
     }
 
-    public Long lastPostNum() {
-        Long lastPostNum = postRepository.lastPostNum();
+    public Long lastListNum() {
+        Long lastPostNum = postRepository.lastListNum();
         // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
         return lastPostNum == null ? 0 : lastPostNum;
     }
@@ -38,7 +43,7 @@ public class PostService {
         return postRepository.totalCount(cond);
     }
 
-    public List<Post> findAll(PageDto pageDto, SearchCond cond) {
+    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
         return postRepository.findAll(pageDto, cond);
     }
 

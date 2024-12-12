@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -32,21 +31,19 @@ import static java.lang.Thread.sleep;
 public class MainController {
 
     private final PostService postService;
+    
+    // TODO image 불러오는 Mapping 추가
 
     @GetMapping("/dcheadphone")
     public String dcHeadphone(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond")SearchCond cond) {
-
         model.addAttribute("pageControl", PageControl.create(pageDto, postService.postCount(cond)));
         model.addAttribute("postList", postService.findAll(pageDto, cond));
-
         return "dc/dcHeadphonePrice";
     }
 
     @GetMapping("/dcheadphone/{postNum}")
     public String dcHeadphoneDetail(@PathVariable Long postNum, Model model) {
         // TODO 글 내용 집어넣기
-
-
 
 
         return "dc/postDetail";
@@ -69,86 +66,40 @@ public class MainController {
                     throw new SQLException();
                 }
                 int lastPage = Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
-                Long lastPostNum = postService.lastPostNum(); // PostService 에서 null 발생 시 0으로 반환 (DB에 저장값이 없는 경우)
+                Long lastPostNum = postService.lastListNum(); // PostService 에서 null 발생 시 0으로 반환 (DB에 저장값이 없는 경우)
 
 
-                // TODO TEST 필요한 게시글 : 1177280 / 1177886 - 1178263 / 1176410
-                // TODO 태그 없는 텍스트의 경우 날아가는 문제 해결하기 - 1176410
-                // TODO URL 링크 관련도 삭제 고려
+                // TODO TEST 필요한 게시글 : 1177280 / 1177886 - 1178263 / 1176410 / 1177472
+                // TODO padding 5px
                 pageLoop: // crawlingAndParsing
-                    sleep(200);
-
-                    Elements elements = Jsoup.connect(url + "&page=").get().select(".gall_list .us-post");
-                    int i = 0;
-//                    for (Element el : elements) {
-                        sleep(500);
-                        Elements els = Jsoup.connect(CrawlingService.POST_URL + "1176410").get()
+                    sleep(300);
+                    Elements elements = Jsoup.connect(url).get().select(".gall_list .us-post");
+                    for (Element element : elements) {
+                        sleep(300);
+                        Elements els = Jsoup.connect(CrawlingService.DC_HEADPHONE_URL + element.selectFirst(".gall_num").text()).get()
                                 .select(".write_div > *");
-//                el.selectFirst(".gall_num").text()
-                        els.removeIf(element ->
-                                element.children().is("img") || element.children().is("iframe"));
-                        i++;
-                        System.out.println(i + "번째 게시글");
-                        System.out.println(els);
-//                    }
+                        els.removeIf(
+                                ele -> ele.children().is("iframe") || // 업로드 동영상 링크 삭제
+                                (ele.children().hasAttr("src") && ele.children().attr("src").charAt(13) == '5')); // 디시콘 삭제
 
+                        for (Element ele : els) {
+                            Elements children = ele.children();
+                            String imageUrl = children.attr("src"); // 업로드 이미지 URL
+                            String linkImage = children.select("img.og-img").attr("src"); // 링크 섬네일 이미지 URL
 
-
-//                System.out.println(els.html());
-
-
-//                System.out.println(els.comments());
-//                System.out.println(els.dataNodes());
-//                System.out.println(els.eachText());
-//                System.out.println(els.hasText());
-
-//
-//                els.removeIf(element ->
-//                        element.children().is("img"));
-//
-//
-//                System.out.println(els);
-//                res = els.html();
-
-
-                /*for (Element el : els) {
-//                    System.out.println(el.cssSelector());
+                            if (children.hasAttr("src") && (imageUrl.charAt(13)) == '8') {
+                                children.attr("src", imageUrl.replace(CrawlingService.DC_IMG_HOST_BEFORE, CrawlingService.DC_IMG_HOST_AFTER)); // 외부에서 불러올 수 있는 이미지 HOST 변경
+                            }
+                            
+                            if (children.is("a")) { 
+                                children.select("img.og-img").attr("src", linkImage.replace(CrawlingService.DC_IMG_HOST_BEFORE, CrawlingService.DC_IMG_HOST_AFTER)); // 링크 썸네일 이미지 HOST 변경
+                            }
+                        }
+                    }
 
 
 //                    el.childNodeSize(); // 보유한 자식의 수
 //                    el.lastChild(); // 마지막이면 null, 마지막이 아니면 child 반환
-                    if (el.children().is("img")) {
-                        continue;
-                    }*/
-
-
-
-//                    System.out.println(el);
-
-
-//                    System.out.println(el.tagName());
-//                    System.out.println(el.html());
-
-//                    System.out.println(el.tagName());
-//                    System.out.println(el.className());
-//
-//
-//                    System.out.println(el.unwrap());
-////                    System.out.println(el.unwrap());
-//
-////                    System.out.println(el.html());
-//
-//                    i++;
-//
-//                    System.out.println(i);
-
-
-
-
-//                    System.out.println(el.text());
-
-
-//                    System.out.println(el);
 //                }
 
 
