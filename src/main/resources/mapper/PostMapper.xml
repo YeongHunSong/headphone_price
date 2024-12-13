@@ -24,7 +24,7 @@
     </sql>
 
 
-    <select id="lastListNum" resultType="Long">
+    <select id="lastPostNum" resultType="int">
         SELECT
             POST_NUM
         FROM

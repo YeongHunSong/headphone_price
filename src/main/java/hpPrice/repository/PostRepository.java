@@ -13,7 +13,7 @@ public interface PostRepository {
 
     void newPost(Post post);
 
-    Long lastListNum();
+    Integer lastPostNum();
 
     int totalCount(SearchCond cond);
 

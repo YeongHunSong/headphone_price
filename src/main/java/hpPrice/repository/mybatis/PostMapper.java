@@ -16,7 +16,7 @@ public interface PostMapper {
 
     void newPost(Post post);
 
-    Long lastListNum();
+    Integer lastPostNum();
 
     int totalCount(@Param("cond")SearchCond cond);
 

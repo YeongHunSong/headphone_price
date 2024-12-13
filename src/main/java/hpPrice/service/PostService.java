@@ -33,10 +33,9 @@ public class PostService {
         postRepository.newPost(post);
     }
 
-    public Long lastListNum() {
-        Long lastPostNum = postRepository.lastListNum();
+    public int lastPostNum() {
         // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        return lastPostNum == null ? 0 : lastPostNum;
+        return postRepository.lastPostNum() == null ? 0 : postRepository.lastPostNum();
     }
 
     public int postCount(SearchCond cond) {
