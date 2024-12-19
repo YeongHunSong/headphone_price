@@ -1,6 +1,5 @@
 package hpPrice.controller;
 
-import hpPrice.domain.Post;
 import hpPrice.paging.PageControl;
 import hpPrice.paging.PageDto;
 import hpPrice.search.SearchCond;
@@ -61,7 +60,6 @@ public class MainController {
             // 디시콘: 1180893
             // 동영상: 1176410 1181651
             // ## 게시글 내용 파싱 ##
-            // TODO 타임아웃에 안 걸리더라도, content 를 받아오지 못하는 경우 재시도할 수 있도록 로직 짜기
             sleep(300);
             Elements dcHeadphonePost = Jsoup.connect(DC_HEADPHONE_POST_URL + "1180893")
                     .userAgent(USER_AGENT)
@@ -77,6 +75,8 @@ public class MainController {
 
                 if (!(imageUrl.isEmpty())) { // 이미지가 있는지 확인 후 외부에서 불러올 수 있는 이미지 HOST 변경
                     switch ((imageUrl.charAt(13))) {
+                        case '3': // 업로드 이미지 링크
+                            break;
                         case '4': // 업로드 이미지 링크
                             break;
                         case '5': // 디시콘 이미지 링크

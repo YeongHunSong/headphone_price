@@ -1,5 +1,6 @@
 package hpPrice.service;
 
+import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
@@ -25,7 +26,7 @@ public class PostService {
         } else {
             postList.setUserUrl(gallLogDc(postList.getUserId()));
         }
-        log.info("저장한 게시글 = {}", postList.getTitle());
+        log.info("저장한 게시글 - {} {}", postList.getPostNum(), postList.getTitle());
         postRepository.newPostList(postList);
     }
 
@@ -33,17 +34,21 @@ public class PostService {
         postRepository.newPost(post);
     }
 
-    public int lastPostNum() {
+    public Long lastPostNum() {
         // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        return postRepository.lastPostNum() == null ? 0 : postRepository.lastPostNum();
+        return postRepository.lastPostNum() == null ? 0L : postRepository.lastPostNum();
     }
 
-    public int postCount(SearchCond cond) {
+    public Integer postCount(SearchCond cond) {
         return postRepository.totalCount(cond);
     }
 
     public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
         return postRepository.findAll(pageDto, cond);
+    }
+
+    public void errorReport(ErrorPost errorPost) {
+        postRepository.errorReport(errorPost);
     }
 
 

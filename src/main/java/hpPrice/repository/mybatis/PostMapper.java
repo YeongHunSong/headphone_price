@@ -1,5 +1,6 @@
 package hpPrice.repository.mybatis;
 
+import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
@@ -16,10 +17,12 @@ public interface PostMapper {
 
     void newPost(Post post);
 
-    Integer lastPostNum();
+    Long lastPostNum();
 
-    int totalCount(@Param("cond")SearchCond cond);
+    Integer totalCount(@Param("cond")SearchCond cond);
 
     List<PostList> findAll(@Param("pageDto") PageDto pageDto,
                            @Param("cond") SearchCond cond);
+
+    void errorReport(ErrorPost errorPost);
 }

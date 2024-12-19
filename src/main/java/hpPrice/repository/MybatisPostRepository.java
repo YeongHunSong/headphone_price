@@ -1,5 +1,6 @@
 package hpPrice.repository;
 
+import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
@@ -29,17 +30,22 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public Integer lastPostNum() {
+    public Long lastPostNum() {
         return postMapper.lastPostNum();
     }
 
     @Override
-    public int totalCount(SearchCond cond) {
+    public Integer totalCount(SearchCond cond) {
         return postMapper.totalCount(cond);
     }
 
     @Override
     public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
         return postMapper.findAll(pageDto, cond);
+    }
+
+    @Override
+    public void errorReport(ErrorPost errorPost) {
+        postMapper.errorReport(errorPost);
     }
 }

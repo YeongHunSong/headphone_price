@@ -1,5 +1,6 @@
 package hpPrice.repository;
 
+import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
 import hpPrice.search.SearchCond;
@@ -13,9 +14,11 @@ public interface PostRepository {
 
     void newPost(Post post);
 
-    Integer lastPostNum();
+    Long lastPostNum();
 
-    int totalCount(SearchCond cond);
+    Integer totalCount(SearchCond cond);
 
     List<PostList> findAll(PageDto pageDto, SearchCond cond);
+
+    void errorReport(ErrorPost errorPost);
 }

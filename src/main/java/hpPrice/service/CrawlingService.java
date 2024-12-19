@@ -1,5 +1,6 @@
 package hpPrice.service;
 
+import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +34,11 @@ public class CrawlingService {
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final int MAX_RETRY_COUNT = 3;
-    public static final int TIME_OUT = 10000;
-
-
-    // TODO select -> NPE 발생 X / selectFirst -> NPE 발생 O
+    public static final int TIME_OUT = 30000;
+    public static final int SLEEP_TIME = 450;
 
     // TODO TEST 용도
-    public static int LAST_PAGE = 5;
+    public static int LAST_PAGE = 20;
 
     // TODO 로딩 실패 시 재시도 로직 구현하기
                     /*
@@ -57,52 +56,75 @@ public class CrawlingService {
                      */
 
 
-//    @Scheduled(fixedDelay = 5000) // 60초 주기로 크롤링
-    public void crawlingDcTitle() {
+    @Scheduled(fixedDelay = 60000) // 60초 주기로 크롤링
+    public void parsingDcPost() {
         log.info("크롤링 동작 중 [{}]", LocalDateTime.now().format(DATE_FORMATTER));
 //        LAST_PAGE = lastPageSearch(); // DB가 업데이트 되어있는 상황에서는 굳이 lastPage 값을 구하기 위해 커넥션을 할 필요는 없는듯.
 
         // TODO ERROR 발생한 게시글 번호 저장할 수 있는 테이블 만들기
-        int tryCount = 0;
+        // TODO 에러로 종료된 경우 거기서부터 다시 DB 저장할 수 있도록 로직
+        long tryCount = 0L;
+        long errorPostNum = 0L;
+
+        parsing:
         while (tryCount < MAX_RETRY_COUNT) {
             try {
-                int dbLastPostNum = postService.lastPostNum();
-                
-                pageLoop: // crawlingAndParsing
+                Long dbLastPostNum = postService.lastPostNum();
+
+                pageLoop:
                 for (int i = 1; i <= LAST_PAGE; i++) { // TODO LAST_PAGE ==> lastPage
-                    // ## 게시글 리스트 파싱 ##
-                    sleep(300);
+                    // ### 게시글 리스트 파싱 ###
+                    sleep(SLEEP_TIME);
                     Elements dcHeadphonePostList = Jsoup.connect(DC_HEADPHONE_LIST_URL + "&page=" + i)
                             .userAgent(USER_AGENT)
                             .timeout(TIME_OUT)
                             .get()
                             .select(".gall_list .us-post");
-                    log.info("현재 파싱 페이지 -> [{}]page", i);
-                    for (Element postTitle : dcHeadphonePostList) {
-                        if (Integer.parseInt(postTitle.selectFirst(".gall_num").text()) == dbLastPostNum // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우)
-                                || Integer.parseInt(postTitle.selectFirst(".gall_num").text()) < dbLastPostNum) { // DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값이 삭제된 경우)
-                            log.info("DB 갱신 완료: break 페이지 -> [{}]page", i);
-                            break pageLoop; // 필요한 게시글까지 다 받아온 경우
-                        }
-                        parseDcPage(postTitle); // 리스트에서 한줄씩 착착착 DB에 저장
 
-                        // ## 게시글 내용 파싱 ##
-                        // TODO 타임아웃에 안 걸리더라도, content 를 받아오지 못하는 경우 재시도할 수 있도록 로직 짜기
-                        sleep(300);
-                        Elements dcHeadphonePost = Jsoup.connect(DC_HEADPHONE_POST_URL + postTitle.selectFirst(".gall_num").text())
+                    log.info("현재 페이지 -> [{}]page", i);
+                    listParsing:
+                    for (Element postTitle : dcHeadphonePostList) {
+                        Element postNum = postTitle.selectFirst(".gall_num");
+
+                        if (dbLastPostNum == Long.parseLong(postNum.text()) // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우)
+                                || dbLastPostNum > Long.parseLong(postNum.text())) { // DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값이 삭제된 경우)
+//                            log.info("DB 갱신 완료: 페이지 -> [{}]page", i);
+                            break parsing; // 필요한 게시글까지 다 받아온 경우
+                        }
+
+                        saveList(postTitle);
+
+                        // ### 게시글 내용 파싱 ###
+                        // TODO log 남기기
+                        errorPostNum = Long.parseLong(postNum.text());
+                        sleep(SLEEP_TIME);
+                        Elements dcHeadphonePost = Jsoup.connect(DC_HEADPHONE_POST_URL + postNum.text())
                                 .userAgent(USER_AGENT)
                                 .timeout(TIME_OUT)
                                 .get()
                                 .select(".write_div > *");
+
+                        if (dcHeadphonePost.isEmpty()) { // 게시글 내용 받아오기 실패
+                            throw new IOException("게시글 받아오기 실패 \n실패한 게시글 번호 => " + postNum);
+                            // TODO 실패한 게시글 번호 error table 에 저장하기
+                        }
+
                         dcHeadphonePost.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 업로드 동영상 링크 삭제
 
+                        postParsing:
                         for (Element postLine : dcHeadphonePost) {
                             Elements image = postLine.select("img");
-                            String imageUrl = image.attr("src");
+                            String imageUrl = image.attr("src"); // null X
 
-                            if (!(imageUrl.isEmpty())) { // 이미지가 있는지 확인 후 외부에서 불러올 수 있는 이미지 HOST 변경
+
+                            // dc 이미지 ex) https://dcimg3.dcinside.co.kr/viewimage.php?id=23b8c72ee0d33cb666b0d8b0&amp;no=24b0d769e
+                            // dc 콘    ex)
+
+                            if (imageUrl.contains("dcimg")) { // 이미지가 있는지 확인 후 DC 이미지의 경우 외부에서 불러올 수 있는 이미지 HOST 변경
                                 switch ((imageUrl.charAt(13))) { // TODO host 번호로 찾지말고 URL 안에 다른 값으로 찾기
-                                    case '4':
+                                    case '3': // 업로드 이미지 링크
+                                        break;
+                                    case '4': // 업로드 이미지 링크
                                         break;
                                     case '5': // 디시콘 이미지 링크
                                         image.attr("src", imageUrl.replace(DC_CON_HOST_BEFORE, DC_CON_HOST_AFTER));
@@ -114,19 +136,17 @@ public class CrawlingService {
                                         throw new IOException("이상한 URL => " + imageUrl);
                                 }
                             }
-                        }
+                        } // for postParsing
 
-                        // DB에 저장하는 코드
-                        postService.newPostDC(
-                                Post.newPost(
-                                        Long.valueOf(postTitle.selectFirst(".gall_num").text()),
-                                        dcHeadphonePost.outerHtml()));
+                        savePost(postNum, dcHeadphonePost);
 
 
-                    }
-                }
-            } catch (IOException e) { // timeOut, 데이터 없음 등등
+                    } // for listParsing
+                } // for pageLoop
+            } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
+                // TODO errorPostNum
                 tryCount++;
+                postService.errorReport(ErrorPost.errorReport(errorPostNum, e.toString()));
                 log.error("IOException -> ", e);
             } catch (NullPointerException e) {
                 log.error("NullPointerException -> ", e);
@@ -134,9 +154,17 @@ public class CrawlingService {
                 log.error("sleep 실패 -> ", e);
             } catch (Exception e) {
                 log.error("Exception -> ", e);
-            }
+            } // catch
+        } // while parsing
+        if (tryCount >= 3) {
+            log.info("재시도 횟수 초과");
+        } else {
+            log.info("parsing 종료");
         }
-    }
+    } // method
+
+
+
 
     private int lastPageSearch() {
         try {
@@ -158,7 +186,7 @@ public class CrawlingService {
         return 0;
     }
 
-    private void parseDcPage(Element element) {
+    private void saveList(Element element) {
         postService.newPostListDC(
                 PostList.newPostList(
                         Long.valueOf(element.selectFirst(".gall_num").text()),
@@ -167,5 +195,12 @@ public class CrawlingService {
                         element.selectFirst(".nickname em").text(),
                         element.selectFirst(".gall_writer").attr("data-uid"),
                         LocalDateTime.parse(element.selectFirst(".gall_date").attr("title"), CrawlingService.DATE_FORMATTER)));
+    }
+
+    private void savePost(Element postNum, Elements dcHeadphonePost) {
+        postService.newPostDC(
+                Post.newPost(
+                        Long.valueOf(postNum.text()),
+                        dcHeadphonePost.outerHtml()));
     }
 }

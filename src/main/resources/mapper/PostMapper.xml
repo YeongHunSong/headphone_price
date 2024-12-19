@@ -24,7 +24,7 @@
     </sql>
 
 
-    <select id="lastPostNum" resultType="int">
+    <select id="lastPostNum" resultType="Long">
         SELECT
             POST_NUM
         FROM
@@ -35,7 +35,7 @@
             1
     </select>
 
-    <select id="totalCount" resultType="int">
+    <select id="totalCount" resultType="Integer">
         SELECT
             COUNT(*)
         FROM
@@ -68,6 +68,14 @@
                 (POST_NUM, CONTENT)
             VALUES
                 (#{postNum}, #{content})
+    </insert>
+
+    <insert id="errorReport">
+        INSERT INTO
+        ERROR_POST
+        (POST_NUM, ERROR_DESC, ERROR_DATE)
+        VALUES
+        (#{postNum}, #{errorDesc}, now())
     </insert>
 
 
