@@ -48,4 +48,20 @@ public class MybatisPostRepository implements PostRepository {
     public void errorReport(ErrorPost errorPost) {
         postMapper.errorReport(errorPost);
     }
+
+    @Override
+    public Long errorCheck() {
+        return postMapper.errorCheck();
+    }
+
+    @Override
+    public void deleteErrorPostList(Long postNum) {
+        postMapper.deleteErrorPostList(postNum);
+    }
+
+    @Override
+    public void resolveError(Long errorNum) {
+        postMapper.resolveError(errorNum);
+    }
+
 }

@@ -25,4 +25,10 @@ public interface PostMapper {
                            @Param("cond") SearchCond cond);
 
     void errorReport(ErrorPost errorPost);
+
+    Long errorCheck();
+
+    void deleteErrorPostList(Long postNum);
+
+    void resolveError(Long errorNum);
 }

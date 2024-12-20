@@ -31,8 +31,7 @@
             POST_LIST
         ORDER BY
             W_DATE DESC
-        LIMIT
-            1
+        LIMIT 1
     </select>
 
     <select id="totalCount" resultType="Integer">
@@ -54,29 +53,58 @@
         <include refid="paging"/>
     </select>
 
+    <select id="errorCheck" resultType="Long">
+        SELECT
+            POST_NUM
+        FROM
+            ERROR_POST
+        WHERE
+            POST_NUM != 0
+            AND IS_RESOLVED = 0
+        LIMIT 1
+    </select>
+    
+    <update id="resolveError">
+        UPDATE
+            ERROR_POST
+        SET
+            IS_RESOLVED = 1,
+            RESOLVED_DATE = now()
+        WHERE
+            ERROR_NUM = #{errorNum}
+    </update>
+
+
     <insert id="newPostList">
         INSERT INTO
             POST_LIST
-                (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
-            VALUES
-                (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
+            (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
+        VALUES
+            (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
     </insert>
 
     <insert id="newPost">
         INSERT INTO
             POST
-                (POST_NUM, CONTENT)
-            VALUES
-                (#{postNum}, #{content})
+            (POST_NUM, CONTENT)
+        VALUES
+            (#{postNum}, #{content})
     </insert>
 
     <insert id="errorReport">
         INSERT INTO
-        ERROR_POST
-        (POST_NUM, ERROR_DESC, ERROR_DATE)
+            ERROR_POST
+            (POST_NUM, ERROR_DESC, ERROR_DATE)
         VALUES
-        (#{postNum}, #{errorDesc}, now())
+            (#{postNum}, #{errorDesc}, now())
     </insert>
+    
+    <delete id="deleteErrorPostList">
+        DELETE FROM
+            POST_LIST
+        WHERE
+            POST_NUM = #{postNum}
+    </delete>
 
 
 </mapper>

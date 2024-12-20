@@ -36,7 +36,8 @@ public class PostService {
 
     public Long lastPostNum() {
         // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        return postRepository.lastPostNum() == null ? 0L : postRepository.lastPostNum();
+        Long lastPostNum = postRepository.lastPostNum();
+        return lastPostNum == null ? 0L : lastPostNum;
     }
 
     public Integer postCount(SearchCond cond) {
@@ -50,6 +51,17 @@ public class PostService {
     public void errorReport(ErrorPost errorPost) {
         postRepository.errorReport(errorPost);
     }
+
+    public Long errorCheck() {
+        return postRepository.errorCheck();
+    }
+
+    public void resolveError(Long postNum, Long errorNum) {
+        postRepository.deleteErrorPostList(postNum);
+        postRepository.resolveError(errorNum);
+    }
+
+
 
 
     private String gallLogDc(String userId) {

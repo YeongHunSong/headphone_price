@@ -38,7 +38,7 @@ public class CrawlingService {
     public static final int SLEEP_TIME = 450;
 
     // TODO TEST 용도
-    public static int LAST_PAGE = 20;
+    public static int LAST_PAGE = 25;
 
     // TODO 로딩 실패 시 재시도 로직 구현하기
                     /*
@@ -64,15 +64,39 @@ public class CrawlingService {
         // TODO ERROR 발생한 게시글 번호 저장할 수 있는 테이블 만들기
         // TODO 에러로 종료된 경우 거기서부터 다시 DB 저장할 수 있도록 로직
         long tryCount = 0L;
-        long errorPostNum = 0L;
+        long errorPostNum = 0L; // 개꿀
+        int startPage = 1;
 
         parsing:
         while (tryCount < MAX_RETRY_COUNT) {
             try {
                 Long dbLastPostNum = postService.lastPostNum();
 
+                if (postService.errorCheck() != null) { // TODO 에러 table 에 값이 있으면 해당 값이 어느 페이지에 있는지 찾기
+
+
+                    for (int i = 1; i <= LAST_PAGE; i++) {
+                        sleep(SLEEP_TIME);
+                        Elements dcHeadphonePostList = Jsoup.connect(DC_HEADPHONE_LIST_URL + "&page=" + i)
+                                .userAgent(USER_AGENT)
+                                .timeout(TIME_OUT)
+                                .get()
+                                .select(".gall_list .us-post");
+
+                        for (Element postTitle : dcHeadphonePostList) {
+                            Element postNum = postTitle.selectFirst(".gall_num");
+
+                            if (postService.errorCheck() == Long.parseLong(postNum.toString())) {
+                                // TODO errorPostNum 이용하기
+                            }
+                        }
+                    }
+                }
+
+
+
                 pageLoop:
-                for (int i = 1; i <= LAST_PAGE; i++) { // TODO LAST_PAGE ==> lastPage
+                for (int i = startPage; i <= LAST_PAGE; i++) { // TODO LAST_PAGE ==> lastPage
                     // ### 게시글 리스트 파싱 ###
                     sleep(SLEEP_TIME);
                     Elements dcHeadphonePostList = Jsoup.connect(DC_HEADPHONE_LIST_URL + "&page=" + i)
@@ -106,7 +130,6 @@ public class CrawlingService {
 
                         if (dcHeadphonePost.isEmpty()) { // 게시글 내용 받아오기 실패
                             throw new IOException("게시글 받아오기 실패 \n실패한 게시글 번호 => " + postNum);
-                            // TODO 실패한 게시글 번호 error table 에 저장하기
                         }
 
                         dcHeadphonePost.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 업로드 동영상 링크 삭제

@@ -21,4 +21,11 @@ public interface PostRepository {
     List<PostList> findAll(PageDto pageDto, SearchCond cond);
 
     void errorReport(ErrorPost errorPost);
+
+    Long errorCheck();
+
+    void deleteErrorPostList(Long postNum);
+
+    void resolveError(Long errorNum);
+
 }
