@@ -21,24 +21,31 @@ import static java.lang.Thread.sleep;
 @Service
 @RequiredArgsConstructor
 public class CrawlingService {
-
     private final PostService postService;
 
-    public static final String DC_HEADPHONE_LIST_URL = "https://gall.dcinside.com/mgallery/board/lists/?id=newheadphone&search_head=120";
-    public static final String DC_HEADPHONE_POST_URL = "https://gall.dcinside.com/mgallery/board/view/?id=newheadphone&no=";
+    public static final String DC_GALL_URL = "https://gall.dcinside.com/mgallery/board/lists/?id=";
+    public static final String DC_POST_URL = "https://gall.dcinside.com/mgallery/board/view/?id=";
+
+    public static final String DC_GALL_NAME = "sff";
+    public static final String DC_POST_QUERY = "&no=";
+
+    public static final String DC_TAB_QUERY = "&search_head=";
+    public static final String DC_TAB_NUM = "40";
+
     public static final String DC_IMG_HOST_BEFORE = "dcimg8"; // dcimg1 / dcimg5 / dcimg6 / dcimg8 / dcimg9 // TODO 여기 있는 호스트를 전부 아래 호스트로 변경하기
     public static final String DC_IMG_HOST_AFTER = "dcimg3"; // dcimg2 / dcimg3 / dcimg4 / dcimg7
     public static final String DC_CON_HOST_BEFORE = "dcimg5";
     public static final String DC_CON_HOST_AFTER = "dcimg1"; // 디시콘은 dcimg1만 가능
+
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final int MAX_RETRY_COUNT = 3;
-    public static final int TIME_OUT = 30000;
+    public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 450;
 
     // TODO TEST 용도
-    public static int LAST_PAGE = 25;
+    public static int LAST_PAGE = 30;
 
     // TODO 로딩 실패 시 재시도 로직 구현하기
                     /*
@@ -64,42 +71,47 @@ public class CrawlingService {
         // TODO ERROR 발생한 게시글 번호 저장할 수 있는 테이블 만들기
         // TODO 에러로 종료된 경우 거기서부터 다시 DB 저장할 수 있도록 로직
         long tryCount = 0L;
-        long errorPostNum = 0L; // 개꿀
+        long errorPostNum = 0L;
         int startPage = 1;
 
         parsing:
         while (tryCount < MAX_RETRY_COUNT) {
             try {
                 Long dbLastPostNum = postService.lastPostNum();
+                Long errorNum = postService.errorCheck();
 
-                if (postService.errorCheck() != null) { // TODO 에러 table 에 값이 있으면 해당 값이 어느 페이지에 있는지 찾기
-
+                errorCheck:
+                if (errorNum != null) { // ERROR 발생한 page 찾아서 반환
+                    log.info("ERROR 복구 모드");
 
                     for (int i = 1; i <= LAST_PAGE; i++) {
                         sleep(SLEEP_TIME);
-                        Elements dcHeadphonePostList = Jsoup.connect(DC_HEADPHONE_LIST_URL + "&page=" + i)
+                        Elements dcHeadphonePostList = Jsoup.connect(DC_GALL_URL + DC_GALL_NAME + DC_TAB_QUERY + DC_TAB_NUM + "&page=" + i)
                                 .userAgent(USER_AGENT)
                                 .timeout(TIME_OUT)
                                 .get()
                                 .select(".gall_list .us-post");
 
                         for (Element postTitle : dcHeadphonePostList) {
-                            Element postNum = postTitle.selectFirst(".gall_num");
+                            Long postNum = Long.parseLong(postTitle.selectFirst(".gall_num").text());
 
-                            if (postService.errorCheck() == Long.parseLong(postNum.toString())) {
-                                // TODO errorPostNum 이용하기
+                            if (errorPostNum == postNum) {
+                                postService.resolveError(postNum, errorNum);
+                                startPage = i;
+                                log.info("ERROR 발생 페이지 = [" + i + " page]");
+                                break errorCheck;
                             }
                         }
                     }
                 }
 
-
+                // TODO ERROR 발생한 페이지는 찾았는데, 해당 페이지에서 다시 데이터 저장을 시작하면 DB 중복값으로 Exception 발생함. 이거는 어떻게 해결할까?
 
                 pageLoop:
                 for (int i = startPage; i <= LAST_PAGE; i++) { // TODO LAST_PAGE ==> lastPage
                     // ### 게시글 리스트 파싱 ###
                     sleep(SLEEP_TIME);
-                    Elements dcHeadphonePostList = Jsoup.connect(DC_HEADPHONE_LIST_URL + "&page=" + i)
+                    Elements dcHeadphonePostList = Jsoup.connect(DC_GALL_URL + DC_GALL_NAME + DC_TAB_QUERY + DC_TAB_NUM + "&page=" + i)
                             .userAgent(USER_AGENT)
                             .timeout(TIME_OUT)
                             .get()
@@ -122,7 +134,7 @@ public class CrawlingService {
                         // TODO log 남기기
                         errorPostNum = Long.parseLong(postNum.text());
                         sleep(SLEEP_TIME);
-                        Elements dcHeadphonePost = Jsoup.connect(DC_HEADPHONE_POST_URL + postNum.text())
+                        Elements dcHeadphonePost = Jsoup.connect(DC_POST_URL + DC_GALL_NAME + DC_POST_QUERY + postNum.text())
                                 .userAgent(USER_AGENT)
                                 .timeout(TIME_OUT)
                                 .get()
@@ -145,6 +157,8 @@ public class CrawlingService {
 
                             if (imageUrl.contains("dcimg")) { // 이미지가 있는지 확인 후 DC 이미지의 경우 외부에서 불러올 수 있는 이미지 HOST 변경
                                 switch ((imageUrl.charAt(13))) { // TODO host 번호로 찾지말고 URL 안에 다른 값으로 찾기
+                                    case '1': // 업로드 이미지 링크
+                                        break;
                                     case '3': // 업로드 이미지 링크
                                         break;
                                     case '4': // 업로드 이미지 링크
@@ -169,6 +183,7 @@ public class CrawlingService {
             } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
                 // TODO errorPostNum
                 tryCount++;
+                log.info("재시도 중 = {} 회", tryCount);
                 postService.errorReport(ErrorPost.errorReport(errorPostNum, e.toString()));
                 log.error("IOException -> ", e);
             } catch (NullPointerException e) {
@@ -191,7 +206,7 @@ public class CrawlingService {
 
     private int lastPageSearch() {
         try {
-            String pageUrl = Jsoup.connect(DC_HEADPHONE_LIST_URL)
+            String pageUrl = Jsoup.connect(DC_GALL_URL + DC_GALL_NAME)
                     .userAgent(USER_AGENT)
                     .timeout(TIME_OUT)
                     .get() // post()

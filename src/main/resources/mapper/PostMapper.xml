@@ -11,14 +11,19 @@
 
     <sql id="search">
         <where>
-            <if test="cond != null and cond.searchType == 'title' and cond.keyword != ''">
-                TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
-            </if>
-            <if test="cond != null and cond.searchType == 'nickname' and cond.keyword != ''">
-                NICKNAME LIKE CONCAT('%', #{cond.keyword}, '%')
-            </if>
-            <if test="cond != null and cond.searchType == 'userId' and cond.keyword != ''">
-                USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+            <if test="cond != null">
+                <if test="cond.searchType == 'title' and cond.keyword != ''">
+                    TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                </if>
+                <if test="cond.searchType == 'nickname' and cond.keyword != ''">
+                    NICKNAME LIKE CONCAT('%', #{cond.keyword}, '%')
+                </if>
+                <if test="cond.searchType == 'userId' and cond.keyword != ''">
+                    USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+                </if>
+                <if test="cond.searchType == 'content' and cond.keyword != ''"> <!-- TODO 내용 검색 미리 추가 -->
+                    USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+                </if>
             </if>
         </where>
     </sql>
@@ -53,26 +58,7 @@
         <include refid="paging"/>
     </select>
 
-    <select id="errorCheck" resultType="Long">
-        SELECT
-            POST_NUM
-        FROM
-            ERROR_POST
-        WHERE
-            POST_NUM != 0
-            AND IS_RESOLVED = 0
-        LIMIT 1
-    </select>
-    
-    <update id="resolveError">
-        UPDATE
-            ERROR_POST
-        SET
-            IS_RESOLVED = 1,
-            RESOLVED_DATE = now()
-        WHERE
-            ERROR_NUM = #{errorNum}
-    </update>
+
 
 
     <insert id="newPostList">
@@ -90,6 +76,30 @@
         VALUES
             (#{postNum}, #{content})
     </insert>
+
+
+
+
+    <select id="errorCheck" resultType="Long">
+        SELECT
+            ERROR_NUM
+        FROM
+            ERROR_POST
+        WHERE
+            POST_NUM != 0
+            AND IS_RESOLVED = 0
+        LIMIT 1
+    </select>
+
+    <update id="resolveError">
+        UPDATE
+            ERROR_POST
+        SET
+            IS_RESOLVED = 1,
+            RESOLVED_DATE = now()
+        WHERE
+            ERROR_NUM = #{errorNum}
+    </update>
 
     <insert id="errorReport">
         INSERT INTO

@@ -52,57 +52,57 @@ public class MainController {
     @ResponseBody
     @GetMapping("/test")
     public String test() {
-        try { // TODO TEST 필요한 게시글 : 1177280
-
-
-            // 링크: 1178263
-            // 유동: 1177472
-            // 디시콘: 1180893
-            // 동영상: 1176410 1181651
-            // ## 게시글 내용 파싱 ##
-            sleep(300);
-            Elements dcHeadphonePost = Jsoup.connect(DC_HEADPHONE_POST_URL + "1180893")
-                    .userAgent(USER_AGENT)
-                    .timeout(TIME_OUT)
-                    .get()
-                    .select(".write_div > *");
-            System.out.println("원본 \n" + dcHeadphonePost.outerHtml());
-            dcHeadphonePost.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 업로드 동영상 링크 삭제
-
-            for (Element postLine : dcHeadphonePost) {
-                Elements image = postLine.select("img");
-                String imageUrl = image.attr("src");
-
-                if (!(imageUrl.isEmpty())) { // 이미지가 있는지 확인 후 외부에서 불러올 수 있는 이미지 HOST 변경
-                    switch ((imageUrl.charAt(13))) {
-                        case '3': // 업로드 이미지 링크
-                            break;
-                        case '4': // 업로드 이미지 링크
-                            break;
-                        case '5': // 디시콘 이미지 링크
-                            image.attr("src", imageUrl.replace(DC_CON_HOST_BEFORE, DC_CON_HOST_AFTER));
-                            break;
-                        case '8': // 업로드 이미지 링크
-                            image.attr("src", imageUrl.replace(DC_IMG_HOST_BEFORE, DC_IMG_HOST_AFTER));
-                            break;
-                        default:
-                            throw new IOException("이상한 URL => " + imageUrl);
-                    }
-                }
-
-                } // for
-            System.out.println("결과물 \n" + dcHeadphonePost.outerHtml());
-            return dcHeadphonePost.toString();
-
-        } catch (IOException e) { // timeOut, 데이터 없음 등등
-            log.error("IOException -> ", e);
-        } catch (NullPointerException e) {
-            log.error("NullPointerException -> ", e);
-        } catch (InterruptedException e) {
-            log.error("sleep 실패 -> ", e);
-        } catch (Exception e) {
-            log.error("Exception -> ", e);
-        }
-        return "bad";
+//        try { // TODO TEST 필요한 게시글 : 1177280
+//
+//
+//            // 링크: 1178263
+//            // 유동: 1177472
+//            // 디시콘: 1180893
+//            // 동영상: 1176410 1181651
+//            // ## 게시글 내용 파싱 ##
+//            sleep(300);
+//            Elements dcHeadphonePost = Jsoup.connect(DC_POST_URL + DC_GALL_NAME + DC_POST_QUERY + "1180893")
+//                    .userAgent(USER_AGENT)
+//                    .timeout(TIME_OUT)
+//                    .get()
+//                    .select(".write_div > *");
+//            System.out.println("원본 \n" + dcHeadphonePost.outerHtml());
+//            dcHeadphonePost.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 업로드 동영상 링크 삭제
+//
+//            for (Element postLine : dcHeadphonePost) {
+//                Elements image = postLine.select("img");
+//                String imageUrl = image.attr("src");
+//
+//                if (!(imageUrl.isEmpty())) { // 이미지가 있는지 확인 후 외부에서 불러올 수 있는 이미지 HOST 변경
+//                    switch ((imageUrl.charAt(13))) {
+//                        case '3': // 업로드 이미지 링크
+//                            break;
+//                        case '4': // 업로드 이미지 링크
+//                            break;
+//                        case '5': // 디시콘 이미지 링크
+//                            image.attr("src", imageUrl.replace(DC_CON_HOST_BEFORE, DC_CON_HOST_AFTER));
+//                            break;
+//                        case '8': // 업로드 이미지 링크
+//                            image.attr("src", imageUrl.replace(DC_IMG_HOST_BEFORE, DC_IMG_HOST_AFTER));
+//                            break;
+//                        default:
+//                            throw new IOException("이상한 URL => " + imageUrl);
+//                    }
+//                }
+//
+//                } // for
+//            System.out.println("결과물 \n" + dcHeadphonePost.outerHtml());
+//            return dcHeadphonePost.toString();
+//
+//        } catch (IOException e) { // timeOut, 데이터 없음 등등
+//            log.error("IOException -> ", e);
+//        } catch (NullPointerException e) {
+//            log.error("NullPointerException -> ", e);
+//        } catch (InterruptedException e) {
+//            log.error("sleep 실패 -> ", e);
+//        } catch (Exception e) {
+//            log.error("Exception -> ", e);
+//        }
+        return "<img src=\"https://dcimg1.dcinside.com/viewimage.php?id=3ebbd6&no=24b0d769e1d32ca73de983fa11d02831c6c0b61130e4349ff064c41af0decfa907e842fe92c23722ec25622c70376e656d9726515b3e64a3aa899b38df3833\"/>";
     } // try-catch
 }
