@@ -103,6 +103,6 @@ public class MainController {
 //        } catch (Exception e) {
 //            log.error("Exception -> ", e);
 //        }
-        return "<img src=\"https://dcimg1.dcinside.com/viewimage.php?id=3ebbd6&no=24b0d769e1d32ca73de983fa11d02831c6c0b61130e4349ff064c41af0decfa907e842fe92c23722ec25622c70376e656d9726515b3e64a3aa899b38df3833\"/>";
+        return "<img src=\"https://dcimg3.dcinside.co.kr/viewimage.php?id=3ebbd6&amp;no=24b0d769e1d32ca73de886fa11d02831fdb1643214b32d9bb1b5ab3e58bb89b1216bffb62d1ebdb9618bca1b2397cbbb31cc16f365ff7ff1b8edce6f50754e1845bffcae\"/>";
     } // try-catch
 }

@@ -3,6 +3,7 @@ package hpPrice.repository;
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
+import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.mybatis.PostMapper;
@@ -50,7 +51,7 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public Long errorCheck() {
+    public ErrorDto errorCheck() {
         return postMapper.errorCheck();
     }
 

@@ -80,9 +80,10 @@
 
 
 
-    <select id="errorCheck" resultType="Long">
+    <select id="errorCheck" resultType="ErrorDto">
         SELECT
-            ERROR_NUM
+            ERROR_NUM,
+            POST_NUM
         FROM
             ERROR_POST
         WHERE

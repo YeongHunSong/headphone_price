@@ -16,7 +16,7 @@ public class ErrorPost {
 
     private LocalDateTime resolvedDate;
 
-    public ErrorPost() {
+    private ErrorPost() {
     }
 
     private ErrorPost(Long postNum, String errorDesc) {

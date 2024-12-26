@@ -22,7 +22,7 @@ public class PostList {
 
     private LocalDateTime wDate;
 
-    public PostList() {
+    private PostList() {
     }
 
     private PostList(Long postNum, String title, String url, String nickname, String userId, LocalDateTime wDate) {

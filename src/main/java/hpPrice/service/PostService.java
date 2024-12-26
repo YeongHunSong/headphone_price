@@ -3,6 +3,7 @@ package hpPrice.service;
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
+import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 import hpPrice.repository.PostRepository;
@@ -52,7 +53,7 @@ public class PostService {
         postRepository.errorReport(errorPost);
     }
 
-    public Long errorCheck() {
+    public ErrorDto errorCheck() {
         return postRepository.errorCheck();
     }
 

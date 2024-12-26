@@ -3,6 +3,7 @@ package hpPrice.repository;
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostList;
+import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
 
@@ -22,7 +23,7 @@ public interface PostRepository {
 
     void errorReport(ErrorPost errorPost);
 
-    Long errorCheck();
+    ErrorDto errorCheck();
 
     void deleteErrorPostList(Long postNum);
 

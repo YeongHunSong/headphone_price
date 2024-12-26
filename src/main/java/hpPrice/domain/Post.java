@@ -8,7 +8,7 @@ public class Post {
 
     private String content;
 
-    public Post() {
+    private Post() {
     }
 
     private Post(Long postNum, String content) {
