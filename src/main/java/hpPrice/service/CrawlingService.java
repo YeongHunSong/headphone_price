@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 
@@ -50,53 +50,31 @@ public class CrawlingService {
     @Scheduled(fixedDelay = 60000) // 60초 주기로 크롤링
     public void parsingDcPost() {
         log.info("크롤링 동작 중 [{}]", LocalDateTime.now().format(DATE_FORMATTER));
-
-        // TODO 에러로 종료된 경우 거기서부터 다시 DB 저장할 수 있도록 로직
         long nowPostNum = 0L;
-        int startPage = 1;
 
         parsing:
         try {
 //            LAST_PAGE = lastPageSearch(); // DB가 업데이트 되어있는 상황에서는 굳이 lastPage 값을 구하기 위해 커넥션을 할 필요는 없는듯.
             long dbLastPostNum = postService.lastPostNum();
             ErrorDto errorCheck = postService.errorCheck();
+            int startPage = getErrorPage(errorCheck); // ERROR 발생했는지 확인 후 발생했다면 ERROR 발생한 페이지 반환, 발생하지 않았다면 1 반환.
 
-            errorPageSearch:
-            if (errorCheck != null) { // ERROR 발생했는지 확인
-                log.info("ERROR 복구 모드");
-                for (int page = 1; page <= LAST_PAGE; page++) {
-                    for (Element postTitle : parsing(DC_GALL_URL + DC_TAB_PAGE + page, ".gall_list .us-post")) {
-                        if (errorCheck.getPostNum() == Long.parseLong(postTitle.selectFirst(".gall_num").text())) {
-                            postService.resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
-                            startPage = page; // ERROR 발생한 page 찾아서 넣어줌
-                            log.info("ERROR 발생 페이지 = [" + startPage + " page]");
-                            break errorPageSearch;
-                        }
-                    }
-                }
-            }
-
-            // TODO ERROR 발생한 페이지는 찾았는데, 해당 페이지에서 다시 데이터 저장을 시작하면 DB 중복값으로 Exception 발생함. 이거는 어떻게 해결할까?
-            pageLoop:
             for (int page = startPage; page <= LAST_PAGE; page++) { // TODO LAST_PAGE ==> lastPage
                 log.info("현재 페이지 -> [{}]page", page);
 
+                // TODO DB에 저장하는 도중에 글이 추가가 되고, 페이지 마지막 글이어서 딱 넘어가는 순간 다음 페이지 첫번째 글이라 중복 오류가 발생했을 때에 대한 처리 추가
+
+
                 // ### 게시글 리스트 파싱 ###
-                for (Element postTitle : parsing(DC_GALL_URL + DC_TAB_PAGE + page, ".gall_list .us-post")) {
+                for (Element postTitle : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE + page, ".gall_list .us-post")) {
                     nowPostNum = Long.parseLong(postTitle.selectFirst(".gall_num").text());
-                    if (errorCheck != null && nowPostNum > errorCheck.getPostNum()) {
-                        log.info("넘어가");
-                        continue; // 에러 복구 시 에러 발생한 페이지에서 이미 저장된 게시글 넘김
-                    }
-                    if (dbLastPostNum == nowPostNum || dbLastPostNum > nowPostNum) { // TODO 에러 복구 모드에서 왜 break 가 동작하는지?
-                        log.info("끝남");
-                        break parsing;
-                    }
-                        // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값이 삭제된 경우)
+                    if (errorCheck != null && nowPostNum > errorCheck.getPostNum()) continue; // 에러 복구 시 에러 발생한 페이지에서 이미 저장된 게시글 넘김
+                    if (dbLastPostNum == nowPostNum || (errorCheck == null && dbLastPostNum > nowPostNum)) break parsing;
+                    // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
                     saveList(postTitle);
 
-                    // ### 게시글 내용 파싱 ### // TODO log 남기기 // #############
-                    Elements post = parsing(DC_POST_URL + DC_POST_NUM + nowPostNum, ".write_div > *");
+                    // ### 게시글 내용 파싱 ###
+                    Elements post = connectAndParsing(DC_POST_URL + DC_POST_NUM + nowPostNum, ".write_div > *");
                     post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상 링크 삭제
                     for (Element postLine : post) imageUrlCheck(postLine);
                     savePost(nowPostNum, post);
@@ -104,20 +82,22 @@ public class CrawlingService {
             } // for pageLoop
         } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
             postService.errorReport(ErrorPost.errorReport(nowPostNum, e.toString()));
-            log.error("IOException -> ", e);
-        } catch (NullPointerException e) {
-            log.error("NullPointerException -> ", e);
-        } catch (InterruptedException e) {
-            log.error("sleep 실패 -> ", e);
+            log.error("크롤링 사이트 연결 관련 Exception -> ", e);
+        } catch (DuplicateKeyException e) {
+            postService.errorReport(ErrorPost.errorReport(nowPostNum, e.toString())); // TODO 이 경우에는 post_list 랑 post 테이블 둘 다 지우고 다시 시작하면 될듯.
+            log.error("DB값 중복 Exception -> ", e);
         } catch (Exception e) {
-            log.error("Exception -> ", e);
+            log.error("Exception 발생 -> ", e);
         } // catch
         log.info("parsing 종료");
     } // method
 
 
 
-    private Elements parsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
+
+    // ### 코드 정리용 메서드 ###
+    
+    private Elements connectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
                 sleep(SLEEP_TIME);
@@ -126,11 +106,12 @@ public class CrawlingService {
                         .timeout(TIME_OUT)
                         .get()
                         .select(selectQuery);
-                if (parsingData.isEmpty()) throw new IOException("화이트 페이지 에러");
+                if (parsingData.isEmpty()) throw new IOException("화이트 페이지 에러 발생 " + connectUrl);
                 return parsingData;
             } catch (IOException e) {
                 if (tryCount == MAX_RETRY_COUNT - 1) throw e;
                 log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
+                log.info("에러 발생한 URL = {}", connectUrl);
                 sleep(SLEEP_TIME * (tryCount + 1));
             }
         }
@@ -138,9 +119,24 @@ public class CrawlingService {
     }
 
     private int lastPageSearch() throws IOException, InterruptedException {
-        String pageUrl = parsing(DC_GALL_URL + DC_TAB_PAGE, ".page_end")
-                        .attr("href"); // 파싱 태그값 변경된 경우, URL 변경된 경우 NPE 발생
+        String pageUrl = connectAndParsing(DC_GALL_URL + DC_TAB_PAGE, ".page_end")
+                .attr("href"); // 파싱 태그값 변경된 경우, URL 변경된 경우 NPE 발생
         return Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
+    }
+
+    private int getErrorPage(ErrorDto errorCheck) throws IOException, InterruptedException {
+        if (errorCheck != null) { log.info("ERROR 복구 모드");
+            for (int errorPage = 1; errorPage <= LAST_PAGE; errorPage++) {
+                for (Element postTitle : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE + errorPage, ".gall_list .us-post")) {
+                    if (errorCheck.getPostNum() == Long.parseLong(postTitle.selectFirst(".gall_num").text())) {
+                        postService.resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
+                        log.info("ERROR 발생 페이지 = [" + errorPage + " page]");
+                        return errorPage;
+                    }
+                }
+            }
+        }
+        return 1; // ERROR 없음
     }
 
     private void saveList(Element element) {
