@@ -27,8 +27,8 @@ public class PostService {
         } else {
             postList.setUserUrl(gallLogDc(postList.getUserId()));
         }
-        log.info("저장한 게시글 - {} {}", postList.getPostNum(), postList.getTitle());
         postRepository.newPostList(postList);
+        log.info("저장한 게시글 - {} {}", postList.getPostNum(), postList.getTitle());
     }
 
     public void newPostDC(Post post) {
@@ -61,7 +61,6 @@ public class PostService {
         postRepository.deleteErrorPostList(postNum);
         postRepository.resolveError(errorNum);
     }
-
 
 
 
