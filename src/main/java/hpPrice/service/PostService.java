@@ -35,6 +35,15 @@ public class PostService {
         postRepository.newPost(post);
     }
 
+    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
+        return postRepository.findAll(pageDto, cond);
+    }
+
+    public Post postDetail(Long postNum) {
+        return postRepository.postDetail(postNum);
+    }
+
+
     public Long lastPostNum() {
         // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
         Long lastPostNum = postRepository.lastPostNum();
@@ -43,10 +52,6 @@ public class PostService {
 
     public Integer postCount(SearchCond cond) {
         return postRepository.totalCount(cond);
-    }
-
-    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
-        return postRepository.findAll(pageDto, cond);
     }
 
     public void errorReport(ErrorPost errorPost) {

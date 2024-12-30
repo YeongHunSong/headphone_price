@@ -1,5 +1,6 @@
 package hpPrice.controller;
 
+import hpPrice.domain.Post;
 import hpPrice.paging.PageControl;
 import hpPrice.paging.PageDto;
 import hpPrice.search.SearchCond;
@@ -7,9 +8,6 @@ import hpPrice.service.CrawlingService;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +15,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
-
-import static java.lang.Thread.sleep;
-import static hpPrice.service.CrawlingService.*;
 
 
 @Slf4j
@@ -29,19 +23,23 @@ import static hpPrice.service.CrawlingService.*;
 public class MainController {
 
     private final PostService postService;
-    private final CrawlingService crawlingService;
 
     // TODO image 불러오는 Mapping 추가
 
-    @GetMapping("/dcheadphone")
+    @GetMapping("/dcsff")
     public String dcHeadphone(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
         model.addAttribute("pageControl", PageControl.create(pageDto, postService.postCount(cond)));
         model.addAttribute("postList", postService.findAll(pageDto, cond));
-        return "dc/dcHeadphonePrice";
+        return "dc/home";
     }
 
-    @GetMapping("/dcheadphone/{postNum}")
+    @GetMapping("/dcsff/{postNum}")
     public String dcHeadphoneDetail(@PathVariable Long postNum, Model model) {
+
+        Post post = postService.postDetail(postNum);
+
+        model.addAttribute("post", post);
+
         // TODO 글 내용 집어넣기
         // TODO padding 5px
 

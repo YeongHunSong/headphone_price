@@ -31,6 +31,17 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
+    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
+        return postMapper.findAll(pageDto, cond);
+    }
+
+    @Override
+    public Post postDetail(Long postNum) {
+        return postMapper.postDetail(postNum);
+    }
+
+
+    @Override
     public Long lastPostNum() {
         return postMapper.lastPostNum();
     }
@@ -38,11 +49,6 @@ public class MybatisPostRepository implements PostRepository {
     @Override
     public Integer totalCount(SearchCond cond) {
         return postMapper.totalCount(cond);
-    }
-
-    @Override
-    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
-        return postMapper.findAll(pageDto, cond);
     }
 
     @Override

@@ -15,11 +15,14 @@ public interface PostRepository {
 
     void newPost(Post post);
 
+    List<PostList> findAll(PageDto pageDto, SearchCond cond);
+
+    Post postDetail(Long postNum);
+
+
     Long lastPostNum();
 
     Integer totalCount(SearchCond cond);
-
-    List<PostList> findAll(PageDto pageDto, SearchCond cond);
 
     void errorReport(ErrorPost errorPost);
 

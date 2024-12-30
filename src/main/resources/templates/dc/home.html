@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-  <title>DC 헤드폰 갤러리 팝니다 글목록</title>
+  <title>DC SFF 거래 글목록</title>
 </head>
 
 <body>
@@ -13,7 +13,7 @@
   <div class="row">
     <div class="py-3">
       <button class="w-auto btn btn-success float-start row"
-              th:onclick="|location.href='@{/dcheadphone}'|" type="button">전체글</button>
+              th:onclick="|location.href='@{/home}'|" type="button">전체글</button>
       <form th:action method="get" class="row float-end">
         <div class="col-auto">
           <label>
@@ -48,7 +48,7 @@
       <tbody>
       <tr th:each="postList : ${postList}">
         <td class="p-1"><p th:text="|${postList.postNum}|">글 번호</p></td>
-        <td class="p-1"><a th:text="|${postList.title}|" th:href="@{|${postList.url}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
+        <td class="p-1"><a th:text="|${postList.title}|" th:href="@{|/dcsff/${postList.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
         <td class="p-1"><p th:text="${#temporals.format(postList.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
         <td class="p-1"><p th:text="|${postList.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>
         <td class="p-1"><p th:text="|${postList.userId}|" th:classappend="${postList.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>

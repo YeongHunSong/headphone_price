@@ -29,24 +29,6 @@
     </sql>
 
 
-    <select id="lastPostNum" resultType="Long">
-        SELECT
-            POST_NUM
-        FROM
-            POST_LIST
-        ORDER BY
-            W_DATE DESC
-        LIMIT 1
-    </select>
-
-    <select id="totalCount" resultType="Integer">
-        SELECT
-            COUNT(*)
-        FROM
-            POST_LIST
-        <include refid="search"/>
-    </select>
-
     <select id="findAll" resultType="PostList">
         SELECT
             *
@@ -58,7 +40,14 @@
         <include refid="paging"/>
     </select>
 
-
+    <select id="postDetail" resultType="Post">
+        SELECT
+            *
+        FROM
+            POST
+        WHERE
+            POST_NUM = #{postNum}
+    </select>
 
 
     <insert id="newPostList">
@@ -79,6 +68,25 @@
 
 
 
+
+
+    <select id="lastPostNum" resultType="Long">
+        SELECT
+        POST_NUM
+        FROM
+        POST_LIST
+        ORDER BY
+        W_DATE DESC
+        LIMIT 1
+    </select>
+
+    <select id="totalCount" resultType="Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        POST_LIST
+        <include refid="search"/>
+    </select>
 
     <select id="errorCheck" resultType="ErrorDto">
         SELECT
@@ -116,6 +124,5 @@
         WHERE
             POST_NUM = #{postNum}
     </delete>
-
 
 </mapper>

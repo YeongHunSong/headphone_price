@@ -18,12 +18,15 @@ public interface PostMapper {
 
     void newPost(Post post);
 
+    List<PostList> findAll(@Param("pageDto") PageDto pageDto,
+                           @Param("cond") SearchCond cond);
+
+    Post postDetail(Long postNum);
+
+
     Long lastPostNum();
 
     Integer totalCount(@Param("cond")SearchCond cond);
-
-    List<PostList> findAll(@Param("pageDto") PageDto pageDto,
-                           @Param("cond") SearchCond cond);
 
     void errorReport(ErrorPost errorPost);
 
