@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-  <title>DC SFF 거래 글목록</title>
+  <title>DC SFF 갤러리 거래 글목록</title>
 </head>
 
 <body>
@@ -13,7 +13,7 @@
   <div class="row">
     <div class="py-3">
       <button class="w-auto btn btn-success float-start row"
-              th:onclick="|location.href='@{/home}'|" type="button">전체글</button>
+              th:onclick="|location.href='@{/dcsff}'|" type="button">전체글</button>
       <form th:action method="get" class="row float-end">
         <div class="col-auto">
           <label>
@@ -41,22 +41,22 @@
         <th class="col-5">제목</th>
         <th class="col-1">작성일</th>
         <th class="col-3">닉네임</th>
-        <th class="col-2">아이디</th>
+<!--        <th class="col-2">아이디</th>-->
         <th class="col-1">갤로그</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="postList : ${postList}">
-        <td class="p-1"><p th:text="|${postList.postNum}|">글 번호</p></td>
-        <td class="p-1"><a th:text="|${postList.title}|" th:href="@{|/dcsff/${postList.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
-        <td class="p-1"><p th:text="${#temporals.format(postList.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
-        <td class="p-1"><p th:text="|${postList.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>
-        <td class="p-1"><p th:text="|${postList.userId}|" th:classappend="${postList.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>
-        <td class="p-1"><a th:text="링크" th:href="@{|${postList.userUrl}|}" th:classappend="${postList.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
+      <tr th:each="postItem : ${postItem}">
+        <td class="p-1"><p th:text="|${postItem.postNum}|">글 번호</p></td>
+        <td class="p-1"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
+        <td class="p-1"><p th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
+        <td class="p-1"><p th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</p></td>
+<!--        <td class="p-1"><p th:text="|${postItem.userId}|" th:classappend="${postItem.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>-->
+        <td class="p-1"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
       </tr>
       </tbody>
     </table>
-    <p class="text-center" th:if="${#lists.size(postList) == 0}">게시글이 없습니다.</p>
+    <p class="text-center" th:if="${#lists.size(postItem) == 0}">게시글이 없습니다.</p>
   </div>
 
   <div>

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class PostList {
+public class PostItem {
     private Long postNum;
 
     private String title;
@@ -22,10 +22,10 @@ public class PostList {
 
     private LocalDateTime wDate;
 
-    private PostList() {
+    private PostItem() {
     }
 
-    private PostList(Long postNum, String title, String url, String nickname, String userId, LocalDateTime wDate) {
+    private PostItem(Long postNum, String title, String url, String nickname, String userId, LocalDateTime wDate) {
         this.postNum = postNum;
         this.title = title;
         this.url = url;
@@ -34,8 +34,8 @@ public class PostList {
         this.wDate = wDate;
     }
 
-    public static PostList newPostList(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {
-        return new PostList(postNum, title, url, nickname, userId, date);
+    public static PostItem newPostItem(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {
+        return new PostItem(postNum, title, url, nickname, userId, date);
     }
 
 }

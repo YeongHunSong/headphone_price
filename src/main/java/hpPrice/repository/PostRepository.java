@@ -2,7 +2,7 @@ package hpPrice.repository;
 
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
-import hpPrice.domain.PostList;
+import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
@@ -11,25 +11,33 @@ import java.util.List;
 
 public interface PostRepository {
 
-    void newPostList(PostList postList);
+    // INSERT
+    void newPostItem(PostItem postItem);
 
     void newPost(Post post);
 
-    List<PostList> findAll(PageDto pageDto, SearchCond cond);
-
-    Post postDetail(Long postNum);
+    void newErrorPost(ErrorPost errorPost);
 
 
-    Long lastPostNum();
+    // SELECT
+    List<PostItem> findPagedPostItemsBySearchCond(PageDto pageDto, SearchCond cond);
 
-    Integer totalCount(SearchCond cond);
+    PostItem findPostItemByPostNum(Long postNum);
 
-    void errorReport(ErrorPost errorPost);
+    Post findPostByPostNum(Long postNum);
 
-    ErrorDto errorCheck();
+    ErrorDto findErrorPost();
 
-    void deleteErrorPostList(Long postNum);
+    Long findLatestPostNum();
 
+    Integer countPostItemsBySearchCond(SearchCond cond);
+
+
+    // UPDATE
     void resolveError(Long errorNum);
+
+
+    // DELETE
+    void deletePostItemByPostNum(Long postNum);
 
 }

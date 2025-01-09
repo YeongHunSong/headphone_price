@@ -21,13 +21,4 @@ public class PageDto {
         this.pageCount = 0;
         this.pageView = 50; // 노출할 게시글 개수
     }
-
-    PageDto(int page, int pageView) { // 기존 로직용 (modelAttribute 를 사용하지 않고)
-        this.page = page;
-        this.pageView = pageView;
-    }
-
-    public static PageDto create(int page, int pageView) {
-        return new PageDto(page, pageView);
-    }
 }

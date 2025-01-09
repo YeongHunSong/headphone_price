@@ -25,7 +25,7 @@ public class ErrorPost {
     }
 
 
-    public static ErrorPost errorReport(Long postNum, String errorDesc) {
+    public static ErrorPost reportError(Long postNum, String errorDesc) {
         return new ErrorPost(postNum, errorDesc);
     }
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PageControl {
+
     private PageDto pageDto;
 
     private int totalCount;
@@ -36,16 +37,13 @@ public class PageControl {
         }
     }
 
-    private PageControl() {
-    }
-
     private PageControl(PageDto pageDto, int totalCount) {
         this.pageDto = pageDto;
         this.totalCount = totalCount;
         pageProcess();
     }
 
-    public static PageControl create(PageDto pageDto, int totalCount) {
+    public static PageControl createPage(PageDto pageDto, int totalCount) {
         return new PageControl(pageDto, totalCount);
     }
 }

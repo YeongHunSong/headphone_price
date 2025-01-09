@@ -2,7 +2,7 @@ package hpPrice.repository;
 
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
-import hpPrice.domain.PostList;
+import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
@@ -21,8 +21,8 @@ public class MybatisPostRepository implements PostRepository {
     private final PostMapper postMapper;
 
     @Override
-    public void newPostList(PostList postList) {
-        postMapper.newPostList(postList);
+    public void newPostItem(PostItem postItem) {
+        postMapper.newPostItem(postItem);
     }
 
     @Override
@@ -31,44 +31,51 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
-        return postMapper.findAll(pageDto, cond);
-    }
-
-    @Override
-    public Post postDetail(Long postNum) {
-        return postMapper.postDetail(postNum);
+    public void newErrorPost(ErrorPost errorPost) {
+        postMapper.newErrorPost(errorPost);
     }
 
 
     @Override
-    public Long lastPostNum() {
-        return postMapper.lastPostNum();
+    public List<PostItem> findPagedPostItemsBySearchCond(PageDto pageDto, SearchCond cond) {
+        return postMapper.findPagedPostItemsBySearchCond(pageDto, cond);
     }
 
     @Override
-    public Integer totalCount(SearchCond cond) {
-        return postMapper.totalCount(cond);
+    public PostItem findPostItemByPostNum(Long postNum) {
+        return postMapper.findPostItemByPostNum(postNum);
     }
 
     @Override
-    public void errorReport(ErrorPost errorPost) {
-        postMapper.errorReport(errorPost);
+    public Post findPostByPostNum(Long postNum) {
+        return postMapper.findPostByPostNum(postNum);
     }
 
     @Override
-    public ErrorDto errorCheck() {
-        return postMapper.errorCheck();
+    public ErrorDto findErrorPost() {
+        return postMapper.findErrorPost();
     }
 
     @Override
-    public void deleteErrorPostList(Long postNum) {
-        postMapper.deleteErrorPostList(postNum);
+    public Long findLatestPostNum() {
+        return postMapper.findLatestPostNum();
     }
+
+    @Override
+    public Integer countPostItemsBySearchCond(SearchCond cond) {
+        return postMapper.countPostItemsBySearchCond(cond);
+    }
+
 
     @Override
     public void resolveError(Long errorNum) {
         postMapper.resolveError(errorNum);
+    }
+
+
+    @Override
+    public void deletePostItemByPostNum(Long postNum) {
+        postMapper.deletePostItemByPostNum(postNum);
     }
 
 }

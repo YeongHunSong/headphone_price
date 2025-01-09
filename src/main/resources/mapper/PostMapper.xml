@@ -9,6 +9,8 @@
         </if>
     </sql>
 
+    <!-- 검색 쿼리 대소문자 구분없이 검색할 수 있도록 -->
+
     <sql id="search">
         <where>
             <if test="cond != null">
@@ -29,18 +31,54 @@
     </sql>
 
 
-    <select id="findAll" resultType="PostList">
+
+    <!-- INSERT -->
+    <insert id="newPostItem">
+        INSERT INTO
+            POST_ITEM (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
+        VALUES
+            (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
+    </insert>
+
+    <insert id="newPost">
+        INSERT INTO
+            POST (POST_NUM, CONTENT)
+        VALUES
+            (#{postNum}, #{content})
+    </insert>
+
+    <insert id="newErrorPost">
+        INSERT INTO
+            ERROR_POST (POST_NUM, ERROR_DESC, ERROR_DATE)
+        VALUES
+            (#{postNum}, #{errorDesc}, now())
+    </insert>
+
+
+
+    <!-- SELECT -->
+    <select id="findPagedPostItemsBySearchCond" resultType="PostItem">
         SELECT
             *
         FROM
-            POST_LIST
+            POST_ITEM
         <include refid="search"/>
         ORDER BY
             W_DATE DESC
         <include refid="paging"/>
     </select>
 
-    <select id="postDetail" resultType="Post">
+    <select id="findPostItemByPostNum" resultType="PostItem">
+        SELECT
+            *
+        FROM
+            POST_ITEM
+        WHERE
+            POST_NUM = #{postNum}
+
+    </select>
+
+    <select id="findPostByPostNum" resultType="Post">
         SELECT
             *
         FROM
@@ -49,57 +87,39 @@
             POST_NUM = #{postNum}
     </select>
 
-
-    <insert id="newPostList">
-        INSERT INTO
-            POST_LIST
-            (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
-        VALUES
-            (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
-    </insert>
-
-    <insert id="newPost">
-        INSERT INTO
-            POST
-            (POST_NUM, CONTENT)
-        VALUES
-            (#{postNum}, #{content})
-    </insert>
-
-
-
-
-
-    <select id="lastPostNum" resultType="Long">
+    <select id="findErrorPost" resultType="ErrorDto">
         SELECT
+        ERROR_NUM,
         POST_NUM
         FROM
-        POST_LIST
-        ORDER BY
-        W_DATE DESC
+        ERROR_POST
+        WHERE
+        POST_NUM != 0
+        AND IS_RESOLVED = 0
         LIMIT 1
     </select>
 
-    <select id="totalCount" resultType="Integer">
+    <select id="findLatestPostNum" resultType="Long">
         SELECT
-        COUNT(*)
+            POST_NUM
         FROM
-        POST_LIST
+            POST_ITEM
+        ORDER BY
+            W_DATE DESC
+        LIMIT 1
+    </select>
+
+    <select id="countPostItemsBySearchCond" resultType="Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            POST_ITEM
         <include refid="search"/>
     </select>
 
-    <select id="errorCheck" resultType="ErrorDto">
-        SELECT
-            ERROR_NUM,
-            POST_NUM
-        FROM
-            ERROR_POST
-        WHERE
-            POST_NUM != 0
-            AND IS_RESOLVED = 0
-        LIMIT 1
-    </select>
 
+
+    <!-- UPDATE -->
     <update id="resolveError">
         UPDATE
             ERROR_POST
@@ -110,17 +130,12 @@
             ERROR_NUM = #{errorNum}
     </update>
 
-    <insert id="errorReport">
-        INSERT INTO
-            ERROR_POST
-            (POST_NUM, ERROR_DESC, ERROR_DATE)
-        VALUES
-            (#{postNum}, #{errorDesc}, now())
-    </insert>
-    
-    <delete id="deleteErrorPostList">
+
+
+    <!-- DELETE -->
+    <delete id="deletePostItemByPostNum">
         DELETE FROM
-            POST_LIST
+            POST_ITEM
         WHERE
             POST_NUM = #{postNum}
     </delete>

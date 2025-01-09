@@ -1,54 +1,106 @@
 package hpPrice.controller;
 
 import hpPrice.domain.Post;
+import hpPrice.domain.PostItem;
 import hpPrice.paging.PageControl;
 import hpPrice.paging.PageDto;
 import hpPrice.search.SearchCond;
-import hpPrice.service.CrawlingService;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
+import java.beans.PropertyEditorSupport;
 
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class MainController {
+public class MainController { // TODO pageView 옵션은 지워도 될 것 같음.
 
     private final PostService postService;
 
-    // TODO image 불러오는 Mapping 추가
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(int.class, "pageView", new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                try {
+                    setValue(Integer.parseInt(text));
+                } catch (NumberFormatException e) {
+                    setValue(50);
+                }
+            }
+        });
+
+        binder.registerCustomEditor(int.class, "page", new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                try {
+                    setValue(Integer.parseInt(text));
+                } catch (NumberFormatException e) {
+                    setValue(1);
+                }
+            }
+        });
+
+        binder.registerCustomEditor(int.class, "postNum", new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                try {
+                    setValue(Integer.parseInt(text));
+                } catch (NumberFormatException e) {
+                    setValue(0);
+                }
+            }
+        });
+//        특정 필드 바인딩 제어:
+//          setDisallowedFields(): 특정 필드의 바인딩을 금지합니다.
+//          setAllowedFields(): 허용할 필드만 지정하여 바인딩합니다.
+//        커스텀 포맷터 및 에디터 등록:
+//          addCustomFormatter(): 사용자 정의 Formatter 를 등록합니다.
+//          registerCustomEditor(): 사용자 정의 PropertyEditor 를 등록합니다.
+//        유효성 검사기 추가:
+//          addValidators(): 특정 Validator 를 등록하여 객체의 유효성을 검사합니다.
+//        데이터 형 변환:
+//          요청으로 들어온 문자열 데이터를 객체의 속성 타입에 맞게 변환합니다.
+//        특정 객체에만 바인딩 적용:
+//          @InitBinder("objectName")을 사용하여 특정 객체에만 바인딩 또는 검증 설정을 적용할 수 있습니다.
+
+    }
+
 
     @GetMapping("/dcsff")
-    public String dcHeadphone(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
-        model.addAttribute("pageControl", PageControl.create(pageDto, postService.postCount(cond)));
-        model.addAttribute("postList", postService.findAll(pageDto, cond));
+    public String dcHeadphone(Model model,
+                              @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
+        model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
+        model.addAttribute("postItem", postService.findPostItems(pageDto, cond));
         return "dc/home";
+
     }
 
     @GetMapping("/dcsff/{postNum}")
     public String dcHeadphoneDetail(@PathVariable Long postNum, Model model) {
+        if (postNum == 0) {
+            return "dc/home";
+        }
 
-        Post post = postService.postDetail(postNum);
+        PostItem postItem = postService.findPostItem(postNum);
+        Post post = postService.findPost(postNum);
 
+
+
+        model.addAttribute("postItem", postItem);
         model.addAttribute("post", post);
-
-        // TODO 글 내용 집어넣기
-        // TODO padding 5px
-
         return "dc/postDetail";
     }
 
 
     @ResponseBody
-    @GetMapping("/test")
+//    @GetMapping("/test")
     public String test() {
 //        try { // TODO TEST 필요한 게시글 : 1177280
 //

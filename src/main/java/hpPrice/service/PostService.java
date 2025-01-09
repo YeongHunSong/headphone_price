@@ -2,7 +2,7 @@ package hpPrice.service;
 
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
-import hpPrice.domain.PostList;
+import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
 import hpPrice.search.SearchCond;
 import hpPrice.paging.PageDto;
@@ -20,53 +20,55 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public void newPostListDC(PostList postList) {
-        if (postList.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
-            postList.setUserId("유동");
-            postList.setUserUrl("");
+    public void newPostItemDC(PostItem postItem) {
+        if (postItem.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
+            postItem.setUserId("유동");
+            postItem.setUserUrl("");
         } else {
-            postList.setUserUrl(gallLogDc(postList.getUserId()));
+            postItem.setUserUrl(gallLogDc(postItem.getUserId()));
         }
-        postRepository.newPostList(postList);
-        log.info("저장한 게시글 - {} {}", postList.getPostNum(), postList.getTitle());
+        postRepository.newPostItem(postItem);
+        log.info("저장한 게시글 - {} {}", postItem.getPostNum(), postItem.getTitle());
     }
 
     public void newPostDC(Post post) {
         postRepository.newPost(post);
     }
 
-    public List<PostList> findAll(PageDto pageDto, SearchCond cond) {
-        return postRepository.findAll(pageDto, cond);
+    public void reportError(ErrorPost errorPost) {
+        postRepository.newErrorPost(errorPost);
     }
 
-    public Post postDetail(Long postNum) {
-        return postRepository.postDetail(postNum);
+    public List<PostItem> findPostItems(PageDto pageDto, SearchCond cond) {
+        return postRepository.findPagedPostItemsBySearchCond(pageDto, cond);
     }
 
-
-    public Long lastPostNum() {
-        // lastPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        Long lastPostNum = postRepository.lastPostNum();
-        return lastPostNum == null ? 0L : lastPostNum;
+    public PostItem findPostItem(Long postNum) {
+        return postRepository.findPostItemByPostNum(postNum);
     }
 
-    public Integer postCount(SearchCond cond) {
-        return postRepository.totalCount(cond);
-    }
-
-    public void errorReport(ErrorPost errorPost) {
-        postRepository.errorReport(errorPost);
+    public Post findPost(Long postNum) {
+        return postRepository.findPostByPostNum(postNum);
     }
 
     public ErrorDto errorCheck() {
-        return postRepository.errorCheck();
+        return postRepository.findErrorPost();
+    }
+
+    public Long latestPostNum() {
+        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        Long latestPostNum = postRepository.findLatestPostNum();
+        return latestPostNum == null ? 0L : latestPostNum;
+    }
+
+    public Integer countPostItems(SearchCond cond) {
+        return postRepository.countPostItemsBySearchCond(cond);
     }
 
     public void resolveError(Long postNum, Long errorNum) {
-        postRepository.deleteErrorPostList(postNum);
+        postRepository.deletePostItemByPostNum(postNum);
         postRepository.resolveError(errorNum);
     }
-
 
 
     private String gallLogDc(String userId) {
