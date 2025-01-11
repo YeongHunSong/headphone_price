@@ -8,61 +8,22 @@
 </head>
 
 <body>
-    <!-- TODO 제목 뜨게, 외부 테두리 선 좀 더 진하게, 해당글 원 URL 링크 추가, 전체글로 갈 수 있는 버튼 만들지?
-     닉네임이랑 아이디 한 칸에 통합해서 넣자 -->
-
-    <br>
-    <div class="container">
-        <div>
-<!--            <table>-->
-<!--                <thead>-->
-<!--                <tr>-->
-<!--                    <th scope="col">글번호</th>-->
-<!--                    <th scope="col">작성일자</th>-->
-<!--                    <th scope="col">제목</th>-->
-<!--                    <th scope="col">게시글 링크</th>-->
-<!--                    <th scope="col">작성자</th>-->
-<!--                    <th scope="col">작성자 ID</th>-->
-<!--                    <th scope="col">갤로그</th>-->
-<!--                </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                <tr>-->
-<!--                    <td><p th:text="|${postItem.postNum}|">글 번호</p></td>-->
-<!--                    <td><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>-->
-<!--                    <td><p th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> &lt;!&ndash; yyyy-MM-dd HH:mm:ss &ndash;&gt;-->
-<!--                    <td><p th:text="|${postItem.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</p></td>-->
-<!--                    <td><p th:text="|${postItem.userId}|" th:classappend="${postItem.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">아이디</p></td>-->
-<!--                    <td><a th:text="갤로그" th:href="@{|${postItem.userUrl}|}" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>-->
-<!--                </tr>-->
-<!--                </tbody>-->
-<!--            </table>-->
-
-
-
+<div class="container mt-3" style="max-width: 950px">
+    <div class="form-control">
+        <div class="py-2">
+            <button class="w-auto btn btn-primary row mx-auto" th:onclick="|location.href='@{/dcsff}'|" type="button">전체글</button>
         </div>
 
-        <div class="form-control">
-            <table class="table" >
-                <thead>
-                <tr>
-                    <th class="col-1">원 게시글</th>
-                    <th class="col-1">작성일자</th>
-                    <th class="col-1">닉네임/아이디</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="p-1"><a th:text="링크" th:href="@{|${postItem.url}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
-                    <td class="p-1"><p th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
-                    <td class="p-1"><p th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</p>
-                        <a th:text="갤로그" th:href="@{|${postItem.userUrl}|}" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
-                </tr>
-                </tbody>
-            </table>
-            <p th:utext="${post.content}">게시글 내용</p>
-        </div>
-    </div> <!-- /container -->
-    <br>
+        <h3 class="my-3"><span th:text="${postItem.title}">제목</span></h3>
+        <span th:text="|${postItem.nickname}[${postItem.userId}]|" th:classappend="${postItem.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">작성자 닉네임[아이디]</span>
+        <span class="px-1" th:text="|${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}|">작성일자</span>
+        <a class="px-1" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
+        <a class="px-1" th:text="|갤로그|" th:href="@{|${postItem.userUrl}|}" target="_blank" rel="noopener noreferrer">갤로그 링크</a>
+        <br><br>
+        <span class="mx-auto" th:utext="${post.content}">게시글 내용</span>
+        <br>
+    </div>
+</div> <!-- /container -->
+<br>
 </body>
 </html>
