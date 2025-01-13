@@ -15,16 +15,16 @@
         <where>
             <if test="cond != null">
                 <if test="cond.searchType == 'title' and cond.keyword != ''">
-                    TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                    LOWER(PI.TITLE) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
                 </if>
                 <if test="cond.searchType == 'nickname' and cond.keyword != ''">
-                    NICKNAME LIKE CONCAT('%', #{cond.keyword}, '%')
+                    LOWER(PI.NICKNAME) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
                 </if>
                 <if test="cond.searchType == 'userId' and cond.keyword != ''">
-                    USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+                    PI.USER_ID LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
                 </if>
-                <if test="cond.searchType == 'content' and cond.keyword != ''"> <!-- TODO 내용 검색 미리 추가 -->
-                    USER_ID LIKE CONCAT('%', #{cond.keyword}, '%')
+                <if test="cond.searchType == 'content' and cond.keyword != ''">
+                    LOWER(P.CONTENT) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
                 </if>
             </if>
         </where>
@@ -59,9 +59,16 @@
     <!-- SELECT -->
     <select id="findPagedPostItemsBySearchCond" resultType="PostItem">
         SELECT
-            *
+            PI.POST_NUM
+            , PI.TITLE
+            , PI.W_DATE
+            , PI.NICKNAME
+            , PI.USER_ID
+            , PI.USER_URL
         FROM
-            POST_ITEM
+            POST_ITEM PI
+        INNER JOIN POST P
+            ON PI.POST_NUM = P.POST_NUM
         <include refid="search"/>
         ORDER BY
             W_DATE DESC
@@ -111,9 +118,11 @@
 
     <select id="countPostItemsBySearchCond" resultType="Integer">
         SELECT
-            COUNT(*)
+            COUNT(PI.POST_NUM)
         FROM
-            POST_ITEM
+            POST_ITEM PI
+        INNER JOIN POST P
+            ON PI.POST_NUM = P.POST_NUM
         <include refid="search"/>
     </select>
 
