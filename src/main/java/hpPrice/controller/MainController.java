@@ -8,12 +8,20 @@ import hpPrice.search.SearchCond;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+
+import static hpPrice.common.CommonConst.*;
+import static hpPrice.common.CommonConst.SLEEP_TIME;
 
 
 @Slf4j
@@ -74,7 +82,7 @@ public class MainController {
 
 
     @GetMapping("/dcsff")
-    public String dcHeadphone(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
+    public String dcSff(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
         model.addAttribute("postItem", postService.findPostItems(pageDto, cond));
         return "dc/home";
@@ -95,4 +103,26 @@ public class MainController {
         model.addAttribute("post", post);
         return "dc/postDetail";
     }
+
+
+    @ResponseBody
+    @GetMapping("/test")
+    public String naverDRHeadphone() throws IOException {
+       Elements ele = Jsoup.connect("https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21&search.boardtype=L")
+                .userAgent(USER_AGENT)
+                .timeout(TIME_OUT)
+                .get()
+               .select("div.article-board > table > tbody > tr");
+
+       ele.removeIf(postItem -> postItem.hasClass("board-notice"));
+
+        System.out.println("after");
+        System.out.println(ele.get(0));
+
+
+        return ele.toString();
+    }
+
 }
+
+

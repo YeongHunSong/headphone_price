@@ -16,7 +16,8 @@ public class CommonConst {
     public static final String DC_CON_HOST_BEFORE = "dcimg5";
     public static final String DC_CON_HOST_AFTER = "dcimg1"; // 디시콘은 dcimg1만 가능
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final int MAX_RETRY_COUNT = 4;

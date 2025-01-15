@@ -27,7 +27,7 @@ public class CrawlingService {
 
     private static long postNum = 0;
 
-    @Scheduled(fixedDelay = 60000) // 60초 주기로 크롤링
+//    @Scheduled(fixedDelay = 90000) // 60초 주기로 크롤링
     public void parsingDcPost() {
         log.info("크롤링 동작 중 [{}]", LocalDateTime.now().format(DATE_FORMATTER));
 
