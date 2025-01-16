@@ -1,15 +1,15 @@
 package hpPrice.controller;
 
+import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
-import hpPrice.paging.PageControl;
-import hpPrice.paging.PageDto;
-import hpPrice.search.SearchCond;
+import hpPrice.common.paging.PageControl;
+import hpPrice.common.paging.PageDto;
+import hpPrice.domain.SearchCond;
+import hpPrice.service.CrawlingService;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Controller;
@@ -21,7 +21,6 @@ import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 
 import static hpPrice.common.CommonConst.*;
-import static hpPrice.common.CommonConst.SLEEP_TIME;
 
 
 @Slf4j
@@ -30,6 +29,7 @@ import static hpPrice.common.CommonConst.SLEEP_TIME;
 public class MainController {
 
     private final PostService postService;
+    private final CrawlingService crawlingService;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) { // 숫자로 변환되지 않는 값이 바인딩 되었을 때 방지
@@ -104,23 +104,47 @@ public class MainController {
         return "dc/postDetail";
     }
 
+    // 닥터헤드폰 카페 번호: 1196414
+    // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
+
+    // 글 상세에서는 작성일자 전체 표시
+
 
     @ResponseBody
     @GetMapping("/test")
-    public String naverDRHeadphone() throws IOException {
-       Elements ele = Jsoup.connect("https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21&search.boardtype=L")
-                .userAgent(USER_AGENT)
-                .timeout(TIME_OUT)
-                .get()
-               .select("div.article-board > table > tbody > tr");
+    public String nvDRHPHeadphone() throws IOException, InterruptedException {
+        Elements postList = crawlingService.connectAndParsing(NV_POST_LIST_URL + NV_TAB_HEADPHONE, "div.article-board > table > tbody > tr");
+        postList.removeIf(postItem -> postItem.hasClass("board-notice")); // 공지글 제거
 
-       ele.removeIf(postItem -> postItem.hasClass("board-notice"));
+        // https://cafe.naver.com/drhp/2354201
 
-        System.out.println("after");
-        System.out.println(ele.get(0));
+       for (Element postItem : postList) {
+           long postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
+//           Document document = Jsoup.connect(NV_POST_URL + postNum).timeout(TIME_OUT).userAgent(USER_AGENT).get(); // 로그인 권한 필요.
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           System.out.println(PostItem.newPostItem(
+                   postNum,
+                   postItem.selectFirst(".article").text(),
+                   postItem.selectFirst(".article").absUrl("href"),
+                   postItem.selectFirst(".m-tcol-c").text(),
+                   null,
+                   DateTimeUtils.parseNaverDateTime(postItem.selectFirst(".td_date").text())
+           ));
+           // postItem / post 저장
+
+       }
 
 
-        return ele.toString();
+
+        return postList.get(0).toString();
     }
 
 }

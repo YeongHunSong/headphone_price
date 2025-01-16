@@ -1,5 +1,6 @@
 package hpPrice.service;
 
+import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
@@ -10,13 +11,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 import static hpPrice.common.CommonConst.*;
+
 
 
 @Slf4j
@@ -29,7 +29,7 @@ public class CrawlingService {
 
 //    @Scheduled(fixedDelay = 90000) // 60초 주기로 크롤링
     public void parsingDcPost() {
-        log.info("크롤링 동작 중 [{}]", LocalDateTime.now().format(DATE_FORMATTER));
+        log.info("크롤링 동작 중 [{}]", DateTimeUtils.getCurrentDateTime());
 
         parsingLogic:
         try {
@@ -40,14 +40,14 @@ public class CrawlingService {
 
             for (int page = startPage; page <= lastPage; page++) { log.info("현재 페이지 -> [{}]page", page);
                 // ### POST_ITEM 파싱 ###
-                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE + page, ".gall_list .us-post")) {
+                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + page, ".gall_list .us-post")) {
                     postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
                     if (errorCheck != null && postNum > errorCheck.getPostNum()) continue; // 에러 복구 시 에러 발생한 페이지에서 이미 저장된 게시글 넘김
                     if (latestPostNum == postNum || (errorCheck == null && latestPostNum > postNum)) break parsingLogic;
                     // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
                     // ### POST 파싱 ###
-                    Elements post = connectAndParsing(DC_POST_URL + DC_POST_NUM + postNum, ".write_div > *");
+                    Elements post = connectAndParsing(DC_POST_URL + DC_POST_NUM_QUERY + postNum, ".write_div > *");
                     post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상 링크 삭제
                     for (Element postLine : post) imageUrlCheck(postLine);
 
@@ -68,7 +68,7 @@ public class CrawlingService {
 
     // ### 코드 정리용 추출 메서드 ###
 
-    private Elements connectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
+    public Elements connectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
                 Thread.sleep(SLEEP_TIME);
@@ -90,7 +90,7 @@ public class CrawlingService {
     }
 
     private int findLastPage() throws IOException, InterruptedException {
-        String pageUrl = connectAndParsing(DC_GALL_URL + DC_TAB_PAGE, ".page_end")
+        String pageUrl = connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY, ".page_end")
                 .attr("href"); // 파싱 태그값 변경된 경우, URL 변경된 경우 NPE 발생
         return Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
     }
@@ -98,7 +98,7 @@ public class CrawlingService {
     private int findErrorPage(ErrorDto errorCheck, int lastPage) throws IOException, InterruptedException {
         if (errorCheck != null) { log.info("ERROR 복구 모드");
             for (int errorPage = 1; errorPage <= lastPage; errorPage++) {
-                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE + errorPage, ".gall_list .us-post")) {
+                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + errorPage, ".gall_list .us-post")) {
                     if (errorCheck.getPostNum() == Long.parseLong(postItem.selectFirst(".gall_num").text())) {
                         postService.resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
                         log.info("ERROR 발생 페이지 = [" + errorPage + " page]");
@@ -153,7 +153,7 @@ public class CrawlingService {
                             postItem.selectFirst(".gall_tit a").absUrl("href"),
                             postItem.selectFirst(".nickname em").text(),
                             postItem.selectFirst(".gall_writer").attr("data-uid"),
-                            LocalDateTime.parse(postItem.selectFirst(".gall_date").attr("title"), DATE_FORMATTER)));
+                            DateTimeUtils.parseDcDateTime(postItem.selectFirst(".gall_date").attr("title"))));
             postService.newPostDC(
                     Post.newPost(
                             postNum,

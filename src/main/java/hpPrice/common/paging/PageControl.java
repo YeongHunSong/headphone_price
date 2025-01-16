@@ -1,4 +1,4 @@
-package hpPrice.paging;
+package hpPrice.common.paging;
 
 import lombok.Data;
 

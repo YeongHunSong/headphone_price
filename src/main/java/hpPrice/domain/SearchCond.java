@@ -1,4 +1,4 @@
-package hpPrice.search;
+package hpPrice.domain;
 
 import lombok.Data;
 

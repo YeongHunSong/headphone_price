@@ -4,8 +4,8 @@ import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
-import hpPrice.search.SearchCond;
-import hpPrice.paging.PageDto;
+import hpPrice.domain.SearchCond;
+import hpPrice.common.paging.PageDto;
 
 import java.util.List;
 
