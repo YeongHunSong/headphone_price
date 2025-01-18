@@ -1,6 +1,7 @@
 package hpPrice.controller;
 
 import hpPrice.common.dateTime.DateTimeUtils;
+import hpPrice.common.selenium.SeleniumUtils;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.common.paging.PageControl;
@@ -12,10 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -151,21 +148,14 @@ public class MainController {
         return postList.get(0).toString();
     }
 
+
+
     @ResponseBody
     @GetMapping("/sele")
-    public String selenium() throws InterruptedException {
-        WebDriver driver = new ChromeDriver();
+    public String selenium() {
+        SeleniumUtils.loginNaver();
 
-        try {
-            driver.get("https://www.naver.com");
-
-            WebElement element = driver.findElement(By.className("Layout-module__column_left___tLO23"));
-
-            return element.toString();
-        } finally {
-            wait();
-        }
-
+        return "good";
     }
 }
 

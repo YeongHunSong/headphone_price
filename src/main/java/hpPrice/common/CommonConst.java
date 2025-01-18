@@ -33,6 +33,7 @@ public class CommonConst {
     public static final int MAX_RETRY_COUNT = 4;
     public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 500;
+    public static final int LOGIN_SLEEP_TIME = 1500;
 
     private CommonConst() {}
 }
