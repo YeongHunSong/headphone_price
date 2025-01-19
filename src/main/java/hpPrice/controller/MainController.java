@@ -11,8 +11,12 @@ import hpPrice.service.CrawlingService;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.Cookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -20,8 +24,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
+import static java.lang.Thread.sleep;
 
 
 @Slf4j
@@ -122,10 +130,8 @@ public class MainController {
        for (Element postItem : postList) {
            long postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
 //           Document document = Jsoup.connect(NV_POST_URL + postNum).timeout(TIME_OUT).userAgent(USER_AGENT).get(); // 로그인 권한 필요.
-           
-           
-           
-           
+
+
            
            
            
@@ -152,11 +158,43 @@ public class MainController {
 
     @ResponseBody
     @GetMapping("/sele")
-    public String selenium() {
-        SeleniumUtils.loginNaver();
+    public String selenium() throws Exception {
+        Map<String, String> naverLoginCookies = SeleniumUtils.getNaverLoginCookies();
 
-        return "good";
+        // https://cafe.naver.com/ArticleRead.nhn?articleid=2355357&where=search&clubid=11196414&tc=naver_search
+        // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
+        // https://cafe.naver.com/drhp/2355357
+        // https://m.cafe.naver.com/ca-fe/web/cafes/11196414/
+        // https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355357&referrerAllArticles=false
+
+
+        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
+            try {
+                Thread.sleep(SLEEP_TIME);
+                Connection connection = Jsoup.connect("https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355481&referrerAllArticles=false")
+                        .userAgent(USER_AGENT)
+                        .timeout(TIME_OUT)
+                        .cookies(naverLoginCookies)
+                        .followRedirects(true);
+
+                sleep(LOGIN_SLEEP_TIME);
+
+                Document document = connection.get();
+
+                System.out.println(document.title());
+
+                return document.toString();
+//                    if (parsingData.isEmpty()) throw new IOException("화이트 페이지 에러 발생 " + connectUrl);
+            } catch (IOException e) {
+                if (tryCount == MAX_RETRY_COUNT - 1) throw e;
+                log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
+                Thread.sleep(SLEEP_TIME * (tryCount + 1));
+            }
+        }
+        throw new IOException("페이지 로드 실패");
     }
+
+
 }
 
 
