@@ -1,10 +1,6 @@
 package hpPrice.repository.mybatis;
 
-import hpPrice.domain.ErrorPost;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
-import hpPrice.domain.ErrorDto;
-import hpPrice.domain.SearchCond;
+import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,6 +17,8 @@ public interface PostMapper {
 
     void newErrorPost(ErrorPost errorPost);
 
+    void newLoginCookies(LoginCookies loginCookies);
+
 
     // SELECT
     List<PostItem> findPagedPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond);
@@ -34,6 +32,8 @@ public interface PostMapper {
     Long findLatestPostNum();
 
     Integer countPostItemsBySearchCond(@Param("cond")SearchCond cond);
+
+    String findLatestLoginCookiesByDesc(String desc);
 
 
 

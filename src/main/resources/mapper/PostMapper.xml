@@ -54,6 +54,13 @@
             (#{postNum}, #{errorDesc}, now())
     </insert>
 
+    <insert id="newLoginCookies">
+        INSERT INTO
+            LOGIN_COOKIES (DESC, JSON_COOKIES, LOGIN_DATE)
+        VALUES
+            (#{desc}, #{jsonCookies}, now())
+    </insert>
+
 
 
     <!-- SELECT -->
@@ -124,6 +131,18 @@
         INNER JOIN POST P
             ON PI.POST_NUM = P.POST_NUM
         <include refid="search"/>
+    </select>
+
+    <select id="findLatestLoginCookiesByDesc" resultType="String">
+        SELECT
+            JSON_COOKIES
+        FROM
+            LOGIN_COOKIES
+        WHERE
+            DESC = #{desc}
+        ORDER BY
+            LOGIN_DATE DESC
+        LIMIT 1
     </select>
 
 

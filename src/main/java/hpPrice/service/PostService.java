@@ -1,10 +1,6 @@
 package hpPrice.service;
 
-import hpPrice.domain.ErrorPost;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
-import hpPrice.domain.ErrorDto;
-import hpPrice.domain.SearchCond;
+import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +35,10 @@ public class PostService {
         postRepository.newErrorPost(errorPost);
     }
 
+    public void storeLoginCookies(LoginCookies loginCookies) {
+        postRepository.newLoginCookies(loginCookies);
+    }
+
     public List<PostItem> findPostItems(PageDto pageDto, SearchCond cond) {
         return postRepository.findPagedPostItemsBySearchCond(pageDto, cond);
     }
@@ -63,6 +63,10 @@ public class PostService {
 
     public Integer countPostItems(SearchCond cond) {
         return postRepository.countPostItemsBySearchCond(cond);
+    }
+
+    public String latestLoginCookies(String desc) {
+        return postRepository.findLatestLoginCookiesByDesc(desc);
     }
 
     public void resolveError(Long postNum, Long errorNum) {

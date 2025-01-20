@@ -1,14 +1,14 @@
 package hpPrice.controller;
 
 import hpPrice.common.dateTime.DateTimeUtils;
-import hpPrice.common.selenium.SeleniumUtils;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.common.paging.PageControl;
 import hpPrice.common.paging.PageDto;
 import hpPrice.domain.SearchCond;
-import hpPrice.service.CrawlingService;
+import hpPrice.service.crawlingAndParsing.DcGallCrawlingService;
 import hpPrice.service.PostService;
+import hpPrice.service.crawlingAndParsing.NaverLoginCookieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -16,7 +16,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.Cookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -24,12 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
-import static java.lang.Thread.sleep;
 
 
 @Slf4j
@@ -38,7 +34,8 @@ import static java.lang.Thread.sleep;
 public class MainController {
 
     private final PostService postService;
-    private final CrawlingService crawlingService;
+    private final NaverLoginCookieService naverLoginService;
+    private final DcGallCrawlingService DcGallCrawlingService;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) { // 숫자로 변환되지 않는 값이 바인딩 되었을 때 방지
@@ -122,7 +119,7 @@ public class MainController {
     @ResponseBody
     @GetMapping("/test")
     public String nvDRHPHeadphone() throws IOException, InterruptedException {
-        Elements postList = crawlingService.connectAndParsing(NV_POST_LIST_URL + NV_TAB_HEADPHONE, "div.article-board > table > tbody > tr");
+        Elements postList = DcGallCrawlingService.connectAndParsing(NV_POST_LIST_URL + NV_TAB_HEADPHONE, "div.article-board > table > tbody > tr");
         postList.removeIf(postItem -> postItem.hasClass("board-notice")); // 공지글 제거
 
         // https://cafe.naver.com/drhp/2354201
@@ -155,11 +152,19 @@ public class MainController {
     }
 
 
+    @ResponseBody
+    @GetMapping("/cookieRefresh")
+    public String cookieRefresh() {
+        naverLoginService.setNaverLoginCookies();
+        return "good";
+    }
+
 
     @ResponseBody
     @GetMapping("/sele")
     public String selenium() throws Exception {
-        Map<String, String> naverLoginCookies = SeleniumUtils.getNaverLoginCookies();
+        Map<String, String> naverLoginCookies = naverLoginService.getNaverLoginCookies();
+
 
         // https://cafe.naver.com/ArticleRead.nhn?articleid=2355357&where=search&clubid=11196414&tc=naver_search
         // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
@@ -168,23 +173,44 @@ public class MainController {
         // https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355357&referrerAllArticles=false
 
 
+
+        // https://cafe.naver.com/f-e/cafes/11196414/articles/2356030?menuid=21&referrerAllArticles=false
+
+
+        // https://cafe.naver.com/drhp?iframe_url=/ArticleList.nhn%3Fsearch.clubid=11196414%26search.menuid=21%26search.boardtype=L
+        // https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21
+
+        // https://cafe.naver.com/drhp?iframe_url=%2FArticleRead.nhn%3Fclubid%3D11196414%26articleid%3D2356022%26where%3Dsearch%26tc%3Dnaver_search
+        // https://cafe.naver.com/drhp?iframe_url=/ArticleRead.nhn?articleid=2356030&where=search&clubid=11196414
+        // https://cafe.naver.com/ArticleRead.nhn?articleid=2356030&clubid=11196414
+
+
+        // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2356030?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2356030%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
+
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
                 Thread.sleep(SLEEP_TIME);
-                Connection connection = Jsoup.connect("https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355481&referrerAllArticles=false")
+                Connection connection = Jsoup.connect("https://cafe.naver.com/drhp/2355357")
+                        .cookies(naverLoginCookies)
                         .userAgent(USER_AGENT)
                         .timeout(TIME_OUT)
-                        .cookies(naverLoginCookies)
+                        .referrer("https://search.naver.com/")
                         .followRedirects(true);
-
-                sleep(LOGIN_SLEEP_TIME);
-
+//                        .ignoreContentType(true);
                 Document document = connection.get();
 
-                System.out.println(document.title());
+
+
+
+
+
+
+
+
+
+
 
                 return document.toString();
-//                    if (parsingData.isEmpty()) throw new IOException("화이트 페이지 에러 발생 " + connectUrl);
             } catch (IOException e) {
                 if (tryCount == MAX_RETRY_COUNT - 1) throw e;
                 log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);

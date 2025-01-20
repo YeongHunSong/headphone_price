@@ -1,10 +1,6 @@
 package hpPrice.repository;
 
-import hpPrice.domain.ErrorPost;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
-import hpPrice.domain.ErrorDto;
-import hpPrice.domain.SearchCond;
+import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
 
 import java.util.List;
@@ -17,6 +13,8 @@ public interface PostRepository {
     void newPost(Post post);
 
     void newErrorPost(ErrorPost errorPost);
+
+    void newLoginCookies(LoginCookies loginCookies);
 
 
     // SELECT
@@ -31,6 +29,8 @@ public interface PostRepository {
     Long findLatestPostNum();
 
     Integer countPostItemsBySearchCond(SearchCond cond);
+
+    String findLatestLoginCookiesByDesc(String desc);
 
 
     // UPDATE

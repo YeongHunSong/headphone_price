@@ -1,10 +1,11 @@
-package hpPrice.service;
+package hpPrice.service.crawlingAndParsing;
 
 import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
+import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -22,7 +23,7 @@ import static hpPrice.common.CommonConst.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CrawlingService {
+public class DcGallCrawlingService {
     private final PostService postService;
 
     private static long postNum = 0;
@@ -61,6 +62,12 @@ public class CrawlingService {
             log.error("Exception 발생 -> ", e);
         }
         log.info("parsing 종료");
+    }
+
+    public void parsingNaverCafePostList() {
+        for (int page = 1; page <= 10; page++) {
+
+        }
     }
 
 

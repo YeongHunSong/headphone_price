@@ -1,10 +1,6 @@
 package hpPrice.repository;
 
-import hpPrice.domain.ErrorPost;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
-import hpPrice.domain.ErrorDto;
-import hpPrice.domain.SearchCond;
+import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
 import hpPrice.repository.mybatis.PostMapper;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +29,11 @@ public class MybatisPostRepository implements PostRepository {
     @Override
     public void newErrorPost(ErrorPost errorPost) {
         postMapper.newErrorPost(errorPost);
+    }
+
+    @Override
+    public void newLoginCookies(LoginCookies loginCookies) {
+        postMapper.newLoginCookies(loginCookies);
     }
 
 
@@ -64,6 +65,11 @@ public class MybatisPostRepository implements PostRepository {
     @Override
     public Integer countPostItemsBySearchCond(SearchCond cond) {
         return postMapper.countPostItemsBySearchCond(cond);
+    }
+
+    @Override
+    public String findLatestLoginCookiesByDesc(String desc) {
+        return postMapper.findLatestLoginCookiesByDesc(desc);
     }
 
 
