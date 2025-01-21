@@ -61,6 +61,13 @@
             (#{desc}, #{jsonCookies}, now())
     </insert>
 
+    <insert id="newNaverPostItem">
+        INSERT INTO
+            NAVER_POST_ITEM (POST_NUM, W_DATE, TITLE, URL, NICKNAME)
+        VALUES
+            (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname})
+    </insert>
+
 
 
     <!-- SELECT -->
@@ -103,13 +110,13 @@
 
     <select id="findErrorPost" resultType="ErrorDto">
         SELECT
-        ERROR_NUM,
-        POST_NUM
+            ERROR_NUM,
+            POST_NUM
         FROM
-        ERROR_POST
+            ERROR_POST
         WHERE
-        POST_NUM != 0
-        AND IS_RESOLVED = 0
+            POST_NUM != 0
+            AND IS_RESOLVED = 0
         LIMIT 1
     </select>
 

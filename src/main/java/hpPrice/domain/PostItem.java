@@ -34,8 +34,8 @@ public class PostItem {
         this.wDate = wDate;
     }
 
-    public static PostItem newPostItem(Long postNum, String title, String url, String nickname, String userId, LocalDateTime date) {
-        return new PostItem(postNum, title, url, nickname, userId, date);
+    public static PostItem newPostItem(Long postNum, String title, String url, String nickname, String userId, LocalDateTime wDate) {
+        return new PostItem(postNum, title, url, nickname, userId, wDate);
     }
 
 }

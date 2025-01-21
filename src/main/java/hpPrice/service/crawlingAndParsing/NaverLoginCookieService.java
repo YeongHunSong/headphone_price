@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hpPrice.common.LoginInfo;
 import hpPrice.domain.LoginCookies;
-import hpPrice.service.PostService;
+import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -30,8 +30,17 @@ import static hpPrice.common.CommonConst.LOGIN_SLEEP_TIME;
 @Service
 @RequiredArgsConstructor
 public class NaverLoginCookieService {
-    private final PostService postService;
+    private final PostRepository postRepository;
     private final ObjectMapper objectMapper;
+
+    public void storeLoginCookies(LoginCookies loginCookies) {
+        postRepository.newLoginCookies(loginCookies);
+    }
+
+    public String latestLoginCookies(String desc) {
+        return postRepository.findLatestLoginCookiesByDesc(desc);
+    }
+
 
     public void setNaverLoginCookies() {
         ChromeOptions options = new ChromeOptions()
@@ -75,7 +84,7 @@ public class NaverLoginCookieService {
 
 //            sleep(1000000000); // 화면 확인용
 
-            postService.storeLoginCookies(LoginCookies.newLoginCookies("naverLoginCookies",
+            storeLoginCookies(LoginCookies.newLoginCookies("naverLoginCookies",
                     objectMapper.writeValueAsString( // Map<String, String> 객체를 json 형태로 변환.
                             driver.manage().getCookies()
                                     .stream()
@@ -89,7 +98,7 @@ public class NaverLoginCookieService {
 
     public Map<String, String> getNaverLoginCookies() throws JsonProcessingException {
         return objectMapper.readValue(
-                postService.latestLoginCookies("naverLoginCookies"), new TypeReference<>() {}); // Map.class 변수 값에 따름.
+                latestLoginCookies("naverLoginCookies"), new TypeReference<>() {}); // Map.class 변수 값에 따름.
 
     }
 }

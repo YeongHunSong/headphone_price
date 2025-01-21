@@ -128,18 +128,12 @@ public class MainController {
            long postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
 //           Document document = Jsoup.connect(NV_POST_URL + postNum).timeout(TIME_OUT).userAgent(USER_AGENT).get(); // 로그인 권한 필요.
 
-
-           
-           
-           
-           
-           
            System.out.println(PostItem.newPostItem(
                    postNum,
                    postItem.selectFirst(".article").text(),
                    postItem.selectFirst(".article").absUrl("href"),
                    postItem.selectFirst(".m-tcol-c").text(),
-                   null,
+                   postItem.selectFirst(".mem-level").html(),
                    DateTimeUtils.parseNaverDateTime(postItem.selectFirst(".td_date").text())
            ));
            // postItem / post 저장
@@ -148,13 +142,13 @@ public class MainController {
 
 
 
-        return postList.get(0).toString();
+        return postList.toString();
     }
 
 
     @ResponseBody
     @GetMapping("/cookieRefresh")
-    public String cookieRefresh() {
+    public String cookieRefresh() { // TODO 쿠키가 만료되었을 경우, 자동으로 쿠키를 새로 발급받은 후 크롤링을 진행할 수 있도록.
         naverLoginService.setNaverLoginCookies();
         return "good";
     }
@@ -165,9 +159,10 @@ public class MainController {
     public String selenium() throws Exception {
         Map<String, String> naverLoginCookies = naverLoginService.getNaverLoginCookies();
 
-
         // https://cafe.naver.com/ArticleRead.nhn?articleid=2355357&where=search&clubid=11196414&tc=naver_search
         // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
+        // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357
+
         // https://cafe.naver.com/drhp/2355357
         // https://m.cafe.naver.com/ca-fe/web/cafes/11196414/
         // https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355357&referrerAllArticles=false
@@ -175,6 +170,7 @@ public class MainController {
 
 
         // https://cafe.naver.com/f-e/cafes/11196414/articles/2356030?menuid=21&referrerAllArticles=false
+        // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2356030?referrerAllArticles=false // 이게 핵심이다
 
 
         // https://cafe.naver.com/drhp?iframe_url=/ArticleList.nhn%3Fsearch.clubid=11196414%26search.menuid=21%26search.boardtype=L
@@ -184,31 +180,17 @@ public class MainController {
         // https://cafe.naver.com/drhp?iframe_url=/ArticleRead.nhn?articleid=2356030&where=search&clubid=11196414
         // https://cafe.naver.com/ArticleRead.nhn?articleid=2356030&clubid=11196414
 
-
         // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2356030?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2356030%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
 
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
                 Thread.sleep(SLEEP_TIME);
-                Connection connection = Jsoup.connect("https://cafe.naver.com/drhp/2355357")
+                Document document = Jsoup.connect("https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2356529&referrerAllArticles=false")
                         .cookies(naverLoginCookies)
                         .userAgent(USER_AGENT)
                         .timeout(TIME_OUT)
                         .referrer("https://search.naver.com/")
-                        .followRedirects(true);
-//                        .ignoreContentType(true);
-                Document document = connection.get();
-
-
-
-
-
-
-
-
-
-
-
+                        .get();
 
                 return document.toString();
             } catch (IOException e) {
@@ -219,8 +201,6 @@ public class MainController {
         }
         throw new IOException("페이지 로드 실패");
     }
-
-
 }
 
 

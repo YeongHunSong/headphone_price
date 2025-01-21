@@ -36,6 +36,11 @@ public class MybatisPostRepository implements PostRepository {
         postMapper.newLoginCookies(loginCookies);
     }
 
+    @Override
+    public void newNaverPostItem(NaverPostItem postItem) {
+        postMapper.newNaverPostItem(postItem);
+    }
+
 
     @Override
     public List<PostItem> findPagedPostItemsBySearchCond(PageDto pageDto, SearchCond cond) {

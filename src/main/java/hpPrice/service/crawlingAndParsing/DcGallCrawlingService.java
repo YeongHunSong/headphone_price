@@ -5,6 +5,7 @@ import hpPrice.domain.ErrorPost;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
+import hpPrice.repository.PostRepository;
 import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,18 +25,20 @@ import static hpPrice.common.CommonConst.*;
 @Service
 @RequiredArgsConstructor
 public class DcGallCrawlingService {
+    private final PostRepository postRepository;
     private final PostService postService;
 
     private static long postNum = 0;
 
+
 //    @Scheduled(fixedDelay = 90000) // 60초 주기로 크롤링
-    public void parsingDcPost() {
-        log.info("크롤링 동작 중 [{}]", DateTimeUtils.getCurrentDateTime());
+    public void dcPostCrawling() {
+        log.info("DC 크롤링 동작 중 [{}]", DateTimeUtils.getCurrentDateTime());
 
         parsingLogic:
         try {
-            ErrorDto errorCheck = postService.errorCheck();
-            long latestPostNum = postService.latestPostNum();
+            ErrorDto errorCheck = errorCheck();
+            long latestPostNum = latestPostNum();
             int lastPage = findLastPage(); // 해당 탭 게시글 마지막 페이지 값 받이오기
             int startPage = findErrorPage(errorCheck, lastPage); // ERROR 발생했는지 확인 후 발생했었다면 ERROR 발생한 페이지 반환, 발생하지 않았었다면 1 반환.
 
@@ -56,7 +59,7 @@ public class DcGallCrawlingService {
                 }
             }
         } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
-            postService.reportError(ErrorPost.reportError(postNum, e.toString()));
+            reportError(ErrorPost.reportError(postNum, e.toString()));
             log.error("크롤링 사이트 연결 관련 Exception -> ", e);
         } catch (Exception e) {
             log.error("Exception 발생 -> ", e);
@@ -107,8 +110,8 @@ public class DcGallCrawlingService {
             for (int errorPage = 1; errorPage <= lastPage; errorPage++) {
                 for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + errorPage, ".gall_list .us-post")) {
                     if (errorCheck.getPostNum() == Long.parseLong(postItem.selectFirst(".gall_num").text())) {
-                        postService.resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
-                        log.info("ERROR 발생 페이지 = [" + errorPage + " page]");
+                        resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
+                        log.info("ERROR 발생 페이지 = [{} page]", errorPage);
                         return errorPage;
                     }
                 }
@@ -153,7 +156,7 @@ public class DcGallCrawlingService {
         long postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
         String title = postItem.selectFirst(".gall_tit [href]").text();
         try {
-            postService.newPostItemDC(
+            postService.savePostItemDC(
                     PostItem.newPostItem(
                             postNum,
                             title,
@@ -166,9 +169,28 @@ public class DcGallCrawlingService {
                             postNum,
                             content.outerHtml()));
         } catch (DuplicateKeyException e) {
-            postService.reportError(ErrorPost.reportError(postNum, e.toString()));
-            postService.resolveError(postNum, postService.errorCheck().getErrorNum()); // 추가적인 복구가 필요하지는 않으므로 해결 처리.
+            reportError(ErrorPost.reportError(postNum, e.toString()));
+            resolveError(postNum, errorCheck().getErrorNum()); // 추가적인 복구가 필요하지는 않으므로 해결 처리.
             log.error("이미 저장된 게시글로 저장되지 않음 -> {} {} \n", postNum, title, e);
         } // 해당 페이지 내 마지막 글을 데이터베이스에 저장하던 도중 새로운 글이 작성되어 다음 페이지 첫번째 글로 넘어가면서 중복 오류가 발생한 건에 대해서만 예외 처리.
+    }
+
+    public ErrorDto errorCheck() {
+        return postRepository.findErrorPost();
+    }
+
+    public void reportError(ErrorPost errorPost) {
+        postRepository.newErrorPost(errorPost);
+    }
+
+    public void resolveError(Long postNum, Long errorNum) {
+        postRepository.deletePostItemByPostNum(postNum);
+        postRepository.resolveError(errorNum);
+    }
+
+    public Long latestPostNum() {
+        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        Long latestPostNum = postRepository.findLatestPostNum();
+        return latestPostNum == null ? 0L : latestPostNum;
     }
 }

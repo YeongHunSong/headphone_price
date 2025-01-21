@@ -16,6 +16,8 @@ public interface PostRepository {
 
     void newLoginCookies(LoginCookies loginCookies);
 
+    void newNaverPostItem(NaverPostItem postItem);
+
 
     // SELECT
     List<PostItem> findPagedPostItemsBySearchCond(PageDto pageDto, SearchCond cond);

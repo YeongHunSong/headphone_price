@@ -19,6 +19,8 @@ public interface PostMapper {
 
     void newLoginCookies(LoginCookies loginCookies);
 
+    void newNaverPostItem(NaverPostItem postItem);
+
 
     // SELECT
     List<PostItem> findPagedPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond);
