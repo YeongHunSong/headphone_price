@@ -1,6 +1,7 @@
 package hpPrice.controller;
 
 import hpPrice.common.dateTime.DateTimeUtils;
+import hpPrice.domain.NaverPostItem;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.common.paging.PageControl;
@@ -11,7 +12,6 @@ import hpPrice.service.PostService;
 import hpPrice.service.crawlingAndParsing.NaverLoginCookieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -86,6 +86,7 @@ public class MainController {
 
     }
 
+    // DC
 
     @GetMapping("/dcsff")
     public String dcSff(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
@@ -96,7 +97,6 @@ public class MainController {
         // TODO 저장할 때부터 모든 내용을 소문자로 DB에 넣는다거나?
         // 시스템 설정 활용: MySQL의 경우, lower_case_table_names 시스템 변수를 1로 설정하여 대소문자를 구분하지 않도록 할 수 있습니다.
         // https://oneny.tistory.com/106
-
     }
 
     @GetMapping("/dcsff/{postNum}")
@@ -110,27 +110,42 @@ public class MainController {
         return "dc/postDetail";
     }
 
-    // 닥터헤드폰 카페 번호: 1196414
-    // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
 
+    // NAVER CAFE
+
+    @GetMapping("/drhp/")
+    public String drhp(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
+        model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
+        model.addAttribute("postItem", postService.findPostItems(pageDto, cond));
+        return "dc/home";
+    }
+
+
+
+
+
+
+
+
+    // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
     // 글 상세에서는 작성일자 전체 표시
 
 
     @ResponseBody
     @GetMapping("/test")
     public String nvDRHPHeadphone() throws IOException, InterruptedException {
-        Elements postList = DcGallCrawlingService.connectAndParsing(NV_POST_LIST_URL + NV_TAB_HEADPHONE, "div.article-board > table > tbody > tr");
+        Elements postList = DcGallCrawlingService.connectAndParsing("https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21&search.page=1",
+                "div.article-board > table > tbody > tr");
         postList.removeIf(postItem -> postItem.hasClass("board-notice")); // 공지글 제거
 
         // https://cafe.naver.com/drhp/2354201
 
        for (Element postItem : postList) {
            long postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
-//           Document document = Jsoup.connect(NV_POST_URL + postNum).timeout(TIME_OUT).userAgent(USER_AGENT).get(); // 로그인 권한 필요.
-
-           System.out.println(PostItem.newPostItem(
+           System.out.println(NaverPostItem.newPostItem(
                    postNum,
                    postItem.selectFirst(".article").text(),
+                   21,
                    postItem.selectFirst(".article").absUrl("href"),
                    postItem.selectFirst(".m-tcol-c").text(),
                    postItem.selectFirst(".mem-level").html(),

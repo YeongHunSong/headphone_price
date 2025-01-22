@@ -34,6 +34,14 @@ public interface PostRepository {
 
     String findLatestLoginCookiesByDesc(String desc);
 
+    Long findLatestNaverPostNum(int category);
+
+    List<NaverPostItem> findPagedNvPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category);
+
+    NaverPostItem findNvPostItemByPostNum(Long postNum);
+
+    Integer countNvPostItemsBySearchCond(SearchCond cond, int category);
+
 
     // UPDATE
     void resolveError(Long errorNum);

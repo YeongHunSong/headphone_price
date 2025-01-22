@@ -10,6 +10,8 @@ public class NaverPostItem {
 
     private String title;
 
+    private Integer category;
+
     private String url;
 
     private String nickname;
@@ -21,17 +23,18 @@ public class NaverPostItem {
     private NaverPostItem() {
     }
 
-    private NaverPostItem(Long postNum, String title, String url, String nickname, String memLevel, LocalDateTime wDate) {
+    private NaverPostItem(Long postNum, String title, Integer category, String url, String nickname, String memLevel, LocalDateTime wDate) {
         this.postNum = postNum;
         this.title = title;
+        this.category = category;
         this.url = url;
         this.nickname = nickname;
         this.memLevel = memLevel;
         this.wDate = wDate;
     }
 
-    public static NaverPostItem newPostItem(Long postNum, String title, String url, String nickname, String memLevel, LocalDateTime wDate) {
-        return new NaverPostItem(postNum, title, url, nickname, memLevel, wDate);
+    public static NaverPostItem newPostItem(Long postNum, String title, Integer category, String url, String nickname, String memLevel, LocalDateTime wDate) {
+        return new NaverPostItem(postNum, title, category, url, nickname, memLevel, wDate);
     }
 
 }

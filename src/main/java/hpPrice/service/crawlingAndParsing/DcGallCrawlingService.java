@@ -6,13 +6,13 @@ import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.domain.ErrorDto;
 import hpPrice.repository.PostRepository;
-import hpPrice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,14 +26,13 @@ import static hpPrice.common.CommonConst.*;
 @RequiredArgsConstructor
 public class DcGallCrawlingService {
     private final PostRepository postRepository;
-    private final PostService postService;
 
     private static long postNum = 0;
 
 
-//    @Scheduled(fixedDelay = 90000) // 60초 주기로 크롤링
+    @Scheduled(fixedDelay = 90 * 1000)
     public void dcPostCrawling() {
-        log.info("DC 크롤링 동작 중 [{}]", DateTimeUtils.getCurrentDateTime());
+        log.info("DC 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
 
         parsingLogic:
         try {
@@ -64,14 +63,49 @@ public class DcGallCrawlingService {
         } catch (Exception e) {
             log.error("Exception 발생 -> ", e);
         }
-        log.info("parsing 종료");
+        log.info("DC 크롤링 종료 [{}]", DateTimeUtils.getCurrentDateTime());
     }
 
-    public void parsingNaverCafePostList() {
-        for (int page = 1; page <= 10; page++) {
 
+
+
+
+    // ### DB 접근 서비스 메서드 ###
+    
+    public void savePostItemDC(PostItem postItem) {
+        if (postItem.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
+            postItem.setUserId("유동");
+            postItem.setUserUrl("");
+        } else {
+            postItem.setUserUrl("https://gallog.dcinside.com/" + postItem.getUserId());
         }
+        postRepository.newPostItem(postItem);
+        log.info("저장한 게시글 - {} {}", postItem.getPostNum(), postItem.getTitle());
     }
+
+    public void savePostDC(Post post) {
+        postRepository.newPost(post);
+    }
+
+    public Long latestPostNum() {
+        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        Long latestPostNum = postRepository.findLatestPostNum();
+        return latestPostNum == null ? 0L : latestPostNum;
+    }
+
+    public ErrorDto errorCheck() {
+        return postRepository.findErrorPost();
+    }
+
+    public void reportError(ErrorPost errorPost) {
+        postRepository.newErrorPost(errorPost);
+    }
+
+    public void resolveError(Long postNum, Long errorNum) {
+        postRepository.deletePostItemByPostNum(postNum);
+        postRepository.resolveError(errorNum);
+    }
+
 
 
 
@@ -156,7 +190,7 @@ public class DcGallCrawlingService {
         long postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
         String title = postItem.selectFirst(".gall_tit [href]").text();
         try {
-            postService.savePostItemDC(
+            savePostItemDC(
                     PostItem.newPostItem(
                             postNum,
                             title,
@@ -164,7 +198,7 @@ public class DcGallCrawlingService {
                             postItem.selectFirst(".nickname em").text(),
                             postItem.selectFirst(".gall_writer").attr("data-uid"),
                             DateTimeUtils.parseDcDateTime(postItem.selectFirst(".gall_date").attr("title"))));
-            postService.newPostDC(
+            savePostDC(
                     Post.newPost(
                             postNum,
                             content.outerHtml()));
@@ -173,24 +207,5 @@ public class DcGallCrawlingService {
             resolveError(postNum, errorCheck().getErrorNum()); // 추가적인 복구가 필요하지는 않으므로 해결 처리.
             log.error("이미 저장된 게시글로 저장되지 않음 -> {} {} \n", postNum, title, e);
         } // 해당 페이지 내 마지막 글을 데이터베이스에 저장하던 도중 새로운 글이 작성되어 다음 페이지 첫번째 글로 넘어가면서 중복 오류가 발생한 건에 대해서만 예외 처리.
-    }
-
-    public ErrorDto errorCheck() {
-        return postRepository.findErrorPost();
-    }
-
-    public void reportError(ErrorPost errorPost) {
-        postRepository.newErrorPost(errorPost);
-    }
-
-    public void resolveError(Long postNum, Long errorNum) {
-        postRepository.deletePostItemByPostNum(postNum);
-        postRepository.resolveError(errorNum);
-    }
-
-    public Long latestPostNum() {
-        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        Long latestPostNum = postRepository.findLatestPostNum();
-        return latestPostNum == null ? 0L : latestPostNum;
     }
 }

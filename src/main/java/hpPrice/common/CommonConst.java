@@ -16,9 +16,9 @@ public class CommonConst {
 
 
     public static final String NV_POST_LIST_URL = "https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414";
+    public static final String NV_TAB_QUERY = "&search.menuid=";
     public static final String NV_PAGE_QUERY = "&search.page=";
 
-    public static final String NV_TAB_HEADPHONE = "&search.menuid=21";
     public static final String NV_TAB_EARPHONE = "&search.menuid=102";
     public static final String NV_TAB_DAC_AMP = "&search.menuid=192";
     public static final String NV_TAB_CABLE = "&search.menuid=42";
@@ -30,7 +30,7 @@ public class CommonConst {
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
-    public static final int MAX_RETRY_COUNT = 4;
+    public static final int MAX_RETRY_COUNT = 15; // TODO naver cafe 크롤링은 절대 죽으면 안 됨.
     public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 500;
     public static final int LOGIN_SLEEP_TIME = 1111;

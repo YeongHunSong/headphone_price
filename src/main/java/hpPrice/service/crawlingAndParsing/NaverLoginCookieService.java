@@ -3,7 +3,7 @@ package hpPrice.service.crawlingAndParsing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hpPrice.common.LoginInfo;
+import hpPrice.common.naverCafe.LoginInfo;
 import hpPrice.domain.LoginCookies;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;

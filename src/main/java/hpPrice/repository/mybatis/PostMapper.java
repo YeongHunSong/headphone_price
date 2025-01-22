@@ -37,6 +37,14 @@ public interface PostMapper {
 
     String findLatestLoginCookiesByDesc(String desc);
 
+    Long findLatestNaverPostNum(int category);
+
+    List<NaverPostItem> findPagedNvPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond, @Param("category") int category);
+
+    NaverPostItem findNvPostItemByPostNum(Long postNum);
+
+    Integer countNvPostItemsBySearchCond(@Param("cond")SearchCond cond, @Param("category") int category);
+
 
 
     // UPDATE

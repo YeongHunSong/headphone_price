@@ -77,6 +77,28 @@ public class MybatisPostRepository implements PostRepository {
         return postMapper.findLatestLoginCookiesByDesc(desc);
     }
 
+    @Override
+    public Long findLatestNaverPostNum(int category) {
+        return postMapper.findLatestNaverPostNum(category);
+    }
+
+    @Override
+    public List<NaverPostItem> findPagedNvPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category) {
+        return postMapper.findPagedNvPostItemsBySearchCond(pageDto, cond, category);
+    }
+
+    @Override
+    public NaverPostItem findNvPostItemByPostNum(Long postNum) {
+        return postMapper.findNvPostItemByPostNum(postNum);
+    }
+
+    @Override
+    public Integer countNvPostItemsBySearchCond(SearchCond cond, int category) {
+        return postMapper.countNvPostItemsBySearchCond(cond, category);
+    }
+
+
+
 
     @Override
     public void resolveError(Long errorNum) {
