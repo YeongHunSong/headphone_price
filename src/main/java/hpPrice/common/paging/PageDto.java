@@ -11,7 +11,7 @@ public class PageDto {
     private int pageView;
     private int pageCount;
     
-    public void pageValidation() { // pageView 변경 기능을 위한 modelAttribute 용
+    public void pageValidation() {
         this.page = page <= 0 ? 1 : page;
         this.pageCount = (page - 1) * pageView;
     }

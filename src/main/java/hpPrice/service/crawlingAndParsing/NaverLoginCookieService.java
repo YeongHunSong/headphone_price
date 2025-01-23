@@ -3,6 +3,7 @@ package hpPrice.service.crawlingAndParsing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.common.naverCafe.LoginInfo;
 import hpPrice.domain.LoginCookies;
 import hpPrice.repository.PostRepository;
@@ -20,10 +21,12 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.Thread.sleep;
+import static hpPrice.common.CommonConst.USER_AGENT;
 import static hpPrice.common.CommonConst.LOGIN_SLEEP_TIME;
+import static java.lang.Thread.sleep;
 
 
 @Slf4j
@@ -43,17 +46,20 @@ public class NaverLoginCookieService {
 
 
     public void setNaverLoginCookies() {
+        log.info("네이버 로그인 쿠키 갱신 시작 [{}]", DateTimeUtils.getCurrentDateTime());
+
         ChromeOptions options = new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("--start-maximized")
+                .addArguments("user-agent=" + USER_AGENT)
 //                .addArguments("--disable-gpu")
 //                .addArguments("--headless")
-                .setExperimentalOption("detach", true);
+                .setExperimentalOption("detach", true); // 이걸 해야 창이 꺼짐;
 
         ChromeDriver driver = new ChromeDriver(options);
 
         try { // https://nid.naver.com/nidlogin.login?mode=form
-            driver.get("https://nid.naver.com/nidlogin.login?mode=form");
+            driver.get("https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fsection.cafe.naver.com%2Fca-fe%2Fhome%2Ffeed");
             driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
             sleep(LOGIN_SLEEP_TIME);
 
@@ -82,13 +88,15 @@ public class NaverLoginCookieService {
                 sleep(LOGIN_SLEEP_TIME);
             }
 
-//            sleep(1000000000); // 화면 확인용
+            log.info("네이버 로그인 쿠키 갱신 완료 [{}]", DateTimeUtils.getCurrentDateTime());
+//            return driver.manage().getCookies();
 
             storeLoginCookies(LoginCookies.newLoginCookies("naverLoginCookies",
                     objectMapper.writeValueAsString( // Map<String, String> 객체를 json 형태로 변환.
                             driver.manage().getCookies()
                                     .stream()
                                     .collect(Collectors.toMap(Cookie::getName, Cookie::getValue)))));
+
         } catch (InterruptedException | JsonProcessingException e) {
             log.error("Exception");
         } finally {

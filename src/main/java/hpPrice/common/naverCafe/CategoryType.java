@@ -28,6 +28,15 @@ public enum CategoryType {
         throw new IllegalArgumentException("잘못된 카테고리 번호" + number);
     }
 
+    public static boolean isCategory(int number) {
+        for (CategoryType categoryType : CategoryType.values()) {
+            if (categoryType.getNumber() == number) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static List<Integer> getCategoryNumbers() {
         return List.of(21, 102, 192, 42);
     }

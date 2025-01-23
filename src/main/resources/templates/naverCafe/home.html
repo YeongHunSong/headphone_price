@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <title>DC SFF 갤러리 거래 글목록</title>
+    <title>닥터헤드폰 카페</title> <!-- TODO category 받아와서 타이틀 넣기 -->
 </head>
 
 <body>
@@ -13,7 +13,7 @@
     <div class="form-control" style="max-width: 1250px">
         <div class="row">
             <div class="py-2">
-                <button class="w-auto btn btn-primary float-start row mx-auto" th:onclick="|location.href='@{/dcsff}'|" type="button">전체글</button>
+                <button class="w-auto btn btn-primary float-start row mx-auto" th:onclick="|location.href='@{/drhp/{category}}'|" type="button">전체글</button>
                 <form th:action method="get" class="row float-end">
                     <div class="col-auto">
                         <label>
@@ -21,7 +21,6 @@
                                 <option th:value="title" selected>제목</option>
                                 <option th:value="content">내용</option>
                                 <option th:value="nickname">닉네임</option>
-                                <option th:value="userId">아이디</option>
                             </select>
                         </label>
                     </div>
@@ -38,24 +37,23 @@
                 <thead>
                 <tr>
                     <th class="col-1">글번호</th>
-                    <th class="col-5">제목</th>
+                    <th class="col-4">제목</th>
+                    <th class="col-1">작성자</th>
                     <th class="col-1">작성일</th>
-                    <th class="col-3">닉네임</th>
-                    <th class="col-1">갤로그</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="postItem : ${postItem}">
-                    <td class="p-1"><p th:text="|${postItem.postNum}|">글 번호</p></td>
-                    <td class="p-1"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100" target="_blank" rel="noopener noreferrer">제목</a></td>
-                    <td class="p-1"><p th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</p></td> <!-- yyyy-MM-dd HH:mm:ss -->
-                    <td class="p-1"><p th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</p></td>
-                    <td class="p-1"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
+                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>
+                    <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
+                    <td class="p-2"><span th:utext="|${postItem.nickname} ${postItem.memLevel}|" class="mx-auto text-truncate text-nowrap">닉네임 회원등급</span></td>
+                    <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
                 </tr>
                 </tbody>
             </table>
-            <p class="text-center" th:if="${#lists.size(postItem) == 0}">게시글이 없습니다.</p>
+            <span class="text-center" th:if="${#lists.size(postItem) == 0}">게시글이 없습니다.</span>
         </div>
+
         <div>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
@@ -63,14 +61,12 @@
                         <form th:action method="get">
                             <input type="hidden" th:field="${cond.searchType}">
                             <input type="hidden" th:field="${cond.keyword}">
-                            <!--            <input type="hidden" th:field="${pageDto.pageView}">-->
                             <input type="hidden" name="page" th:value="${pageControl.firstPage}">
                             <input type="submit" class="page-link" aria-hidden="true" value="&laquo;" aria-label="first">
                         </form>
                     </li>
                     <li class="page-item" th:if="${pageControl.prev}">
                         <form th:action method="get">
-                            <!--            <input type="hidden" th:field="${pageDto.pageView}">-->
                             <input type="hidden" name="page" th:value="${pageControl.dpStartPage-1}">
                             <input type="submit" class="page-link" aria-hidden="true" value="&lt;" aria-label="prev">
                         </form>
@@ -79,7 +75,6 @@
                         <form th:action method="get">
                             <input type="hidden" th:field="${cond.searchType}">
                             <input type="hidden" th:field="${cond.keyword}">
-                            <!--            <input type="hidden" th:field="${pageDto.pageView}">-->
                             <input type="hidden" name="page" th:value="${page}">
                             <input type="submit" class="page-link" th:value="${page}" aria-label="page" th:class="${pageControl.pageDto.page} == ${page} ? 'page-link active' : 'page-link'">
                         </form>
@@ -88,7 +83,6 @@
                         <form th:action method="get">
                             <input type="hidden" th:field="${cond.searchType}">
                             <input type="hidden" th:field="${cond.keyword}">
-                            <!--            <input type="hidden" th:field="${pageDto.pageView}">-->
                             <input type="hidden" name="page" th:value="${pageControl.dpEndPage+1}">
                             <input type="submit" class="page-link" aria-hidden="true" value="&gt;" aria-label="next">
                         </form>
@@ -97,7 +91,6 @@
                         <form th:action method="get">
                             <input type="hidden" th:field="${cond.searchType}">
                             <input type="hidden" th:field="${cond.keyword}">
-                            <!--            <input type="hidden" th:field="${pageDto.pageView}">-->
                             <input type="hidden" name="page" th:value="${pageControl.lastPage}">
                             <input type="submit" class="page-link" aria-hidden="true" value="&raquo;" aria-label="last">
                         </form>

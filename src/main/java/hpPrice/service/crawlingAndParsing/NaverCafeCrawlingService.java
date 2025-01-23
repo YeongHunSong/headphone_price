@@ -48,6 +48,11 @@ public class NaverCafeCrawlingService {
                         if (latestPostNum >= postNum) break parsingLogic;
                         // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
+
+
+
+
+
                         savePostItem(postItem, category);
 
                         // ### POST 파싱 ###
@@ -106,8 +111,10 @@ public class NaverCafeCrawlingService {
                 return parsingData;
             } catch (IOException e) {
                 if (tryCount == MAX_RETRY_COUNT - 1) throw e;
-                log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
-                log.info("에러 발생한 URL = {}", connectUrl);
+                if (tryCount >= 2) {
+                    log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
+                    log.info("에러 발생한 URL = {}", connectUrl);
+                }
                 Thread.sleep(SLEEP_TIME * (tryCount + 1));
             }
         }
