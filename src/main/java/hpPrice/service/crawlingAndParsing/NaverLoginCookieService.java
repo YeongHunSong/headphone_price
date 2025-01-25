@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hpPrice.common.dateTime.DateTimeUtils;
+import hpPrice.common.naverCafe.CookieConvert;
 import hpPrice.common.naverCafe.LoginInfo;
 import hpPrice.domain.LoginCookies;
 import hpPrice.repository.PostRepository;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.time.Duration;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static hpPrice.common.CommonConst.USER_AGENT;
@@ -40,12 +40,8 @@ public class NaverLoginCookieService {
         postRepository.newLoginCookies(loginCookies);
     }
 
-    public String latestLoginCookies(String desc) {
-        return postRepository.findLatestLoginCookiesByDesc(desc);
-    }
 
-
-    public void setNaverLoginCookies() {
+    public void updateNaverLoginCookies() {
         log.info("네이버 로그인 쿠키 갱신 시작 [{}]", DateTimeUtils.getCurrentDateTime());
 
         ChromeOptions options = new ChromeOptions()
@@ -59,7 +55,7 @@ public class NaverLoginCookieService {
         ChromeDriver driver = new ChromeDriver(options);
 
         try { // https://nid.naver.com/nidlogin.login?mode=form
-            driver.get("https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fsection.cafe.naver.com%2Fca-fe%2Fhome%2Ffeed");
+            driver.get("https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fsection.cafe.naver.com%2Fca-fe%2Fhome"); // 여기로 해야 치지직 관련 쿠키 안 생김
             driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
             sleep(LOGIN_SLEEP_TIME);
 
@@ -88,25 +84,48 @@ public class NaverLoginCookieService {
                 sleep(LOGIN_SLEEP_TIME);
             }
 
+            Set<CookieConvert> convertCookies = driver.manage().getCookies()
+                    .stream()
+                    .map(CookieConvert::new)
+                    .collect(Collectors.toSet());
+
+            postRepository.newLoginCookies(
+                    LoginCookies.newLoginCookies("naverLoginCookies",
+                            objectMapper.writeValueAsString(convertCookies)));
+
             log.info("네이버 로그인 쿠키 갱신 완료 [{}]", DateTimeUtils.getCurrentDateTime());
-//            return driver.manage().getCookies();
-
-            storeLoginCookies(LoginCookies.newLoginCookies("naverLoginCookies",
-                    objectMapper.writeValueAsString( // Map<String, String> 객체를 json 형태로 변환.
-                            driver.manage().getCookies()
-                                    .stream()
-                                    .collect(Collectors.toMap(Cookie::getName, Cookie::getValue)))));
-
         } catch (InterruptedException | JsonProcessingException e) {
-            log.error("Exception");
+            log.error("Exception", e);
         } finally {
             driver.quit();
         }
     }
 
-    public Map<String, String> getNaverLoginCookies() throws JsonProcessingException {
-        return objectMapper.readValue(
-                latestLoginCookies("naverLoginCookies"), new TypeReference<>() {}); // Map.class 변수 값에 따름.
 
+    public Set<Cookie> getNaverLoginCookie() throws JsonProcessingException {
+        String jsonLoginCookie = postRepository.findLatestLoginCookiesByDesc("naverLoginCookies");
+        Set<CookieConvert> cookieConverts = objectMapper.readValue(jsonLoginCookie, new TypeReference<Set<CookieConvert>>() {});
+
+        return cookieConverts.stream()
+                .map(CookieConvert::toSeleniumCookie)
+                .collect(Collectors.toSet());
+    }
+
+
+    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {
+        Map<String, String> cookieMap = seleniumCookies.stream()
+                .collect(Collectors.toMap(
+                        Cookie::getName,
+                        Cookie::getValue));
+        cookieMap.put("domain", ".naver.com");
+//        cookieMap.put("expiry", "Sun Jan 26 15:10:56 KST 2025");
+        cookieMap.put("path", "=/");
+        cookieMap.put("sameSite", "Lax");
+        return objectMapper.writeValueAsString(cookieMap);
+    }
+
+    public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
+        return objectMapper.readValue(
+                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
     }
 }

@@ -1,13 +1,10 @@
 package hpPrice.common.dateTime;
 
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Component
 public class DateTimeUtils {
 
     public static final DateTimeFormatter DC_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -29,6 +26,4 @@ public class DateTimeUtils {
     public static String getCurrentDateTime() {
         return LocalDateTime.now().format(DC_DATE_FORMATTER);
     }
-
-
 }

@@ -1,6 +1,5 @@
 package hpPrice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.common.naverCafe.CategoryType;
 import hpPrice.domain.NaverPostItem;
@@ -14,8 +13,6 @@ import hpPrice.service.PostService;
 import hpPrice.service.crawlingAndParsing.NaverLoginCookieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.Cookie;
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
@@ -182,9 +178,9 @@ public class MainController {
 
     @ResponseBody
     @GetMapping("/cookieRefresh")
-    public String cookieRefresh() throws JsonProcessingException { // TODO 쿠키가 만료되었을 경우, 자동으로 쿠키를 새로 발급받은 후 크롤링을 진행할 수 있도록.
-        naverLoginService.setNaverLoginCookies();
-        return naverLoginService.getNaverLoginCookies().toString();
+    public String cookieRefresh() { // TODO 쿠키가 만료되었을 경우, 자동으로 쿠키를 새로 발급받은 후 크롤링을 진행할 수 있도록.
+        naverLoginService.updateNaverLoginCookies();
+        return "good";
     }
 
 
@@ -216,82 +212,44 @@ public class MainController {
     @ResponseBody
     @GetMapping("/sele")
     public String selenium() throws Exception {
-        Map<String, String> naverLoginCookies = naverLoginService.getNaverLoginCookies();
-
-
-
         ChromeOptions options = new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("start-maximized")
                 .addArguments("user-agent=" + USER_AGENT);
 
         ChromeDriver driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-
-//        Set<Cookie> cookies = naverLoginService.setNaverLoginCookies();
-//
-//        for (Cookie cookie : cookies) {
-//            driver.manage().addCookie(cookie);
-//        }
-
-        driver.manage().deleteAllCookies();
+        Set<Cookie> naverLoginCookies = naverLoginService.getNaverLoginCookie();
 
 
+        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
+            try {
+                driver.get("https://cafe.naver.com/drhp");
+                driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+                for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
 
-        System.out.println("addCookie 완료");
+                Thread.sleep(SLEEP_TIME);
+                driver.get("https://cafe.naver.com/ca-fe/cafes/11196414/articles/2323129?referrerAllArticles=false");
+                driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+                Thread.sleep(5000);
 
 
-        try {
-            driver.get("https://www.naver.com");
-            driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-            for (Map.Entry<String, String> entry : naverLoginCookies.entrySet()) {
-                driver.manage().addCookie(new Cookie(entry.getKey(), entry.getValue()));
+                Thread.sleep(15000);
+            } finally {
+                driver.quit();
             }
-
-            Thread.sleep(5000);
-
-            driver.get("https://www.naver.com");
-
-            Thread.sleep(5000);
-
-            driver.get("https://cafe.naver.com/ca-fe/cafes/11196414/articles/2357666?referrerAllArticles=false");
-            driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-
-
-
-//            driver.navigate().refresh(); // 쿠키 적용이 제대로 안 된 경우 새로고침해라.
-//            driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-            Thread.sleep(1000000000);
-
-        } finally {
-            driver.quit();
         }
-
-
-//        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
-//            try {
-//                Thread.sleep(SLEEP_TIME);
-//
-//
-//
-//
-//                Document document = Jsoup.connect("")
-//                        .cookies(naverLoginCookies)
-//                        .userAgent(USER_AGENT)
-//                        .timeout(TIME_OUT)
-//                        .referrer("https://search.naver.com/")
-//                        .get();
-//
-//                return document.toString();
-//            } catch (IOException e) {
-//                if (tryCount == MAX_RETRY_COUNT - 1) throw e;
-//                log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
-//                Thread.sleep(SLEEP_TIME * (tryCount + 1));
-//            }
-//        }
-//        throw new IOException("페이지 로드 실패");
-        return naverLoginCookies.toString();
+        return "no_good";
     }
 }
+
+
+//// Jsoup 으로는 아무리 해도 네이버 카페 화면 크롤링 불가능.
+//        Map<String, String> naverLoginCookies = naverLoginService.getCookieToJsoup();
+//Document document = Jsoup.url("https://cafe.naver.com/drhp/2358449")
+//                        .userAgent(USER_AGENT)
+//                        .timeout(TIME_OUT)
+//                        .cookies(naverLoginCookies)
+//                        .get();
+//                return document.toString();
 
 

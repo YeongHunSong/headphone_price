@@ -30,7 +30,7 @@ public class DcGallCrawlingService {
     private static long postNum = 0;
 
 
-    @Scheduled(fixedDelay = 90 * 1000)
+//    @Scheduled(fixedDelay = 90 * 1000)
     public void dcPostCrawling() {
         log.info("DC 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
 
