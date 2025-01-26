@@ -9,11 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
 
@@ -21,16 +24,16 @@ import static hpPrice.common.CommonConst.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NaverCafeCrawlingService {
+public class NvCafeCrawlingService {
     private final PostRepository postRepository;
-    private final NaverLoginCookieService naverLoginCookieService;
+    private final NvLoginService nvLoginService;
 
 
     private static long postNum = 0;
 
 
 
-    @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
+//    @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostItemCrawling() {
         log.info("NAVER CAFE 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
         try {
@@ -48,12 +51,20 @@ public class NaverCafeCrawlingService {
                         if (latestPostNum >= postNum) break parsingLogic;
                         // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
+                        ChromeDriver driver = nvLoginService.getChromeDriver();
+                        Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
+
+                        nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
+                        for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
+
+                        nvLoginService.driverGetAndWait(driver, NV_POST_URL + postNum);
+                        // TODO 여기서 로그인이 제대로 되어있는지 확인하고, 로그인이 되어있지 않으면 쿠키 리프레쉬
+
+                        // 파싱 코드 ~~
 
 
 
-
-
-                        savePostItem(postItem, category);
+                        savePostItem(postItem, category); // TODO 저장 통합
 
                         // ### POST 파싱 ###
 //                        Elements post = connectAndParsing(DC_POST_URL + DC_POST_NUM_QUERY + postNum, ".write_div > *");

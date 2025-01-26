@@ -10,12 +10,14 @@ import hpPrice.common.paging.PageDto;
 import hpPrice.domain.SearchCond;
 import hpPrice.service.crawlingAndParsing.DcGallCrawlingService;
 import hpPrice.service.PostService;
-import hpPrice.service.crawlingAndParsing.NaverLoginCookieService;
+import hpPrice.service.crawlingAndParsing.NvLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Controller;
@@ -37,7 +39,7 @@ import static hpPrice.common.CommonConst.*;
 public class MainController {
 
     private final PostService postService;
-    private final NaverLoginCookieService naverLoginService;
+    private final NvLoginService nvLoginService;
     private final DcGallCrawlingService DcGallCrawlingService;
 
     @InitBinder
@@ -136,50 +138,14 @@ public class MainController {
     }
 
 
-
-
-
-
-
-
     // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
     // 글 상세에서는 작성일자 전체 표시
 
 
     @ResponseBody
-    @GetMapping("/test")
-    public String nvDRHPHeadphone() throws IOException, InterruptedException {
-        Elements postList = DcGallCrawlingService.connectAndParsing("https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21&search.page=1",
-                "div.article-board > table > tbody > tr");
-        postList.removeIf(postItem -> postItem.hasClass("board-notice")); // 공지글 제거
-
-        // https://cafe.naver.com/drhp/2354201
-
-       for (Element postItem : postList) {
-           long postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
-           System.out.println(NaverPostItem.newPostItem(
-                   postNum,
-                   postItem.selectFirst(".article").text(),
-                   21,
-                   postItem.selectFirst(".article").absUrl("href"),
-                   postItem.selectFirst(".m-tcol-c").text(),
-                   postItem.selectFirst(".mem-level").html(),
-                   DateTimeUtils.parseNaverDateTime(postItem.selectFirst(".td_date").text())
-           ));
-           // postItem / post 저장
-
-       }
-
-
-
-        return postList.toString();
-    }
-
-
-    @ResponseBody
     @GetMapping("/cookieRefresh")
     public String cookieRefresh() { // TODO 쿠키가 만료되었을 경우, 자동으로 쿠키를 새로 발급받은 후 크롤링을 진행할 수 있도록.
-        naverLoginService.updateNaverLoginCookies();
+        nvLoginService.updateNaverLoginCookies();
         return "good";
     }
 
@@ -210,35 +176,25 @@ public class MainController {
 
 
     @ResponseBody
-    @GetMapping("/sele")
+    @GetMapping("/test")
     public String selenium() throws Exception {
-        ChromeOptions options = new ChromeOptions()
-                .addArguments("--remote-allow-origins=*")
-                .addArguments("start-maximized")
-                .addArguments("user-agent=" + USER_AGENT);
+        ChromeDriver driver = nvLoginService.getChromeDriver();
+        Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
 
-        ChromeDriver driver = new ChromeDriver(options);
-        Set<Cookie> naverLoginCookies = naverLoginService.getNaverLoginCookie();
-
-
-        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
-                driver.get("https://cafe.naver.com/drhp");
-                driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+                nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
 
-                Thread.sleep(SLEEP_TIME);
-                driver.get("https://cafe.naver.com/ca-fe/cafes/11196414/articles/2323129?referrerAllArticles=false");
-                driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-                Thread.sleep(5000);
+                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 2323129);
+
+                WebElement element = driver.findElement(By.className("ArticleContentBox"));
+                String text = element.getText(); // TODO html로 어떻게 받아올지
 
 
-                Thread.sleep(15000);
+                return text;
             } finally {
                 driver.quit();
             }
-        }
-        return "no_good";
     }
 }
 

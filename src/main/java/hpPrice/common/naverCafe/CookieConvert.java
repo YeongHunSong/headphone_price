@@ -1,11 +1,13 @@
 package hpPrice.common.naverCafe;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.openqa.selenium.Cookie;
 
 import java.util.Date;
 
 @Getter
+@ToString
 public class CookieConvert {
     private String name;
     private String value;
