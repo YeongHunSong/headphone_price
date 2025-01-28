@@ -1,8 +1,6 @@
 package hpPrice.controller;
 
-import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.common.naverCafe.CategoryType;
-import hpPrice.domain.NaverPostItem;
 import hpPrice.domain.Post;
 import hpPrice.domain.PostItem;
 import hpPrice.common.paging.PageControl;
@@ -13,21 +11,18 @@ import hpPrice.service.PostService;
 import hpPrice.service.crawlingAndParsing.NvLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Element;
+import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
-import java.io.IOException;
-import java.time.Duration;
 import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
@@ -184,14 +179,38 @@ public class MainController {
             try {
                 nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
+                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 2359566);
 
-                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 2323129);
+                WebElement seleniumEle = driver.findElement(By.className("ArticleContentBox"));
+                Elements nvCafePost = Jsoup.parse(seleniumEle.getAttribute("outerHTML")).select(".ArticleContentBox > div");
 
-                WebElement element = driver.findElement(By.className("ArticleContentBox"));
-                String text = element.getText(); // TODO html로 어떻게 받아올지
+                String nickLevel = nvCafePost.select(".nick_level").text();
+                String wDate = nvCafePost.select(".date").text();
 
 
-                return text;
+                Elements post = nvCafePost.select(".se-module-text > p");
+                String price = post.select("*:matchesOwn(" + PRICE_PATTERN.pattern() + ")").text()
+                        .replaceAll(".*:\\s*", "").trim();
+
+                post.removeIf(postLine -> REMOVE_PATTERN.matcher(postLine.text()).find());
+
+
+//                if (post.get(15).text().trim().equals("@ 아래 양식 반드시 적어서 게시하세요.")) { // 글 양식 그대로 작성한 경우
+//                    post.subList(0, 16).clear();
+//                } else { // 글 양식을 건드린 경우, 글보다 사진이 먼저 올라와있는 경우
+//                }
+
+
+
+
+
+                Elements images = nvCafePost.select(".se-i-default"); // 이미지
+
+
+
+                // 이미지는 img src 를 받아와서 그것만 표시하는 방식으로 추가하기
+
+                return post.toString();
             } finally {
                 driver.quit();
             }

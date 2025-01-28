@@ -1,5 +1,7 @@
 package hpPrice.common;
 
+import java.util.regex.Pattern;
+
 public class CommonConst {
     public static final String DC_GALL_URL = "https://gall.dcinside.com/mgallery/board/lists/?id=sff";
     public static final String DC_TAB_PAGE_QUERY = "&search_head=40&page=";
@@ -29,6 +31,15 @@ public class CommonConst {
     public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 500;
     public static final int LOGIN_SLEEP_TIME = 2111;
+
+
+    public static final Pattern REMOVE_PATTERN = Pattern.compile("번호 :|연락처 :|번호:|연락처:" +
+            "|@ 영상통화|★사기|☆ 신입회원|★ 신입회원|☆ 구매글은|☆ 모든 장터|☆ 해외구매|@ 택배거래는" +
+        "|영상통화 & 카카오톡 영상통화 이용하여,|반드시, 제품 확인하시고 거래하세요.|@ 중고장터 사기 예방|https://cafe.naver.com/drhp/2141514" +
+            "|@ 가격정보 지우는|@ 시세조작|## 렌탈 제품|@ 거래중일 경우|## 불가능시|@ 아래 양식");
+
+
+    public static final Pattern PRICE_PATTERN = Pattern.compile("가격 :|가격:|금액:|금액 :");
 
     private CommonConst() {}
 }

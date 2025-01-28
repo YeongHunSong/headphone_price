@@ -20,6 +20,8 @@ public class NaverPostItem {
 
     private String memLevel;
 
+    private String price; // TODO 추후 추가하기
+
     private NaverPostItem() {
     }
 
