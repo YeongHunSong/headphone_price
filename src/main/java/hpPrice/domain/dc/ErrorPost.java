@@ -1,4 +1,4 @@
-package hpPrice.domain;
+package hpPrice.domain.dc;
 
 import lombok.Data;
 

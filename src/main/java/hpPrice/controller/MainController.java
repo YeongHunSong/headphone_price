@@ -1,12 +1,12 @@
 package hpPrice.controller;
 
 import hpPrice.common.naverCafe.CategoryType;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.dc.PostItem;
 import hpPrice.common.paging.PageControl;
 import hpPrice.common.paging.PageDto;
-import hpPrice.domain.SearchCond;
-import hpPrice.service.crawlingAndParsing.DcGallCrawlingService;
+import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.naver.NaverPostItem;
 import hpPrice.service.PostService;
 import hpPrice.service.crawlingAndParsing.NvLoginService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,6 @@ public class MainController {
 
     private final PostService postService;
     private final NvLoginService nvLoginService;
-    private final DcGallCrawlingService DcGallCrawlingService;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) { // 숫자로 변환되지 않는 값이 바인딩 되었을 때 방지
@@ -94,7 +93,7 @@ public class MainController {
     // DC
 
     @GetMapping("/dcsff")
-    public String dcSff(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
+    public String dcSffPostList(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
         model.addAttribute("postItem", postService.findPostItems(pageDto, cond));
         return "dc/home";
@@ -105,7 +104,7 @@ public class MainController {
     }
 
     @GetMapping("/dcsff/{postNum}")
-    public String dcHeadphoneDetail(Model model, @PathVariable("postNum") Long postNum) {
+    public String dcsffPostDetail(Model model, @PathVariable("postNum") Long postNum) {
         PostItem postItem = postService.findPostItem(postNum);
         if (postItem == null) return "redirect:/dcsff";
         Post post = postService.findPost(postNum);
@@ -118,31 +117,41 @@ public class MainController {
 
     // NAVER CAFE
 
+    @ResponseBody
+    @GetMapping("/drhp")
+    public String drhpHome() {
+
+        return "bad";
+    }
+
+
     @GetMapping("/drhp/{category}")
-    public String drhp(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond,
-                       @PathVariable("category") int category, Model model) {
+    public String drhpPostList(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond,
+                               @PathVariable("category") int category, Model model) {
         if (!CategoryType.isCategory(category)) {
             return "redirect:/dcsff";
         }
 
-
         pageDto.setPageView(15);// 네이버 카페 기본값 15
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countNvPostItems(cond, category)));
-        model.addAttribute("postItem", postService.findNvPostItems(pageDto, cond, category));
+        model.addAttribute("postItem", postService.findNaverPostItems(pageDto, cond, category));
         return "naverCafe/home";
+    }
+
+    @GetMapping("/drhp/{postNum}")
+    public String drhpPostDetail (Model model, @PathVariable("postNum") Long postNum) {
+        NaverPostItem postItem = postService.findNaverPostItem(postNum);
+        if (postItem == null) return "redirect:/drhp";
+        Post post = postService.findNaverPost(postNum);
+
+        model.addAttribute("postItem", postItem);
+        model.addAttribute("post", post);
+        return "naverCafe/postDetail";
     }
 
 
     // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
     // 글 상세에서는 작성일자 전체 표시
-
-
-    @ResponseBody
-    @GetMapping("/cookieRefresh")
-    public String cookieRefresh() { // TODO 쿠키가 만료되었을 경우, 자동으로 쿠키를 새로 발급받은 후 크롤링을 진행할 수 있도록.
-        nvLoginService.updateNaverLoginCookies();
-        return "good";
-    }
 
 
 
@@ -171,7 +180,7 @@ public class MainController {
 
 
     @ResponseBody
-    @GetMapping("/test")
+//    @GetMapping("/test")
     public String selenium() throws Exception {
         ChromeDriver driver = nvLoginService.getChromeDriver();
         Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
@@ -179,7 +188,7 @@ public class MainController {
             try {
                 nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
-                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 2359566);
+                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 1693616);
 
                 WebElement seleniumEle = driver.findElement(By.className("ArticleContentBox"));
                 Elements nvCafePost = Jsoup.parse(seleniumEle.getAttribute("outerHTML")).select(".ArticleContentBox > div");
@@ -195,6 +204,7 @@ public class MainController {
                 post.removeIf(postLine -> REMOVE_PATTERN.matcher(postLine.text()).find());
 
 
+
 //                if (post.get(15).text().trim().equals("@ 아래 양식 반드시 적어서 게시하세요.")) { // 글 양식 그대로 작성한 경우
 //                    post.subList(0, 16).clear();
 //                } else { // 글 양식을 건드린 경우, 글보다 사진이 먼저 올라와있는 경우
@@ -203,12 +213,13 @@ public class MainController {
 
 
 
+//                Elements images = nvCafePost.select(".se-module-image > a > img"); // 이미지
+                // 네이버 카페의 이미지는 시도해본 결과, 외부에서 불러올 수 없게 되어있는 듯함.
 
-                Elements images = nvCafePost.select(".se-i-default"); // 이미지
+                // https://stackoverflow.com/questions/8706548/disable-direct-access-to-images
+                // 이미지 자체를 Base64 로 인코딩하여 html 에 직접 삽입하는 방법도 있기는 하다.
+                // 하지만 이미지 업로드가 꼭 필요한 기능인지 에 대해서는 의문.
 
-
-
-                // 이미지는 img src 를 받아와서 그것만 표시하는 방식으로 추가하기
 
                 return post.toString();
             } finally {

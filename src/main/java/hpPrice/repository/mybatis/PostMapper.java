@@ -1,7 +1,13 @@
 package hpPrice.repository.mybatis;
 
-import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.dc.ErrorDto;
+import hpPrice.domain.dc.ErrorPost;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.dc.PostItem;
+import hpPrice.domain.naver.LoginCookies;
+import hpPrice.domain.naver.NaverPostItem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,6 +27,8 @@ public interface PostMapper {
 
     void newNaverPostItem(NaverPostItem postItem);
 
+    void newNaverPost(Post post);
+
 
     // SELECT
     List<PostItem> findPagedPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond);
@@ -39,11 +47,13 @@ public interface PostMapper {
 
     Long findLatestNaverPostNum(int category);
 
-    List<NaverPostItem> findPagedNvPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond, @Param("category") int category);
+    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond, @Param("category") int category);
 
-    NaverPostItem findNvPostItemByPostNum(Long postNum);
+    NaverPostItem findNaverPostItemByPostNum(Long postNum);
 
-    Integer countNvPostItemsBySearchCond(@Param("cond")SearchCond cond, @Param("category") int category);
+    Post findNaverPostByPostNum(Long postNum);
+
+    Integer countNaverPostItemsBySearchCond(@Param("cond")SearchCond cond, @Param("category") int category);
 
 
 

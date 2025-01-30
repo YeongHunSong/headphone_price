@@ -1,7 +1,10 @@
 package hpPrice.service;
 
-import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.dc.PostItem;
+import hpPrice.domain.naver.NaverPostItem;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,15 +39,19 @@ public class PostService { // TODO 나중에 있는 메서드들 전부 쪼개�
 
     // NAVER CAFE
 
-    public List<NaverPostItem> findNvPostItems(PageDto pageDto, SearchCond cond, int category) {
-        return postRepository.findPagedNvPostItemsBySearchCond(pageDto, cond, category);
+    public List<NaverPostItem> findNaverPostItems(PageDto pageDto, SearchCond cond, int category) {
+        return postRepository.findPagedNaverPostItemsBySearchCond(pageDto, cond, category);
     }
 
-    public NaverPostItem findNvPostItem(Long postNum) {
-        return postRepository.findNvPostItemByPostNum(postNum);
+    public NaverPostItem findNaverPostItem(Long postNum) {
+        return postRepository.findNaverPostItemByPostNum(postNum);
+    }
+
+    public Post findNaverPost(Long postNum) {
+        return postRepository.findNaverPostByPostNum(postNum);
     }
 
     public Integer countNvPostItems(SearchCond cond, int category) {
-        return postRepository.countNvPostItemsBySearchCond(cond, category);
+        return postRepository.countNaverPostItemsBySearchCond(cond, category);
     }
 }

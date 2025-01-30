@@ -1,7 +1,13 @@
 package hpPrice.repository;
 
-import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.dc.ErrorDto;
+import hpPrice.domain.dc.ErrorPost;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.dc.PostItem;
+import hpPrice.domain.naver.LoginCookies;
+import hpPrice.domain.naver.NaverPostItem;
 import hpPrice.repository.mybatis.PostMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +46,9 @@ public class MybatisPostRepository implements PostRepository {
     public void newNaverPostItem(NaverPostItem postItem) {
         postMapper.newNaverPostItem(postItem);
     }
+
+    @Override
+    public void newNaverPost(Post post) { postMapper.newNaverPost(post);}
 
 
     @Override
@@ -83,18 +92,23 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public List<NaverPostItem> findPagedNvPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category) {
-        return postMapper.findPagedNvPostItemsBySearchCond(pageDto, cond, category);
+    public List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category) {
+        return postMapper.findPagedNaverPostItemsBySearchCond(pageDto, cond, category);
     }
 
     @Override
-    public NaverPostItem findNvPostItemByPostNum(Long postNum) {
-        return postMapper.findNvPostItemByPostNum(postNum);
+    public NaverPostItem findNaverPostItemByPostNum(Long postNum) {
+        return postMapper.findNaverPostItemByPostNum(postNum);
     }
 
     @Override
-    public Integer countNvPostItemsBySearchCond(SearchCond cond, int category) {
-        return postMapper.countNvPostItemsBySearchCond(cond, category);
+    public Post findNaverPostByPostNum(Long postNum) {
+        return postMapper.findNaverPostByPostNum(postNum);
+    }
+
+    @Override
+    public Integer countNaverPostItemsBySearchCond(SearchCond cond, int category) {
+        return postMapper.countNaverPostItemsBySearchCond(cond, category);
     }
 
 

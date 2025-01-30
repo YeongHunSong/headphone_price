@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hpPrice.common.dateTime.DateTimeUtils;
 import hpPrice.common.naverCafe.CookieConvert;
 import hpPrice.common.naverCafe.LoginInfo;
-import hpPrice.domain.LoginCookies;
+import hpPrice.domain.naver.LoginCookies;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,23 +57,28 @@ public class NvLoginService {
     public ChromeDriver getChromeDriver() {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
-                .addArguments("--start-maximized")
                 .addArguments("user-agent=" + USER_AGENT));
     }
 
-    public void driverGetAndWait(ChromeDriver driver, String url) {
+    public void driverGetAndWait(ChromeDriver driver, String url) throws InterruptedException {
+        sleep(SLEEP_TIME);
         driver.get(url);
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+        sleep(SLEEP_TIME);
     }
 
 
-    public Set<Cookie> getNaverLoginCookie() throws JsonProcessingException {
-        String jsonLoginCookie = postRepository.findLatestLoginCookiesByDesc("naverLoginCookies");
-        Set<CookieConvert> cookieConverts = objectMapper.readValue(jsonLoginCookie, new TypeReference<Set<CookieConvert>>() {});
-
-        return cookieConverts.stream()
-                .map(CookieConvert::toSeleniumCookie)
-                .collect(Collectors.toSet());
+    public Set<Cookie> getNaverLoginCookie() {
+        try {
+            return objectMapper.readValue(postRepository.findLatestLoginCookiesByDesc("naverLoginCookies")
+                            , new TypeReference<Set<CookieConvert>>() {})
+                    .stream()
+                    .map(CookieConvert::toSeleniumCookie)
+                    .collect(Collectors.toSet());
+        } catch (JsonProcessingException e) {
+            log.error("JsonProcessingException -> ", e);
+        }
+        throw new RuntimeException("-- getNaverLoginCookie failed --");
     }
 
     private void naverLogin(ChromeDriver driver) throws InterruptedException {

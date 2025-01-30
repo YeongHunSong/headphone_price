@@ -1,7 +1,13 @@
 package hpPrice.repository;
 
-import hpPrice.domain.*;
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.dc.ErrorDto;
+import hpPrice.domain.dc.ErrorPost;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.dc.PostItem;
+import hpPrice.domain.naver.LoginCookies;
+import hpPrice.domain.naver.NaverPostItem;
 
 import java.util.List;
 
@@ -17,6 +23,8 @@ public interface PostRepository {
     void newLoginCookies(LoginCookies loginCookies);
 
     void newNaverPostItem(NaverPostItem postItem);
+
+    void newNaverPost(Post post);
 
 
     // SELECT
@@ -36,11 +44,13 @@ public interface PostRepository {
 
     Long findLatestNaverPostNum(int category);
 
-    List<NaverPostItem> findPagedNvPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category);
+    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category);
 
-    NaverPostItem findNvPostItemByPostNum(Long postNum);
+    NaverPostItem findNaverPostItemByPostNum(Long postNum);
 
-    Integer countNvPostItemsBySearchCond(SearchCond cond, int category);
+    Post findNaverPostByPostNum(Long postNum);
+
+    Integer countNaverPostItemsBySearchCond(SearchCond cond, int category);
 
 
     // UPDATE

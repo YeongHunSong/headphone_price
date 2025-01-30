@@ -1,10 +1,10 @@
 package hpPrice.service.crawlingAndParsing;
 
 import hpPrice.common.dateTime.DateTimeUtils;
-import hpPrice.domain.ErrorPost;
-import hpPrice.domain.Post;
-import hpPrice.domain.PostItem;
-import hpPrice.domain.ErrorDto;
+import hpPrice.domain.dc.ErrorPost;
+import hpPrice.domain.common.Post;
+import hpPrice.domain.dc.PostItem;
+import hpPrice.domain.dc.ErrorDto;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ public class DcGallCrawlingService {
                     post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상 링크 삭제
                     for (Element postLine : post) imageUrlCheck(postLine);
 
-                    savePost(postItem, post);
+                    savePostAndPostItem(postItem, post);
                 }
             }
         } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
@@ -186,7 +185,7 @@ public class DcGallCrawlingService {
     // 해결 방법 1. 호출할 상위 메서드에 어노테이션을 붙인다. (트랜잭션이 필요하지 않은 메서드들도 한 트랜젹션 내에 묶임. 내 로직의 경우 저장한 전체 데이터가 롤백되므로 안 됨.)
     // 해결 방법 2. 트랜잭션이 필요한 메서드를 별도의 클래스로 분리한 후 호출하는 방식을 이용한다. (트랜잭션이 필요한 부분만 트랜잭션으로 묶을 수 있음.)
     // 해결 방법 3. 자기 클래스에서 자기 클래스를 주입받아서 호출한다. (비추천)
-    private void savePost(Element postItem, Elements content) {
+    private void savePostAndPostItem(Element postItem, Elements content) {
         long postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
         String title = postItem.selectFirst(".gall_tit [href]").text();
         try {
