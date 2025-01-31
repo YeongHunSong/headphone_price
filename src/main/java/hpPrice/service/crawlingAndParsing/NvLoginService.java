@@ -10,10 +10,7 @@ import hpPrice.domain.naver.LoginCookies;
 import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
@@ -40,7 +37,7 @@ public class NvLoginService {
         log.info("네이버 로그인 쿠키 갱신 시작 [{}]", DateTimeUtils.getCurrentDateTime());
         ChromeDriver driver = getChromeDriver();
         try {
-            driverGetAndWait(driver, NV_LOGIN_URL);
+            getDriverAndWait(driver, NV_LOGIN_URL);
 
             naverLogin(driver);
             avoidLoginSavePopup(driver);
@@ -60,11 +57,22 @@ public class NvLoginService {
                 .addArguments("user-agent=" + USER_AGENT));
     }
 
-    public void driverGetAndWait(ChromeDriver driver, String url) throws InterruptedException {
-        sleep(SLEEP_TIME);
-        driver.get(url);
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
-        sleep(SLEEP_TIME);
+    public void getDriverAndWait(ChromeDriver driver, String url) {
+        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
+            try {
+                sleep(SLEEP_TIME);
+                driver.get(url);
+                driver.manage().timeouts().pageLoadTimeout(Duration.ofMillis(TIME_OUT));
+                driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+                sleep(SLEEP_TIME);
+                return;
+            } catch (TimeoutException | InterruptedException e) {
+                log.info("타임아웃 발생 -> 새로고침");
+                driver.navigate().refresh();
+            }
+        }
+        driver.quit();
+        throw new RuntimeException("페이지 로드 실패");
     }
 
 
@@ -117,20 +125,20 @@ public class NvLoginService {
 
 
 
-    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {
-        Map<String, String> cookieMap = seleniumCookies.stream()
-                .collect(Collectors.toMap(
-                        Cookie::getName,
-                        Cookie::getValue));
-        cookieMap.put("domain", ".naver.com");
-//        cookieMap.put("expiry", "Sun Jan 26 15:10:56 KST 2025");
-        cookieMap.put("path", "=/");
-        cookieMap.put("sameSite", "Lax");
-        return objectMapper.writeValueAsString(cookieMap);
-    }
-
-    public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
-        return objectMapper.readValue(
-                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
-    }
+//    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {
+//        Map<String, String> cookieMap = seleniumCookies.stream()
+//                .collect(Collectors.toMap(
+//                        Cookie::getName,
+//                        Cookie::getValue));
+//        cookieMap.put("domain", ".naver.com");
+////        cookieMap.put("expiry", "Sun Jan 26 15:10:56 KST 2025");
+//        cookieMap.put("path", "=/");
+//        cookieMap.put("sameSite", "Lax");
+//        return objectMapper.writeValueAsString(cookieMap);
+//    }
+//
+//    public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
+//        return objectMapper.readValue(
+//                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
+//    }
 }

@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
@@ -30,7 +31,7 @@ public class NvCafeCrawlingService {
     private final PostRepository postRepository;
     private final NvLoginService nvLoginService;
 
-    private static long postNum = 0;
+    private static long postNum = 0; // TODO 추후 ErrorReport 작성할 때 필요한지 확인 후, 안 쓰면 지역 변수로 변경
 
     @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostItemCrawling() {
@@ -49,11 +50,11 @@ public class NvCafeCrawlingService {
 
                     /// ### POST PARSING ###
                     for (Element postItem : naverPostList) {
-                        postNum = Long.parseLong(postItem.selectFirst(".inner_number").text());
+                        postNum = Long.parseLong((postItem.selectFirst(".inner_number")).text());
                         if (latestPostNum >= postNum) break parsingLogic;
                         // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
-                        saveNaverPostAndPostItem(postItem, category, getNaverCafePost(driver));
+//                        saveNaverPostAndPostItem(postItem, category, getNaverCafePost(driver));
                     }
                 }
             }
@@ -76,10 +77,10 @@ public class NvCafeCrawlingService {
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
                 Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
-                nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
+                nvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
 
-                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 1693616);
+                nvLoginService.getDriverAndWait(driver, NV_POST_URL + 1721758);
                 if (driver.findElements(By.className("ArticleContentBox")).isEmpty()) {
                     throw new IllegalArgumentException("Cookie Expired");
                 }
@@ -87,8 +88,6 @@ public class NvCafeCrawlingService {
             } catch (IllegalArgumentException e) { // 쿠키 없음 & 만료
                 log.error("IllegalArgumentException -> ", e);
                 nvLoginService.updateNaverLoginCookies();
-            } catch (InterruptedException e) {
-                log.error("sleep 실패", e);
             }
         }
         driver.quit();
@@ -124,20 +123,20 @@ public class NvCafeCrawlingService {
         throw new IOException("페이지 로드 실패");
     }
 
-    private Elements getNaverCafePost(ChromeDriver driver) throws IOException {
-        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
-            try {
-                nvLoginService.driverGetAndWait(driver, NV_POST_URL + postNum);
-                return Jsoup.parse(driver.findElement(
-                        By.className("ArticleContentBox"))
-                        .getAttribute("outerHTML"))
-                        .select(".ArticleContentBox > div");
-            } catch (InterruptedException e) {
-                log.error("sleep 실패 -> ", e);
-            }
-        }
-        throw new IOException("페이지 로드 실패");
-    }
+//    private Elements getNaverCafePost(ChromeDriver driver) throws IOException {
+//        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
+//            try {
+//                nvLoginService.driverGetAndWait(driver, NV_POST_URL + postNum);
+//                return Jsoup.parse(driver.findElement(
+//                        By.className("ArticleContentBox"))
+//                        .getAttribute("outerHTML"))
+//                        .select(".ArticleContentBox > div");
+//            } finally {
+//                log.info("수정필요함");
+//            }
+//        }
+//        throw new IOException("페이지 로드 실패");
+//    }
 
     public void saveNaverPostItem(NaverPostItem postItem) {
         postRepository.newNaverPostItem(postItem);

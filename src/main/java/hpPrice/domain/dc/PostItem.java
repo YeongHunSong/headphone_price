@@ -10,8 +10,6 @@ public class PostItem {
 
     private String title;
 
-    private String modTitle; // TODO 언젠가는...
-
     private String url;
 
     private String nickname;

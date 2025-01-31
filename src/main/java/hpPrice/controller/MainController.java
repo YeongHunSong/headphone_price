@@ -15,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Controller;
@@ -99,7 +100,7 @@ public class MainController {
         return "dc/home";
 
         // TODO 저장할 때부터 모든 내용을 소문자로 DB에 넣는다거나?
-        // 시스템 설정 활용: MySQL의 경우, lower_case_table_names 시스템 변수를 1로 설정하여 대소문자를 구분하지 않도록 할 수 있습니다.
+        // 시스템 설정 활용: MySQL 의 경우, lower_case_table_names 시스템 변수를 1로 설정하여 대소문자를 구분하지 않도록 할 수 있습니다.
         // https://oneny.tistory.com/106
     }
 
@@ -125,12 +126,10 @@ public class MainController {
     }
 
 
-    @GetMapping("/drhp/{category}")
+    @GetMapping("/drhp/{category}") // String 으로 바꿀까?
     public String drhpPostList(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond,
                                @PathVariable("category") int category, Model model) {
-        if (!CategoryType.isCategory(category)) {
-            return "redirect:/dcsff";
-        }
+        if (!CategoryType.isCategory(category)) return "redirect:/drhp";
 
         pageDto.setPageView(15);// 네이버 카페 기본값 15
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countNvPostItems(cond, category)));
@@ -148,6 +147,10 @@ public class MainController {
         model.addAttribute("post", post);
         return "naverCafe/postDetail";
     }
+
+
+
+
 
 
     // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
@@ -186,9 +189,9 @@ public class MainController {
         Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
 
             try {
-                nvLoginService.driverGetAndWait(driver, NV_CAFE_URL);
+                nvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
-                nvLoginService.driverGetAndWait(driver, NV_POST_URL + 1693616);
+                nvLoginService.getDriverAndWait(driver, NV_POST_URL + 1693616);
 
                 WebElement seleniumEle = driver.findElement(By.className("ArticleContentBox"));
                 Elements nvCafePost = Jsoup.parse(seleniumEle.getAttribute("outerHTML")).select(".ArticleContentBox > div");

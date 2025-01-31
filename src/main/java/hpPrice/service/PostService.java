@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PostService { // TODO 나중에 있는 메서드들 전부 쪼개기
+public class PostService {
     private final PostRepository postRepository;
 
     // DC
