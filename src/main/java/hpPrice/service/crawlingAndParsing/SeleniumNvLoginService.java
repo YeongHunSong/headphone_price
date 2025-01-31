@@ -28,7 +28,7 @@ import static java.lang.Thread.sleep;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NvLoginService {
+public class SeleniumNvLoginService {
     private final PostRepository postRepository;
     private final ObjectMapper objectMapper;
 
@@ -51,10 +51,26 @@ public class NvLoginService {
         }
     }
 
+    public Set<Cookie> getNaverLoginCookie() {
+        try {
+            return objectMapper.readValue(postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"),
+                            new TypeReference<Set<CookieConvert>>() {}).stream()
+                    .map(CookieConvert::toSeleniumCookie)
+                    .collect(Collectors.toSet());
+        } catch (JsonProcessingException e) {
+            log.error("JsonProcessingException -> ", e);
+        }
+        throw new RuntimeException("-- getNaverLoginCookie failed --");
+    }
+
     public ChromeDriver getChromeDriver() {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
-                .addArguments("user-agent=" + USER_AGENT));
+                .addArguments("user-agent=" + USER_AGENT)
+                // 아래 모두 headless 설정
+                .addArguments("headless")
+                .addArguments("window-size=1920x1080")
+                .addArguments("disable-gpu"));
     }
 
     public void getDriverAndWait(ChromeDriver driver, String url) {
@@ -67,7 +83,8 @@ public class NvLoginService {
                 sleep(SLEEP_TIME);
                 return;
             } catch (TimeoutException | InterruptedException e) {
-                log.info("타임아웃 발생 -> 새로고침");
+                log.info("timeout -> refresh");
+                log.error("TimeoutException -> ", e);
                 driver.navigate().refresh();
             }
         }
@@ -75,34 +92,20 @@ public class NvLoginService {
         throw new RuntimeException("페이지 로드 실패");
     }
 
-
-    public Set<Cookie> getNaverLoginCookie() {
-        try {
-            return objectMapper.readValue(postRepository.findLatestLoginCookiesByDesc("naverLoginCookies")
-                            , new TypeReference<Set<CookieConvert>>() {})
-                    .stream()
-                    .map(CookieConvert::toSeleniumCookie)
-                    .collect(Collectors.toSet());
-        } catch (JsonProcessingException e) {
-            log.error("JsonProcessingException -> ", e);
-        }
-        throw new RuntimeException("-- getNaverLoginCookie failed --");
-    }
-
     private void naverLogin(ChromeDriver driver) throws InterruptedException {
         inputLoginData(driver, LoginInfo.LOGIN_ID, "input_id", Keys.TAB);
         inputLoginData(driver, LoginInfo.LOGIN_PW, "input_pw", Keys.ENTER);
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME/2));
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME / 2));
     }
 
     private void inputLoginData(ChromeDriver driver, String inputData, String inputClassName, Keys nextKey) throws InterruptedException {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(inputData), null);
         WebElement inputId = driver.findElement(By.className(inputClassName));
         inputId.sendKeys(Keys.CONTROL + "v");
-        sleep(LOGIN_SLEEP_TIME/4);
+        sleep(LOGIN_SLEEP_TIME / 4);
 
         inputId.sendKeys(nextKey);
-        sleep(LOGIN_SLEEP_TIME/2);
+        sleep(LOGIN_SLEEP_TIME / 2);
     }
 
     private void avoidLoginSavePopup(ChromeDriver driver) {
@@ -122,7 +125,6 @@ public class NvLoginService {
                 LoginCookies.newLoginCookies("naverLoginCookies",
                         objectMapper.writeValueAsString(convertCookies)));
     }
-
 
 
 //    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {

@@ -28,7 +28,7 @@ public class PageControl {
         prev = dpStartPage != 1;
         next = totalCount > (dpEndPage * pageDto.getPageView());
 
-        if (!next) { // page 으로 DB 페이지를 초월하는 값이 들어올 경우, 결과가 buttonNum 페이지 만큼 안 나올 경우.
+        if (!next) { // page 로 DB 페이지를 초월하는 값이 들어올 경우, 결과가 buttonNum 페이지 만큼 안 나올 경우.
             dpEndPage = totalCount <= 0 ? 1 : (int) Math.ceil(totalCount / (double) pageDto.getPageView());
             dpStartPage =
                     ((dpEndPage / dpButtonNum) * dpButtonNum + 1) > dpEndPage ?

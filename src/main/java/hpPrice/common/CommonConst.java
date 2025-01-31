@@ -3,6 +3,8 @@ package hpPrice.common;
 import java.util.regex.Pattern;
 
 public class CommonConst {
+    private CommonConst() {}
+
     public static final String DC_GALL_URL = "https://gall.dcinside.com/mgallery/board/lists/?id=sff";
     public static final String DC_TAB_PAGE_QUERY = "&search_head=40&page=";
 
@@ -18,8 +20,7 @@ public class CommonConst {
 
 
     public static final String NV_LOGIN_URL = "https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fsection.cafe.naver.com%2Fca-fe%2Fhome"; // 여기로 해야 치지직 관련 쿠키 안 생김
-    public static final String NV_POST_LIST_URL = "https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414";
-    public static final String NV_TAB_QUERY = "&search.menuid=";
+    public static final String NV_POST_LIST_URL = "https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=";
     public static final String NV_PAGE_QUERY = "&search.page=";
 
     public static final String NV_CAFE_URL = "https://cafe.naver.com/drhp/";
@@ -40,6 +41,4 @@ public class CommonConst {
 
 
     public static final Pattern PRICE_PATTERN = Pattern.compile("가격 :|가격:|금액:|금액 :");
-
-    private CommonConst() {}
 }

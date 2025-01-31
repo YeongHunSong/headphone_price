@@ -18,7 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
@@ -29,9 +28,10 @@ import static hpPrice.common.CommonConst.*;
 @RequiredArgsConstructor
 public class NvCafeCrawlingService {
     private final PostRepository postRepository;
-    private final NvLoginService nvLoginService;
+    private final SeleniumNvLoginService seleniumNvLoginService;
+    private final JsoupDcCrawlingService jsoupDcCrawlingService;
 
-    private static long postNum = 0; // TODO 추후 ErrorReport 작성할 때 필요한지 확인 후, 안 쓰면 지역 변수로 변경
+    private static long postNum = 0;
 
     @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostItemCrawling() {
@@ -43,18 +43,26 @@ public class NvCafeCrawlingService {
                 parsingLogic:
                 for (int page = 1; page <= 3; page++) {
                     log.info("현재 페이지 -> [{}]page : 현재 카테고리 -> {}", page, CategoryType.getName(category));
-                    /// ### POST_ITEM PARSING ###
-                    Elements naverPostList = connectAndParsing(NV_POST_LIST_URL + NV_TAB_QUERY + category + NV_PAGE_QUERY + page,
+                    /// ### POST_ITEM Parsing ###
+                    Elements naverPostList = jsoupDcCrawlingService.jsoupConnectAndParsing(
+                            NV_POST_LIST_URL + category + NV_PAGE_QUERY + page,
                             "div.article-board > table > tbody > tr");
                     naverPostList.removeIf(postItem -> postItem.hasClass("board-notice")); // 공지글 제거
 
-                    /// ### POST PARSING ###
+                    /// ### POST Parsing ###
                     for (Element postItem : naverPostList) {
                         postNum = Long.parseLong((postItem.selectFirst(".inner_number")).text());
                         if (latestPostNum >= postNum) break parsingLogic;
-                        // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
+                        // '=' DB 마지막 저장값과 파싱값이 동일. (일반적인 경우)
+                        // '>' 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
-//                        saveNaverPostAndPostItem(postItem, category, getNaverCafePost(driver));
+                        seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + postNum);
+                        Elements naverCafePost = Jsoup.parse(
+                                driver.findElement(
+                                        By.className("ArticleContentBox")).getAttribute("outerHTML"))
+                                .select(".ArticleContentBox > div");
+
+                        saveNaverPostAndPostItem(postItem, category, naverCafePost);
                     }
                 }
             }
@@ -73,78 +81,25 @@ public class NvCafeCrawlingService {
     }
 
     private ChromeDriver naverLoginCookieReady() {
-        ChromeDriver driver = nvLoginService.getChromeDriver();
+        ChromeDriver driver = seleniumNvLoginService.getChromeDriver();
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
-                Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
-                nvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
+                Set<Cookie> naverLoginCookies = seleniumNvLoginService.getNaverLoginCookie();
+                seleniumNvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
 
-                nvLoginService.getDriverAndWait(driver, NV_POST_URL + 1721758);
+                seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + 1721758);
                 if (driver.findElements(By.className("ArticleContentBox")).isEmpty()) {
                     throw new IllegalArgumentException("Cookie Expired");
                 }
                 return driver;
             } catch (IllegalArgumentException e) { // 쿠키 없음 & 만료
                 log.error("IllegalArgumentException -> ", e);
-                nvLoginService.updateNaverLoginCookies();
+                seleniumNvLoginService.updateNaverLoginCookies();
             }
         }
         driver.quit();
         throw new RuntimeException("쿠키 갱신 실패");
-    }
-
-    public Long latestPostNum(int category) {
-        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
-        Long latestPostNum = postRepository.findLatestNaverPostNum(category);
-        return latestPostNum == null ? 0 : latestPostNum;
-    }
-
-    public Elements connectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
-        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
-            try {
-                Thread.sleep(SLEEP_TIME + 300);
-                Elements parsingData = Jsoup.connect(connectUrl)
-                        .userAgent(USER_AGENT)
-                        .timeout(TIME_OUT)
-                        .get()
-                        .select(selectQuery);
-                if (parsingData.isEmpty()) throw new IOException("화이트 페이지 에러 발생 " + connectUrl);
-                return parsingData;
-            } catch (IOException e) {
-                if (tryCount == MAX_RETRY_COUNT - 1) throw e;
-                if (tryCount >= 2) {
-                    log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
-                    log.info("에러 발생한 URL = {}", connectUrl);
-                }
-                Thread.sleep(SLEEP_TIME * (tryCount + 1));
-            }
-        }
-        throw new IOException("페이지 로드 실패");
-    }
-
-//    private Elements getNaverCafePost(ChromeDriver driver) throws IOException {
-//        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
-//            try {
-//                nvLoginService.driverGetAndWait(driver, NV_POST_URL + postNum);
-//                return Jsoup.parse(driver.findElement(
-//                        By.className("ArticleContentBox"))
-//                        .getAttribute("outerHTML"))
-//                        .select(".ArticleContentBox > div");
-//            } finally {
-//                log.info("수정필요함");
-//            }
-//        }
-//        throw new IOException("페이지 로드 실패");
-//    }
-
-    public void saveNaverPostItem(NaverPostItem postItem) {
-        postRepository.newNaverPostItem(postItem);
-        log.info("저장한 게시글 - {} {}", postItem.getPostNum(), postItem.getTitle());
-    }
-
-    public void saveNaverPost(Post post) {
-        postRepository.newNaverPost(post);
     }
 
     private void saveNaverPostAndPostItem(Element postItem, int category, Elements naverCafePost) {
@@ -158,17 +113,33 @@ public class NvCafeCrawlingService {
                             postNum,
                             title,
                             category,
-                            "https://cafe.naver.com/drhp/" + postNum,
-                            postItem.selectFirst(".m-tcol-c").text(),
-                            postItem.selectFirst(".mem-level").html(),
-                            naverCafePost.select(".nick_level").text(),
-                            DateTimeUtils.parseNaverDateTime(naverCafePost.select(".date").text()),
+                            "https://cafe.naver.com/drhp/" + postNum, // url
+                            postItem.selectFirst(".m-tcol-c").text(), // nickname
+                            postItem.selectFirst(".mem-level").html(), // memLevelIcon
+                            naverCafePost.select(".nick_level").text(), // memLevel
+                            DateTimeUtils.parseNaverDateTime(naverCafePost.select(".date").text()), // wDate
                             postContent.select("*:matchesOwn(" + PRICE_PATTERN.pattern() + ")").text() // price
                                     .replaceAll(".*:\\s*", "").trim()));
             saveNaverPost(
-                    Post.newPost(postNum, postContent.outerHtml()));
+                    Post.newPost(postNum,
+                            postContent.outerHtml()));
         } catch (DuplicateKeyException e) {
             log.error("이미 저장된 게시글로 저장되지 않음 -> {} {} {} \n", postNum, title, CategoryType.getName(category), e);
         } // 해당 페이지 내 마지막 글을 데이터베이스에 저장하던 도중 새로운 글이 작성되어 다음 페이지 첫번째 글로 넘어가면서 중복 오류가 발생한 건에 대해서만 예외 처리.
+    }
+
+    public Long latestPostNum(int category) {
+        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        Long latestPostNum = postRepository.findLatestNaverPostNum(category);
+        return latestPostNum == null ? 0 : latestPostNum;
+    }
+
+    public void saveNaverPostItem(NaverPostItem postItem) {
+        postRepository.newNaverPostItem(postItem);
+        log.info("저장한 게시글 - {} {}", postItem.getPostNum(), postItem.getTitle());
+    }
+
+    public void saveNaverPost(Post post) {
+        postRepository.newNaverPost(post);
     }
 }

@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,13 +24,13 @@ import static hpPrice.common.CommonConst.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DcGallCrawlingService {
+public class JsoupDcCrawlingService {
     private final PostRepository postRepository;
 
     private static long postNum = 0;
 
 
-//    @Scheduled(fixedDelay = 90 * 1000)
+    @Scheduled(fixedDelay = 90 * 1000)
     public void dcPostCrawling() {
         log.info("DC 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
 
@@ -41,15 +42,15 @@ public class DcGallCrawlingService {
             int startPage = findErrorPage(errorCheck, lastPage); // ERROR 발생했는지 확인 후 발생했었다면 ERROR 발생한 페이지 반환, 발생하지 않았었다면 1 반환.
 
             for (int page = startPage; page <= lastPage; page++) { log.info("현재 페이지 -> [{}]page", page);
-                // ### POST_ITEM 파싱 ###
-                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + page, ".gall_list .us-post")) {
+                /// ### POST_ITEM Parsing ###
+                for (Element postItem : jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + page, ".gall_list .us-post")) {
                     postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
                     if (errorCheck != null && postNum > errorCheck.getPostNum()) continue; // 에러 복구 시 에러 발생한 페이지에서 이미 저장된 게시글 넘김
                     if (latestPostNum == postNum || (errorCheck == null && latestPostNum > postNum)) break parsingLogic;
                     // DB 마지막 저장값과 파싱값이 동일. (일반적인 경우) || 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
-                    // ### POST 파싱 ###
-                    Elements post = connectAndParsing(DC_POST_URL + DC_POST_NUM_QUERY + postNum, ".write_div > *");
+                    /// ### POST Parsing ###
+                    Elements post = jsoupConnectAndParsing(DC_POST_URL + DC_POST_NUM_QUERY + postNum, ".write_div > *");
                     post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상 링크 삭제
                     for (Element postLine : post) imageUrlCheck(postLine);
 
@@ -111,10 +112,10 @@ public class DcGallCrawlingService {
 
     // ### 코드 정리용 추출 메서드 ###
 
-    public Elements connectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
+    public Elements jsoupConnectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
             try {
-                Thread.sleep(SLEEP_TIME);
+                Thread.sleep(SLEEP_TIME + 300);
                 Elements parsingData = Jsoup.connect(connectUrl)
                         .userAgent(USER_AGENT)
                         .timeout(TIME_OUT)
@@ -124,8 +125,10 @@ public class DcGallCrawlingService {
                 return parsingData;
             } catch (IOException e) {
                 if (tryCount == MAX_RETRY_COUNT - 1) throw e;
-                log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
-                log.info("에러 발생한 URL = {}", connectUrl);
+                if (tryCount >= 2) {
+                    log.info("에러 발생으로 인한 재시도 횟수 => {}회", tryCount + 1);
+                    log.info("에러 발생한 URL = {}", connectUrl);
+                }
                 Thread.sleep(SLEEP_TIME * (tryCount + 1));
             }
         }
@@ -133,7 +136,7 @@ public class DcGallCrawlingService {
     }
 
     private int findLastPage() throws IOException, InterruptedException {
-        String pageUrl = connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY, ".page_end")
+        String pageUrl = jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY, ".page_end")
                 .attr("href"); // 파싱 태그값 변경된 경우, URL 변경된 경우 NPE 발생
         return Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
     }
@@ -141,7 +144,7 @@ public class DcGallCrawlingService {
     private int findErrorPage(ErrorDto errorCheck, int lastPage) throws IOException, InterruptedException {
         if (errorCheck != null) { log.info("ERROR 복구 모드");
             for (int errorPage = 1; errorPage <= lastPage; errorPage++) {
-                for (Element postItem : connectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + errorPage, ".gall_list .us-post")) {
+                for (Element postItem : jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + errorPage, ".gall_list .us-post")) {
                     if (errorCheck.getPostNum() == Long.parseLong(postItem.selectFirst(".gall_num").text())) {
                         resolveError(errorCheck.getPostNum(), errorCheck.getErrorNum());
                         log.info("ERROR 발생 페이지 = [{} page]", errorPage);
@@ -193,10 +196,10 @@ public class DcGallCrawlingService {
                     PostItem.newPostItem(
                             postNum,
                             title,
-                            postItem.selectFirst(".gall_tit a").absUrl("href"),
-                            postItem.selectFirst(".nickname em").text(),
-                            postItem.selectFirst(".gall_writer").attr("data-uid"),
-                            DateTimeUtils.parseDcDateTime(postItem.selectFirst(".gall_date").attr("title"))));
+                            postItem.selectFirst(".gall_tit a").absUrl("href"), // url
+                            postItem.selectFirst(".nickname em").text(), // nickname
+                            postItem.selectFirst(".gall_writer").attr("data-uid"), // userId
+                            DateTimeUtils.parseDcDateTime(postItem.selectFirst(".gall_date").attr("title")))); // wDate
             savePostDC(
                     Post.newPost(
                             postNum,

@@ -8,25 +8,15 @@ import hpPrice.common.paging.PageDto;
 import hpPrice.domain.common.SearchCond;
 import hpPrice.domain.naver.NaverPostItem;
 import hpPrice.service.PostService;
-import hpPrice.service.crawlingAndParsing.NvLoginService;
+import hpPrice.service.crawlingAndParsing.SeleniumNvLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
-import java.util.Set;
-
-import static hpPrice.common.CommonConst.*;
 
 
 @Slf4j
@@ -35,7 +25,7 @@ import static hpPrice.common.CommonConst.*;
 public class MainController {
 
     private final PostService postService;
-    private final NvLoginService nvLoginService;
+    private final SeleniumNvLoginService seleniumNvLoginService;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) { // 숫자로 변환되지 않는 값이 바인딩 되었을 때 방지
@@ -121,7 +111,7 @@ public class MainController {
     @ResponseBody
     @GetMapping("/drhp")
     public String drhpHome() {
-
+        // TODO 메인 화면 제작 (카테고리 선택 페이지, DC SFF 페이지 등으로 갈 수 있도록)
         return "bad";
     }
 
@@ -138,7 +128,7 @@ public class MainController {
     }
 
     @GetMapping("/drhp/{postNum}")
-    public String drhpPostDetail (Model model, @PathVariable("postNum") Long postNum) {
+    public String drhpPostDetail(Model model, @PathVariable("postNum") Long postNum) {
         NaverPostItem postItem = postService.findNaverPostItem(postNum);
         if (postItem == null) return "redirect:/drhp";
         Post post = postService.findNaverPost(postNum);
@@ -147,90 +137,12 @@ public class MainController {
         model.addAttribute("post", post);
         return "naverCafe/postDetail";
     }
-
-
-
-
-
-
-    // 닥터헤드폰 회원 URL: https://cafe.naver.com/ca-fe/cafes/11196414/members/gWPPtZhVptCHRmQPcBfqAw
-    // 글 상세에서는 작성일자 전체 표시
-
-
-
-    // https://cafe.naver.com/ArticleRead.nhn?articleid=2355357&where=search&clubid=11196414&tc=naver_search
-    // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
-    // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2355357?oldPath=%2FArticleRead.nhn%3Farticleid%3D2355357
-
-    // https://cafe.naver.com/drhp/2355357
-    // https://m.cafe.naver.com/ca-fe/web/cafes/11196414/
-    // https://cafe.naver.com/ArticleRead.nhn?clubid=11196414&page=1&menuid=21&boardtype=L&articleid=2355357&referrerAllArticles=false
-
-
-
-    // https://cafe.naver.com/f-e/cafes/11196414/articles/2356030?menuid=21&referrerAllArticles=false
-    // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2356030?referrerAllArticles=false // 이게 핵심이다
-
-
-    // https://cafe.naver.com/drhp?iframe_url=/ArticleList.nhn%3Fsearch.clubid=11196414%26search.menuid=21%26search.boardtype=L
-    // https://cafe.naver.com/ArticleList.nhn?search.clubid=11196414&search.menuid=21
-
-    // https://cafe.naver.com/drhp?iframe_url=%2FArticleRead.nhn%3Fclubid%3D11196414%26articleid%3D2356022%26where%3Dsearch%26tc%3Dnaver_search
-    // https://cafe.naver.com/drhp?iframe_url=/ArticleRead.nhn?articleid=2356030&where=search&clubid=11196414
-    // https://cafe.naver.com/ArticleRead.nhn?articleid=2356030&clubid=11196414
-
-    // https://cafe.naver.com/ca-fe/cafes/11196414/articles/2356030?where=search&tc=naver_search&oldPath=%2FArticleRead.nhn%3Farticleid%3D2356030%26where%3Dsearch%26clubid%3D11196414%26tc%3Dnaver_search
-
-
-    @ResponseBody
-//    @GetMapping("/test")
-    public String selenium() throws Exception {
-        ChromeDriver driver = nvLoginService.getChromeDriver();
-        Set<Cookie> naverLoginCookies = nvLoginService.getNaverLoginCookie();
-
-            try {
-                nvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
-                for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
-                nvLoginService.getDriverAndWait(driver, NV_POST_URL + 1693616);
-
-                WebElement seleniumEle = driver.findElement(By.className("ArticleContentBox"));
-                Elements nvCafePost = Jsoup.parse(seleniumEle.getAttribute("outerHTML")).select(".ArticleContentBox > div");
-
-                String nickLevel = nvCafePost.select(".nick_level").text();
-                String wDate = nvCafePost.select(".date").text();
-
-
-                Elements post = nvCafePost.select(".se-module-text > p");
-                String price = post.select("*:matchesOwn(" + PRICE_PATTERN.pattern() + ")").text()
-                        .replaceAll(".*:\\s*", "").trim();
-
-                post.removeIf(postLine -> REMOVE_PATTERN.matcher(postLine.text()).find());
-
-
-
-//                if (post.get(15).text().trim().equals("@ 아래 양식 반드시 적어서 게시하세요.")) { // 글 양식 그대로 작성한 경우
-//                    post.subList(0, 16).clear();
-//                } else { // 글 양식을 건드린 경우, 글보다 사진이 먼저 올라와있는 경우
-//                }
-
-
-
-
-//                Elements images = nvCafePost.select(".se-module-image > a > img"); // 이미지
-                // 네이버 카페의 이미지는 시도해본 결과, 외부에서 불러올 수 없게 되어있는 듯함.
-
-                // https://stackoverflow.com/questions/8706548/disable-direct-access-to-images
-                // 이미지 자체를 Base64 로 인코딩하여 html 에 직접 삽입하는 방법도 있기는 하다.
-                // 하지만 이미지 업로드가 꼭 필요한 기능인지 에 대해서는 의문.
-
-
-                return post.toString();
-            } finally {
-                driver.quit();
-            }
-    }
 }
 
+// 네이버 카페의 이미지는 시도해본 결과, 외부에서 불러올 수 없게 되어있는 듯함.
+// https://stackoverflow.com/questions/8706548/disable-direct-access-to-images
+// 이미지 자체를 Base64 로 인코딩하여 html 에 직접 삽입하는 방법도 있기는 하다.
+// 하지만 이미지 업로드가 꼭 필요한 기능인지 에 대해서는 의문.
 
 //// Jsoup 으로는 아무리 해도 네이버 카페 화면 크롤링 불가능.
 //        Map<String, String> naverLoginCookies = naverLoginService.getCookieToJsoup();

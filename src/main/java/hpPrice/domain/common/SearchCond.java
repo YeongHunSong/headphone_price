@@ -6,6 +6,7 @@ import lombok.Data;
 public class SearchCond {
 
     // POST_LIST (title, nickname, userId)
+    // POST (content)
 
     private String searchType;
 
