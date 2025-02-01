@@ -34,7 +34,7 @@ public class NvCafeCrawlingService {
     private static long postNum = 0;
 
     @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
-    public void naverCafePostItemCrawling() {
+    public void naverCafePostCrawling() {
         log.info("NAVER CAFE 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
         ChromeDriver driver = naverLoginCookieReady();
         try {
@@ -58,8 +58,7 @@ public class NvCafeCrawlingService {
 
                         seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + postNum);
                         Elements naverCafePost = Jsoup.parse(
-                                driver.findElement(
-                                        By.className("ArticleContentBox")).getAttribute("outerHTML"))
+                                driver.findElement(By.className("ArticleContentBox")).getAttribute("outerHTML"))
                                 .select(".ArticleContentBox > div");
 
                         saveNaverPostAndPostItem(postItem, category, naverCafePost);
@@ -88,7 +87,7 @@ public class NvCafeCrawlingService {
                 seleniumNvLoginService.getDriverAndWait(driver, NV_CAFE_URL);
                 for (Cookie cookie : naverLoginCookies) driver.manage().addCookie(cookie);
 
-                seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + 1721758);
+                seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + 1710711);
                 if (driver.findElements(By.className("ArticleContentBox")).isEmpty()) {
                     throw new IllegalArgumentException("Cookie Expired");
                 }
@@ -124,7 +123,7 @@ public class NvCafeCrawlingService {
                     Post.newPost(postNum,
                             postContent.outerHtml()));
         } catch (DuplicateKeyException e) {
-            log.error("이미 저장된 게시글로 저장되지 않음 -> {} {} {} \n", postNum, title, CategoryType.getName(category), e);
+            log.error("이미 저장된 게시글로 저장되지 않음 -> {} {} {} \n", CategoryType.getName(category), postNum, title, e);
         } // 해당 페이지 내 마지막 글을 데이터베이스에 저장하던 도중 새로운 글이 작성되어 다음 페이지 첫번째 글로 넘어가면서 중복 오류가 발생한 건에 대해서만 예외 처리.
     }
 

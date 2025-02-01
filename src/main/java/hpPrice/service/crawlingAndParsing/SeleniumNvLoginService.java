@@ -37,10 +37,10 @@ public class SeleniumNvLoginService {
         log.info("네이버 로그인 쿠키 갱신 시작 [{}]", DateTimeUtils.getCurrentDateTime());
         ChromeDriver driver = getChromeDriver();
         try {
-            getDriverAndWait(driver, NV_LOGIN_URL);
+            naverLoginScript(driver);
 
-            naverLogin(driver);
             avoidLoginSavePopup(driver);
+
             updateLoginCookies(driver);
 
             log.info("네이버 로그인 쿠키 갱신 완료 [{}]", DateTimeUtils.getCurrentDateTime());
@@ -49,6 +49,22 @@ public class SeleniumNvLoginService {
         } finally {
             driver.quit();
         }
+    }
+
+    private void naverLoginScript(ChromeDriver driver) throws InterruptedException { // headless 모드
+        getDriverAndWait(driver, NV_LOGIN_URL);
+
+        driver.executeScript(
+                String.format("document.querySelector('input[id=\"id\"]').setAttribute('value', '%s')",
+                        LoginInfo.LOGIN_ID));
+
+        driver.executeScript(
+                String.format("document.querySelector('input[id=\"pw\"]').setAttribute('value', '%s')",
+                        LoginInfo.LOGIN_PW));
+
+        driver.findElement(By.id("log.login")).click();
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+        sleep(SLEEP_TIME);
     }
 
     public Set<Cookie> getNaverLoginCookie() {
@@ -66,11 +82,12 @@ public class SeleniumNvLoginService {
     public ChromeDriver getChromeDriver() {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
-                .addArguments("user-agent=" + USER_AGENT)
-                // 아래 모두 headless 설정
-                .addArguments("headless")
-                .addArguments("window-size=1920x1080")
-                .addArguments("disable-gpu"));
+                .addArguments("--user-agent=" + USER_AGENT)
+//                // 아래 모두 headless 설정
+                .addArguments("--headless")
+                .addArguments("--no-sandbox")
+                .addArguments("--window-size=1920x1080")
+                .addArguments("--disable-gpu"));
     }
 
     public void getDriverAndWait(ChromeDriver driver, String url) {
@@ -92,26 +109,11 @@ public class SeleniumNvLoginService {
         throw new RuntimeException("페이지 로드 실패");
     }
 
-    private void naverLogin(ChromeDriver driver) throws InterruptedException {
-        inputLoginData(driver, LoginInfo.LOGIN_ID, "input_id", Keys.TAB);
-        inputLoginData(driver, LoginInfo.LOGIN_PW, "input_pw", Keys.ENTER);
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME / 2));
-    }
-
-    private void inputLoginData(ChromeDriver driver, String inputData, String inputClassName, Keys nextKey) throws InterruptedException {
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(inputData), null);
-        WebElement inputId = driver.findElement(By.className(inputClassName));
-        inputId.sendKeys(Keys.CONTROL + "v");
-        sleep(LOGIN_SLEEP_TIME / 4);
-
-        inputId.sendKeys(nextKey);
-        sleep(LOGIN_SLEEP_TIME / 2);
-    }
-
-    private void avoidLoginSavePopup(ChromeDriver driver) {
+    public void avoidLoginSavePopup(ChromeDriver driver) throws InterruptedException {
         if (!driver.findElements(By.id("new.dontsave")).isEmpty()) {    // findElements -> 빈 리스트 반환 (null 가능)
             driver.findElement(By.id("new.dontsave")).click();          // findElement -> null 시 에러 발생
             driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+            sleep(SLEEP_TIME);
         }
     }
 
@@ -127,20 +129,40 @@ public class SeleniumNvLoginService {
     }
 
 
-//    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {
-//        Map<String, String> cookieMap = seleniumCookies.stream()
-//                .collect(Collectors.toMap(
-//                        Cookie::getName,
-//                        Cookie::getValue));
-//        cookieMap.put("domain", ".naver.com");
-////        cookieMap.put("expiry", "Sun Jan 26 15:10:56 KST 2025");
-//        cookieMap.put("path", "=/");
-//        cookieMap.put("sameSite", "Lax");
-//        return objectMapper.writeValueAsString(cookieMap);
-//    }
-//
-//    public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
-//        return objectMapper.readValue(
-//                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
-//    }
+
+    /// Deprecated Method
+
+    @Deprecated
+    private void naverLoginJava(ChromeDriver driver) { // headless 모드에서는 클립보드 접근이 불가능해 이 방식으로는 로그인 불가능
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(LoginInfo.LOGIN_ID), null);
+        WebElement inputLoginId = driver.findElement(By.className("input_id"));
+        inputLoginId.sendKeys(Keys.CONTROL + "v");
+        inputLoginId.sendKeys(Keys.TAB);
+
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(LoginInfo.LOGIN_PW), null);
+        WebElement inputLoginPw = driver.findElement(By.className("input_pw"));
+        inputLoginPw.sendKeys(Keys.CONTROL + "v");
+        inputLoginPw.sendKeys(Keys.ENTER);
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
+    }
+
+    @Deprecated
+    private String convertJson(Set<Cookie> seleniumCookies) throws JsonProcessingException {
+        Map<String, String> cookieMap = seleniumCookies.stream()
+                .collect(Collectors.toMap(
+                        Cookie::getName,
+                        Cookie::getValue));
+        cookieMap.put("domain", ".naver.com");
+//        cookieMap.put("expiry", "Sun Jan 26 15:10:56 KST 2025");
+        cookieMap.put("path", "=/");
+        cookieMap.put("sameSite", "Lax");
+        return objectMapper.writeValueAsString(cookieMap);
+    }
+
+    @Deprecated
+    public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
+        return objectMapper.readValue(
+                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
+    }
 }

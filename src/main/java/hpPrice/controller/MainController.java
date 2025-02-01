@@ -115,7 +115,6 @@ public class MainController {
         return "bad";
     }
 
-
     @GetMapping("/drhp/{category}") // String 으로 바꿀까?
     public String drhpPostList(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond,
                                @PathVariable("category") int category, Model model) {
