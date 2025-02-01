@@ -29,8 +29,7 @@ public class JsoupDcCrawlingService {
 
     private static long postNum = 0;
 
-
-//    @Scheduled(fixedDelay = 90 * 1000)
+    @Scheduled(fixedDelay = 90 * 1000, initialDelay = 1000)
     public void dcPostCrawling() {
         log.info("DC 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
 
@@ -51,9 +50,10 @@ public class JsoupDcCrawlingService {
 
                     /// ### POST Parsing ###
                     Elements post = jsoupConnectAndParsing(DC_POST_URL + DC_POST_NUM_QUERY + postNum, ".write_div > *");
-                    post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상 링크 삭제
+                    post.removeIf(postLine -> postLine.select("iframe").is("iframe")); // 동영상은 호출 불가능, 링크 삭제
                     for (Element postLine : post) imageUrlCheck(postLine);
 
+                    /// ### POST_ITEM & POST Save ###
                     savePostAndPostItem(postItem, post);
                 }
             }
@@ -68,10 +68,6 @@ public class JsoupDcCrawlingService {
 
 
 
-
-
-    // ### DB 접근 서비스 메서드 ###
-    
     public void savePostItemDC(PostItem postItem) {
         if (postItem.getUserId().isEmpty()) { // 비로그인 계정의 경우 갤로그 공백
             postItem.setUserId("유동");
@@ -88,7 +84,7 @@ public class JsoupDcCrawlingService {
     }
 
     public Long latestPostNum() {
-        // latestPostNum 이 null 인 경우(=DB에 아무 값이 없음), 0으로 반환
+        // latestPostNum 이 null 인 경우 (=DB에 아무 값이 없음), 0으로 반환
         Long latestPostNum = postRepository.findLatestPostNum();
         return latestPostNum == null ? 0L : latestPostNum;
     }
@@ -106,11 +102,6 @@ public class JsoupDcCrawlingService {
         postRepository.resolveError(errorNum);
     }
 
-
-
-
-
-    // ### 코드 정리용 추출 메서드 ###
 
     public Elements jsoupConnectAndParsing(String connectUrl, String selectQuery) throws IOException, InterruptedException {
         for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
@@ -136,8 +127,7 @@ public class JsoupDcCrawlingService {
     }
 
     private int findLastPage() throws IOException, InterruptedException {
-        String pageUrl = jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY, ".page_end")
-                .attr("href"); // 파싱 태그값 변경된 경우, URL 변경된 경우 NPE 발생
+        String pageUrl = jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY, ".page_end").attr("href");
         return Integer.parseInt(pageUrl.substring(pageUrl.indexOf("page=") + 5, pageUrl.indexOf("&search")));
     }
 
@@ -162,7 +152,7 @@ public class JsoupDcCrawlingService {
 
         // dc 이미지 ex) https://dcimg3.dcinside.co.kr/viewimage.php?id=3ebbd6&amp;no=24b0d769e1d32ca73de886fa11d02831fdb1643214b32d9bb1b5ab3e58bb89b1216bffb62d1ebdb9618bca1b2397cbbb31cc16f365ff7ff1b8edce6f50754e1845bffcae
         // dc 디시콘 ex) https://dcimg5.dcinside.com/dccon.php?no=62b5df2be09d3ca567b1c5bc12d46b394aa3b1058c6e4d0ca41648b658eb26767ccfa27c0ebd239241422c8efa9616613c5f9cd0fac0542d864e3afb8ae684e5b94e57d1866f95ee58
-        if (imageUrl.contains("dcimg")) { // 이미지가 있는지 확인 후 DC 이미지의 경우, 외부에서 불러올 수 없는 이미지 HOST 를 외부에서 불러올 수 있게 이미지 HOST 변경
+        if (imageUrl.contains("dcimg")) { // 이미지가 있는지 확인 후 DC 이미지의 경우, 외부에서 호출 불가능한 이미지 HOST 를 외부 호출 가능한 이미지 HOST 로 변경
             switch ((imageUrl.charAt(13))) { // TODO host 번호로 찾지말고 URL 안에 다른 값으로 찾기 (viewimage.php / dccon.php)
                 case '1': // 이미지 링크 O
                     break;

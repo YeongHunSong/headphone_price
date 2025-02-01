@@ -172,13 +172,7 @@
 
     <select id="findPagedNaverPostItemsBySearchCond" resultType="NaverPostItem">
         SELECT
-            PI.POST_NUM
-            , PI.TITLE
-            , PI.CATEGORY
-            , PI.URL
-            , PI.NICKNAME
-            , PI.MEM_LEVEL
-            , PI.W_DATE
+            *
         FROM
             NAVER_POST_ITEM PI
         WHERE

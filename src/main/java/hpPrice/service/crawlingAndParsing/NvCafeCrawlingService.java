@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.InvalidCookieDomainException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,8 +32,6 @@ public class NvCafeCrawlingService {
     private final SeleniumNvLoginService seleniumNvLoginService;
     private final JsoupDcCrawlingService jsoupDcCrawlingService;
 
-    private static long postNum = 0;
-
     @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostCrawling() {
         log.info("NAVER CAFE 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
@@ -51,25 +50,24 @@ public class NvCafeCrawlingService {
 
                     /// ### POST Parsing ###
                     for (Element postItem : naverPostList) {
-                        postNum = Long.parseLong((postItem.selectFirst(".inner_number")).text());
+                        long postNum = Long.parseLong((postItem.selectFirst(".inner_number")).text());
                         if (latestPostNum >= postNum) break parsingLogic;
                         // '=' DB 마지막 저장값과 파싱값이 동일. (일반적인 경우)
-                        // '>' 에러 복구 모드가 아닌데, DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
+                        // '>' DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
                         seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + postNum);
                         Elements naverCafePost = Jsoup.parse(
                                 driver.findElement(By.className("ArticleContentBox")).getAttribute("outerHTML"))
                                 .select(".ArticleContentBox > div");
 
+                        /// ### POST_ITEM & POST Save ###
                         saveNaverPostAndPostItem(postItem, category, naverCafePost);
                     }
                 }
             }
-            // TODO 추후 errorReport 관련 추가하기
-            // error report 할 때 카테고리도 같이 넘겨주기
+            // TODO 추후 errorReport 관련 추가하기 + 카테고리 값도 같이 넘겨주기
 
         } catch (IOException e) { // 타임아웃, 데이터 없음, 500에러(HttpStatusException) 등등
-//            reportError(ErrorPost.reportError(postNum, e.toString()));
             log.error("크롤링 사이트 연결 관련 Exception -> ", e);
         } catch (Exception e) {
             log.error("Exception 발생 -> ", e);
@@ -92,8 +90,8 @@ public class NvCafeCrawlingService {
                     throw new IllegalArgumentException("Cookie Expired");
                 }
                 return driver;
-            } catch (IllegalArgumentException e) { // 쿠키 없음 & 만료
-                log.error("IllegalArgumentException -> ", e);
+            } catch (IllegalArgumentException | InvalidCookieDomainException e) { // 쿠키 없음 & 만료
+                log.error("Cookie Expired -> ", e);
                 seleniumNvLoginService.updateNaverLoginCookies();
             }
         }

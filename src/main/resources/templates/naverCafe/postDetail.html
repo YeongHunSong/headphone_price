@@ -11,14 +11,13 @@
 <div class="container mt-3" style="max-width: 950px">
     <div class="form-control">
         <div class="py-2">
-            <button class="w-auto btn btn-primary row mx-auto" th:onclick="|location.href='@{/dcsff}'|" type="button">전체글</button>
+            <button class="w-auto btn btn-primary row mx-auto" th:onclick="|location.href='@{/drhp/{category}
+            (category=${postItem.category})}'|" type="button">전체글</button>
         </div>
-
         <h3 class="my-3"><span th:text="${postItem.title}">제목</span></h3>
-        <span th:text="|${postItem.nickname}[${postItem.userId}]|" th:classappend="${postItem.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">작성자 닉네임[아이디]</span>
+        <span th:utext="|${postItem.nickname}  ${postItem.memLevel} ${postItem.memLevelIcon}|">닉네임[회원등급]</span>
         <span class="px-1" th:text="|${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}|">작성일자</span>
-        <a class="px-1" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
-        <a class="px-1" th:text="|갤로그|" th:href="@{|${postItem.userUrl}|}" target="_blank" rel="noopener noreferrer">갤로그 링크</a>
+        <a class="px-1" th:text="|원 게시글|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
         <br><br>
         <span class="mx-auto" th:utext="${post.content}">게시글 내용</span>
         <br>

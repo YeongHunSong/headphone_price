@@ -38,14 +38,11 @@ public class SeleniumNvLoginService {
         ChromeDriver driver = getChromeDriver();
         try {
             naverLoginScript(driver);
-
             avoidLoginSavePopup(driver);
-
             updateLoginCookies(driver);
-
             log.info("네이버 로그인 쿠키 갱신 완료 [{}]", DateTimeUtils.getCurrentDateTime());
         } catch (InterruptedException | JsonProcessingException e) {
-            log.error("Exception", e);
+            log.error("Exception -> ", e);
         } finally {
             driver.quit();
         }
@@ -53,15 +50,12 @@ public class SeleniumNvLoginService {
 
     private void naverLoginScript(ChromeDriver driver) throws InterruptedException { // headless 모드
         getDriverAndWait(driver, NV_LOGIN_URL);
-
         driver.executeScript(
                 String.format("document.querySelector('input[id=\"id\"]').setAttribute('value', '%s')",
                         LoginInfo.LOGIN_ID));
-
         driver.executeScript(
                 String.format("document.querySelector('input[id=\"pw\"]').setAttribute('value', '%s')",
                         LoginInfo.LOGIN_PW));
-
         driver.findElement(By.id("log.login")).click();
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
         sleep(SLEEP_TIME);
@@ -83,8 +77,7 @@ public class SeleniumNvLoginService {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("--user-agent=" + USER_AGENT)
-//                // 아래 모두 headless 설정
-                .addArguments("--headless")
+                .addArguments("--headless") /// 아래 모두 headless 설정
                 .addArguments("--no-sandbox")
                 .addArguments("--window-size=1920x1080")
                 .addArguments("--disable-gpu"));
@@ -109,7 +102,7 @@ public class SeleniumNvLoginService {
         throw new RuntimeException("페이지 로드 실패");
     }
 
-    public void avoidLoginSavePopup(ChromeDriver driver) throws InterruptedException {
+    private void avoidLoginSavePopup(ChromeDriver driver) throws InterruptedException {
         if (!driver.findElements(By.id("new.dontsave")).isEmpty()) {    // findElements -> 빈 리스트 반환 (null 가능)
             driver.findElement(By.id("new.dontsave")).click();          // findElement -> null 시 에러 발생
             driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
@@ -122,7 +115,6 @@ public class SeleniumNvLoginService {
                 .stream()
                 .map(CookieConvert::new)
                 .collect(Collectors.toSet());
-
         postRepository.newLoginCookies(
                 LoginCookies.newLoginCookies("naverLoginCookies",
                         objectMapper.writeValueAsString(convertCookies)));

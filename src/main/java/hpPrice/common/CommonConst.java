@@ -34,7 +34,7 @@ public class CommonConst {
     public static final int LOGIN_SLEEP_TIME = 2111;
 
 
-    public static final Pattern REMOVE_PATTERN = Pattern.compile("번호 :|연락처 :|번호:|연락처:" +
+    public static final Pattern REMOVE_PATTERN = Pattern.compile("번호 :|연락처 :|번호:|연락처:|010-" +
             "|@ 영상통화|★사기|☆ 신입회원|★ 신입회원|☆ 구매글은|☆ 모든 장터|☆ 해외구매|@ 택배거래는" +
         "|영상통화 & 카카오톡 영상통화 이용하여,|반드시, 제품 확인하시고 거래하세요.|@ 중고장터 사기 예방|https://cafe.naver.com/drhp/2141514" +
             "|@ 가격정보 지우는|@ 시세조작|## 렌탈 제품|@ 거래중일 경우|## 불가능시|@ 아래 양식");
