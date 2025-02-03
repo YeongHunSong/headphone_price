@@ -30,208 +30,210 @@
         </where>
     </sql>
 
+    <sql id="categoryAndSearch">
+        <where>
+            PI.CATEGORY = #{category}
+            <if test="cond != null">
+                <if test="cond.searchType == 'title' and cond.keyword != ''">
+                    AND LOWER(PI.TITLE) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
+                </if>
+                <if test="cond.searchType == 'nickname' and cond.keyword != ''">
+                    AND LOWER(PI.NICKNAME) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
+                </if>
+                <if test="cond.searchType == 'content' and cond.keyword != ''">
+                    AND LOWER(P.CONTENT) LIKE LOWER(CONCAT('%', #{cond.keyword}, '%'))
+                </if>
+            </if>
+        </where>
+    </sql>
 
 
     <!-- INSERT -->
     <insert id="newPostItem">
         INSERT INTO
-            POST_ITEM (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
+        POST_ITEM (POST_NUM, W_DATE, TITLE, URL, NICKNAME, USER_ID, USER_URL)
         VALUES
-            (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
+        (#{postNum}, #{wDate}, #{title}, #{url}, #{nickname}, #{userId}, #{userUrl})
     </insert>
 
     <insert id="newPost">
         INSERT INTO
-            POST (POST_NUM, CONTENT)
+        POST (POST_NUM, CONTENT)
         VALUES
-            (#{postNum}, #{content})
+        (#{postNum}, #{content})
     </insert>
 
     <insert id="newErrorPost">
         INSERT INTO
-            ERROR_POST (POST_NUM, ERROR_DESC, ERROR_DATE)
+        ERROR_POST (POST_NUM, ERROR_DESC, ERROR_DATE)
         VALUES
-            (#{postNum}, #{errorDesc}, now())
+        (#{postNum}, #{errorDesc}, now())
     </insert>
 
     <insert id="newLoginCookies">
         INSERT INTO
-            LOGIN_COOKIES (DESC, JSON_COOKIES, LOGIN_DATE)
+        LOGIN_COOKIES (DESC, JSON_COOKIES, LOGIN_DATE)
         VALUES
-            (#{desc}, #{jsonCookies}, now())
+        (#{desc}, #{jsonCookies}, now())
     </insert>
 
     <insert id="newNaverPostItem">
         INSERT INTO
-            NAVER_POST_ITEM (POST_NUM, W_DATE, TITLE, CATEGORY, URL, NICKNAME, MEM_LEVEL, MEM_LEVEL_ICON, PRICE)
+        NAVER_POST_ITEM (POST_NUM, W_DATE, TITLE, CATEGORY, URL, NICKNAME, MEM_LEVEL, MEM_LEVEL_ICON, PRICE)
         VALUES
-            (#{postNum}, #{wDate}, #{title}, #{category}, #{url}, #{nickname}, #{memLevel}, #{memLevelIcon}, #{price})
+        (#{postNum}, #{wDate}, #{title}, #{category}, #{url}, #{nickname}, #{memLevel}, #{memLevelIcon}, #{price})
     </insert>
 
     <insert id="newNaverPost">
         INSERT INTO
-            NAVER_POST (POST_NUM, CONTENT)
+        NAVER_POST (POST_NUM, CONTENT)
         VALUES
-            (#{postNum}, #{content})
+        (#{postNum}, #{content})
     </insert>
-
 
 
     <!-- SELECT -->
     <select id="findPagedPostItemsBySearchCond" resultType="PostItem">
         SELECT
-            PI.POST_NUM
-            , PI.TITLE
-            , PI.W_DATE
-            , PI.NICKNAME
-            , PI.USER_ID
-            , PI.USER_URL
+        PI.POST_NUM
+        , PI.TITLE
+        , PI.W_DATE
+        , PI.NICKNAME
+        , PI.USER_ID
+        , PI.USER_URL
         FROM
-            POST_ITEM PI
-        INNER JOIN POST P
-            ON PI.POST_NUM = P.POST_NUM
+        POST_ITEM PI
+        INNER JOIN POST P ON PI.POST_NUM = P.POST_NUM
         <include refid="search"/>
-        ORDER BY
-            W_DATE DESC
+        ORDER BY W_DATE DESC
         <include refid="paging"/>
     </select>
 
     <select id="findPostItemByPostNum" resultType="PostItem">
         SELECT
-            *
+        *
         FROM
-            POST_ITEM
-        WHERE
-            POST_NUM = #{postNum}
+        POST_ITEM
+        WHERE POST_NUM = #{postNum}
     </select>
 
     <select id="findPostByPostNum" resultType="Post">
         SELECT
-            *
+        *
         FROM
-            POST
-        WHERE
-            POST_NUM = #{postNum}
+        POST
+        WHERE POST_NUM = #{postNum}
     </select>
 
     <select id="findErrorPost" resultType="ErrorDto">
         SELECT
-            ERROR_NUM,
-            POST_NUM
+        ERROR_NUM,
+        POST_NUM
         FROM
-            ERROR_POST
-        WHERE
-            POST_NUM != 0
-            AND IS_RESOLVED = 0
+        ERROR_POST
+        WHERE POST_NUM != 0
+        AND IS_RESOLVED = 0
         LIMIT 1
     </select>
 
     <select id="findLatestPostNum" resultType="Long">
         SELECT
-            POST_NUM
+        POST_NUM
         FROM
-            POST_ITEM
-        ORDER BY
-            W_DATE DESC
+        POST_ITEM
+        ORDER BY W_DATE DESC
         LIMIT 1
     </select>
 
     <select id="countPostItemsBySearchCond" resultType="Integer">
         SELECT
-            COUNT(PI.POST_NUM)
+        COUNT(PI.POST_NUM)
         FROM
-            POST_ITEM PI
-        INNER JOIN POST P
-            ON PI.POST_NUM = P.POST_NUM
+        POST_ITEM PI
+        INNER JOIN POST P ON PI.POST_NUM = P.POST_NUM
         <include refid="search"/>
     </select>
 
     <select id="findLatestLoginCookiesByDesc" resultType="String">
         SELECT
-            JSON_COOKIES
+        JSON_COOKIES
         FROM
-            LOGIN_COOKIES
-        WHERE
-            DESC = #{desc}
-        ORDER BY
-            LOGIN_DATE DESC
+        LOGIN_COOKIES
+        WHERE DESC = #{desc}
+        ORDER BY LOGIN_DATE DESC
         LIMIT 1
     </select>
 
     <select id="findLatestNaverPostNum" resultType="Long">
         SELECT
-            POST_NUM
+        POST_NUM
         FROM
-            NAVER_POST_ITEM
-        WHERE
-            CATEGORY = #{category}
-        ORDER BY
-            POST_NUM DESC
+        NAVER_POST_ITEM
+        WHERE CATEGORY = #{category}
+        ORDER BY POST_NUM DESC
         LIMIT 1
     </select>
 
     <select id="findPagedNaverPostItemsBySearchCond" resultType="NaverPostItem">
         SELECT
-            *
+        PI.POST_NUM
+        , PI.W_DATE
+        , PI.TITLE
+        , PI.CATEGORY
+        , PI.NICKNAME
+        , PI.MEM_LEVEL_ICON
+        , PI.PRICE
         FROM
-            NAVER_POST_ITEM PI
-        WHERE
-            PI.CATEGORY = #{category}
-        <include refid="search"/>
-        ORDER BY
-            PI.W_DATE DESC
+        NAVER_POST_ITEM PI
+        INNER JOIN NAVER_POST P ON PI.POST_NUM = P.POST_NUM
+        <include refid="categoryAndSearch"/>
+        ORDER BY PI.W_DATE DESC
         <include refid="paging"/>
     </select>
 
     <select id="findNaverPostItemByPostNum" resultType="NaverPostItem">
         SELECT
-            *
+        *
         FROM
-            NAVER_POST_ITEM
-        WHERE
-            POST_NUM = #{postNum}
+        NAVER_POST_ITEM
+        WHERE POST_NUM = #{postNum}
     </select>
 
     <select id="countNaverPostItemsBySearchCond" resultType="Integer">
         SELECT
-            COUNT(PI.POST_NUM)
+        COUNT(PI.POST_NUM)
         FROM
-            NAVER_POST_ITEM PI
-        WHERE
-            PI.CATEGORY = #{category}
-        <include refid="search"/>
+        NAVER_POST_ITEM PI
+        INNER JOIN NAVER_POST P ON PI.POST_NUM = P.POST_NUM
+        <include refid="categoryAndSearch"/>
     </select>
 
     <select id="findNaverPostByPostNum" resultType="Post">
         SELECT
-            *
+        *
         FROM
-            NAVER_POST
-        WHERE
-            POST_NUM = #{postNum}
+        NAVER_POST
+        WHERE POST_NUM = #{postNum}
     </select>
-
 
 
     <!-- UPDATE -->
     <update id="resolveError">
         UPDATE
-            ERROR_POST
+        ERROR_POST
         SET
-            IS_RESOLVED = 1,
-            RESOLVED_DATE = now()
-        WHERE
-            ERROR_NUM = #{errorNum}
+        IS_RESOLVED = 1
+        , RESOLVED_DATE = now()
+        WHERE ERROR_NUM = #{errorNum}
     </update>
-
 
 
     <!-- DELETE -->
     <delete id="deletePostItemByPostNum">
         DELETE FROM
-            POST_ITEM
+        POST_ITEM
         WHERE
-            POST_NUM = #{postNum}
+        POST_NUM = #{postNum}
     </delete>
 
 </mapper>

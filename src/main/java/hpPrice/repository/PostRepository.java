@@ -42,15 +42,15 @@ public interface PostRepository {
 
     String findLatestLoginCookiesByDesc(String desc);
 
-    Long findLatestNaverPostNum(int category);
+    Long findLatestNaverPostNum(Integer category);
 
-    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category);
+    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, Integer category);
 
     NaverPostItem findNaverPostItemByPostNum(Long postNum);
 
     Post findNaverPostByPostNum(Long postNum);
 
-    Integer countNaverPostItemsBySearchCond(SearchCond cond, int category);
+    Integer countNaverPostItemsBySearchCond(SearchCond cond, Integer category);
 
 
     // UPDATE

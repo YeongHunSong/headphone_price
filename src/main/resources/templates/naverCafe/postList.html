@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <title>닥터헤드폰 카페</title> <!-- TODO category 받아와서 타이틀 넣기 -->
+    <link th:href="@{/css/pagination.css}" rel="stylesheet">
+    <link th:href="@{/css/table.css}" rel="stylesheet">
+    <title th:text="|닥터헤드폰 ${pageTitle}|">닥터헤드폰 카페</title>
 </head>
 
 <body>
@@ -13,59 +15,36 @@
     <div class="form-control" style="max-width: 1250px">
         <div class="row">
             <div class="py-2">
-                <button class="w-auto btn btn-primary float-start row mx-auto" th:onclick="|location.href='@{/drhp/{category}
-                (category=${postItems[0].category})}'|" type="button">전체글</button>
-                <!-- TODO 버튼 하나 더 추가. 현재 카테고리 버튼 + 홈 버튼 -->
-                <form th:action method="get" class="row float-end">
-                    <!-- TODO 여기에 닥터헤드폰 헤드폰 팝니다 탭 ~~~ 뭐 이런식으로 적어놓기 -->
-                    <div class="col-auto">
-                        <label>
-                            <select class="form-select" th:field="${cond.searchType}">
-                                <option th:value="title" selected>제목</option>
-                                <option th:value="content">내용</option>
-                                <option th:value="nickname">닉네임</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="text" class="form-control" placeholder="검색어를 입력해주세요" th:field="${cond.keyword}" required>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn  btn-success" type="submit">검색</button>
-                    </div>
-                </form>
+                <nav th:replace="~{fragments/nav :: navBar}"></nav>
             </div>
 
-            <table class="table table-hover text-center table-striped align-middle" style="table-layout: fixed">
-                <thead>
+            <table class="table table-hover table-light text-center align-middle rounded" style="table-layout: fixed">
+                <thead class="table-success">
                 <tr>
                     <th class="col-1">글번호</th>
                     <th class="col-4">제목</th>
                     <th class="col-1">작성자</th>
                     <th class="col-1">작성일</th>
                     <th class="col-1">가격(테스트)</th>
-
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="table-group-divider">
                 <tr th:each="postItem : ${postItems}">
                     <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>
                     <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/drhp/post/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
                     <td class="p-2"><span th:utext="|${postItem.nickname} ${postItem.memLevelIcon}|" class="mx-auto text-truncate text-nowrap">닉네임 회원등급</span></td>
                     <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
-                    <td class="p-2"><span th:text="|${postItem.price}|">가격</span></td>
+                    <td class="p-2"><span th:text="|${postItem.price}|" class="d-inline-block text-truncate text-nowrap w-100">가격</span></td>
                 </tr>
                 </tbody>
             </table>
             <span class="text-center" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</span>
         </div>
-
-        <div>
-
-        </div>
         <nav th:replace="~{fragments/paging :: pageBar}"></nav><!-- paging 관련 -->
     </div>
     <br>
 </div> <!-- /container -->
+
+<script th:src="@{/js/bootstrap.bundle.js}"></script>
 </body>
 </html>

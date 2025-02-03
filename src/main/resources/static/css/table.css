@@ -1,0 +1,7 @@
+.table-light a {
+  color: #000; /* 검정색 */
+}
+
+.table-light a:hover {
+  color: #ccc; /* 마우스 호버 시 파란색 (원하는 색상으로 변경 가능) */
+}

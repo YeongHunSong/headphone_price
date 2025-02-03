@@ -87,12 +87,12 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public Long findLatestNaverPostNum(int category) {
+    public Long findLatestNaverPostNum(Integer category) {
         return postMapper.findLatestNaverPostNum(category);
     }
 
     @Override
-    public List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, int category) {
+    public List<NaverPostItem> findPagedNaverPostItemsBySearchCond(PageDto pageDto, SearchCond cond, Integer category) {
         return postMapper.findPagedNaverPostItemsBySearchCond(pageDto, cond, category);
     }
 
@@ -107,7 +107,7 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public Integer countNaverPostItemsBySearchCond(SearchCond cond, int category) {
+    public Integer countNaverPostItemsBySearchCond(SearchCond cond, Integer category) {
         return postMapper.countNaverPostItemsBySearchCond(cond, category);
     }
 

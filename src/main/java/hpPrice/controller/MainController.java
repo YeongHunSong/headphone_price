@@ -56,14 +56,14 @@ public class MainController {
 
     }
 
-    // TODO DC 페이지나, 닥헤 게시판 고를 수 있는 홈화면 만들기
 
     // MAIN
+    // TODO DC 페이지나, 닥헤 게시판 고를 수 있는 홈화면 만들기
 
-    @GetMapping("/main")
-    public String home() {
-        // TODO 버튼만 그냥 땅땅땅땅 박아놓을까...
-        return "main";
+    @GetMapping("/feedback")
+    public String feedback() {
+
+        return "feedback";
     }
 
 
@@ -73,6 +73,8 @@ public class MainController {
     public String dcSffPostList(Model model, @ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond) {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
         model.addAttribute("postItems", postService.findPostItems(pageDto, cond));
+        model.addAttribute("type", "dcinside");
+        model.addAttribute("pageTitle", "SFF 갤러리 거래 글목록");
         return "dc/postList";
 
         // TODO 저장할 때부터 모든 내용을 소문자로 DB에 넣는다거나?
@@ -83,7 +85,7 @@ public class MainController {
     @GetMapping("/dcsff/{postNum:[1-9]\\d*}")
     public String dcsffPostDetail(Model model, @PathVariable("postNum") Long postNum) { // 여기도 @PathVariable 제약 걸기
         PostItem postItem = postService.findPostItem(postNum);
-        if (postItem == null) return "redirect:/dcsff";
+        if (postItem == null) return "redirect:/NotFound";
         Post post = postService.findPost(postNum);
 
         model.addAttribute("postItem", postItem);
@@ -94,28 +96,23 @@ public class MainController {
 
     // NAVER CAFE
 
-    @ResponseBody
-    @GetMapping("/drhp")
-    public String drhpHome() {
-        // TODO 메인 화면 제작 (카테고리 선택 페이지, DC SFF 페이지 등으로 갈 수 있도록)
-        return "bad";
-    }
-
     @GetMapping("/drhp/{category:[1-9]\\d*}")
     public String drhpPostList(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond, Model model,
                                @PathVariable("category") Integer category) {
-        if (!CategoryType.isCategory(category)) return "redirect:/drhp";
+        if (!CategoryType.isCategory(category)) return "redirect:/NotFound";
 
         pageDto.setPageView(15);// 네이버 카페 기본값 15
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countNvPostItems(cond, category)));
         model.addAttribute("postItems", postService.findNaverPostItems(pageDto, cond, category));
+        model.addAttribute("type", "naverCafe");
+        model.addAttribute("pageTitle", "중고" + CategoryType.getName(category));
         return "naverCafe/postList";
     }
 
     @GetMapping("/drhp/post/{postNum:[1-9]\\d*}")
     public String drhpPostDetail(Model model, @PathVariable("postNum") Long postNum) {
         NaverPostItem postItem = postService.findNaverPostItem(postNum);
-        if (postItem == null) return "redirect:/drhp";
+        if (postItem == null) return "redirect:/NotFound";
         Post post = postService.findNaverPost(postNum);
 
         model.addAttribute("postItem", postItem);
@@ -129,7 +126,7 @@ public class MainController {
 // 이미지 자체를 Base64 로 인코딩하여 html 에 직접 삽입하는 방법도 있기는 하다.
 // 하지만 이미지 업로드가 꼭 필요한 기능인지 에 대해서는 의문.
 
-//// Jsoup 으로는 아무리 해도 네이버 카페 화면 크롤링 불가능.
+/// Jsoup 으로는 아무리 해도 네이버 카페 화면 크롤링 불가능.
 //        Map<String, String> naverLoginCookies = naverLoginService.getCookieToJsoup();
 //Document document = Jsoup.url("https://cafe.naver.com/drhp/2358449")
 //                        .userAgent(USER_AGENT)

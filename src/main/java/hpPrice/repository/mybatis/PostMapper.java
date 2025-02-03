@@ -45,15 +45,15 @@ public interface PostMapper {
 
     String findLatestLoginCookiesByDesc(String desc);
 
-    Long findLatestNaverPostNum(int category);
+    Long findLatestNaverPostNum(Integer category);
 
-    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond, @Param("category") int category);
+    List<NaverPostItem> findPagedNaverPostItemsBySearchCond(@Param("pageDto") PageDto pageDto, @Param("cond") SearchCond cond, @Param("category") Integer category);
 
     NaverPostItem findNaverPostItemByPostNum(Long postNum);
 
     Post findNaverPostByPostNum(Long postNum);
 
-    Integer countNaverPostItemsBySearchCond(@Param("cond")SearchCond cond, @Param("category") int category);
+    Integer countNaverPostItemsBySearchCond(@Param("cond")SearchCond cond, @Param("category") Integer category);
 
 
 

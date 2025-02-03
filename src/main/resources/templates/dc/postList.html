@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <title>DC SFF 갤러리 거래 글목록</title>
+    <link th:href="@{/css/pagination.css}" rel="stylesheet">
+    <link th:href="@{/css/table.css}" rel="stylesheet">
+    <title th:text="|${pageTitle}|">DC SFF 갤러리 거래 글목록</title>
 </head>
 
 <body>
@@ -13,52 +15,36 @@
     <div class="form-control" style="max-width: 1250px">
         <div class="row">
             <div class="py-2">
-                <button class="w-auto btn btn-primary float-start row mx-auto" th:onclick="|location.href='@{/dcsff}'|" type="button">전체글</button>
-                <form th:action method="get" class="row float-end">
-                    <div class="col-auto">
-                        <label>
-                            <select class="form-select" th:field="${cond.searchType}">
-                                <option th:value="title" selected>제목</option>
-                                <option th:value="content">내용</option>
-                                <option th:value="nickname">닉네임</option>
-                                <option th:value="userId">아이디</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="text" class="form-control" placeholder="검색어를 입력해주세요" th:field="${cond.keyword}" required>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn  btn-success" type="submit">검색</button>
-                    </div>
-                </form>
+                <nav th:replace="~{fragments/nav :: navBar}"></nav>
             </div>
 
-            <table class="table table-hover text-center table-striped align-middle" style="table-layout: fixed">
-                <thead>
+            <table class="table table-hover table-light text-center align-middle rounded" style="table-layout: fixed">
+                <thead class="table-primary">
                 <tr>
                     <th class="col-1">글번호</th>
-                    <th class="col-5">제목</th>
-                    <th class="col-2">작성자</th>
+                    <th class="col-4">제목</th>
+                    <th class="col-3">작성자</th>
+                    <th class="col-1">갤로그</th>
                     <th class="col-1">작성일</th>
-<!--                    <th class="col-1">갤로그</th>-->
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="table-group-divider">
                 <tr th:each="postItem : ${postItems}">
                     <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>
-                    <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
+                    <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
                     <td class="p-2"><span th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</span></td>
+                    <td class="p-2"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" class="text-decoration-none" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>
                     <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
-<!--                    <td class="p-2"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" class="text-decoration-none" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>-->
                 </tr>
                 </tbody>
             </table>
-            <p class="text-center" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</p>
+            <span class="text-center" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</span>
         </div>
         <nav th:replace="~{fragments/paging :: pageBar}"></nav><!-- paging 관련 -->
     </div>
     <br>
 </div> <!-- /container -->
+
+<script th:src="@{/js/bootstrap.bundle.js}"></script>
 </body>
 </html>
