@@ -1,6 +1,7 @@
 package hpPrice.repository;
 
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.SearchCond;
 import hpPrice.domain.dc.ErrorDto;
 import hpPrice.domain.dc.ErrorPost;
@@ -49,6 +50,11 @@ public class MybatisPostRepository implements PostRepository {
 
     @Override
     public void newNaverPost(Post post) { postMapper.newNaverPost(post);}
+
+    @Override
+    public void newFeedback(Feedback feedback) {
+        postMapper.newFeedback(feedback);
+    }
 
 
     @Override

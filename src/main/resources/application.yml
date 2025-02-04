@@ -2,7 +2,7 @@ spring:
 
   datasource:
     driver-class-name: org.h2.Driver
-    #url: jdbc:h2:mem:test
+#    url: jdbc:h2:mem:test
     url: jdbc:h2:./data/test
     username: sa
     password:
@@ -17,11 +17,9 @@ spring:
 #MyBatis
 mybatis:
   type-aliases-package: hpPrice.domain
-
   configuration:
     map-underscore-to-camel-case: true
-
-  mapper-locations: classpath:mapper/**/*.xml
+  mapper-locations: classpath:mapper/*.xml
 
 logging:
   level:

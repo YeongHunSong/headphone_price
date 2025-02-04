@@ -1,6 +1,7 @@
 package hpPrice.repository;
 
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.SearchCond;
 import hpPrice.domain.dc.ErrorDto;
 import hpPrice.domain.dc.ErrorPost;
@@ -25,6 +26,8 @@ public interface PostRepository {
     void newNaverPostItem(NaverPostItem postItem);
 
     void newNaverPost(Post post);
+
+    void newFeedback(Feedback feedback);
 
 
     // SELECT

@@ -1,6 +1,7 @@
 package hpPrice.controller;
 
 import hpPrice.common.naverCafe.CategoryType;
+import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.Post;
 import hpPrice.domain.dc.PostItem;
 import hpPrice.common.paging.PageControl;
@@ -58,12 +59,17 @@ public class MainController {
 
 
     // MAIN
-    // TODO DC 페이지나, 닥헤 게시판 고를 수 있는 홈화면 만들기
 
     @GetMapping("/feedback")
-    public String feedback() {
+    public String feedbackForm(@ModelAttribute Feedback feedback) {
+        return "main/feedback";
+    }
 
-        return "feedback";
+    @PostMapping("/feedback")
+    public String submitFeedback(@ModelAttribute Feedback feedback) {
+        log.info("feedback => {}", feedback);
+        postService.sendFeedback(feedback);
+        return "main/after";
     }
 
 

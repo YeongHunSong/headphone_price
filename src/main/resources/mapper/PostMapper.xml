@@ -91,6 +91,13 @@
         (#{postNum}, #{content})
     </insert>
 
+    <insert id="newFeedback">
+        INSERT INTO
+        FEEDBACK (TITLE, CONTENT, W_DATE)
+        VALUES
+        (#{title}, #{content}, now())
+    </insert>
+
 
     <!-- SELECT -->
     <select id="findPagedPostItemsBySearchCond" resultType="PostItem">

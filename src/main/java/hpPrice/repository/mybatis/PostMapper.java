@@ -1,6 +1,7 @@
 package hpPrice.repository.mybatis;
 
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.SearchCond;
 import hpPrice.domain.dc.ErrorDto;
 import hpPrice.domain.dc.ErrorPost;
@@ -8,12 +9,10 @@ import hpPrice.domain.common.Post;
 import hpPrice.domain.dc.PostItem;
 import hpPrice.domain.naver.LoginCookies;
 import hpPrice.domain.naver.NaverPostItem;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
 public interface PostMapper {
 
     // INSERT
@@ -28,6 +27,8 @@ public interface PostMapper {
     void newNaverPostItem(NaverPostItem postItem);
 
     void newNaverPost(Post post);
+
+    void newFeedback(Feedback feedback);
 
 
     // SELECT

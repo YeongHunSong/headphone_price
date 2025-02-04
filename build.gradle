@@ -32,7 +32,7 @@ dependencies {
 	implementation 'org.seleniumhq.selenium:selenium-java:4.28.1'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 
@@ -45,6 +45,29 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.18.1'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+
+jar {
+	enabled = true // JAR 파일 생성 활성화
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+	manifest {
+		attributes 'Main-Class': 'hpPrice.Application' // 메인 클래스 경로를 정확하게 지정
+	}
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
+
+//tasks.jar {
+//	from {
+//		configurations.runtimeClasspath.findAll { it.name != archiveFileName.get() }.collect { it.isDirectory() ? it : zipTree(it) }
+//	}
+//	manifest {
+//		attributes 'Main-Class': 'hpPrice.Application'
+//	}
+//	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+//}
+	// 최초 build 후 재 build 시 중복 파일에 대한 전략
+	// EXCLUDE: 중복 불허, 기존 파일 사용
+	// INCLUDE: 중복 가능하면 중복, 불가한 파일은 덮어쓰기
+	// FAIL: 중복 시 Build Fail 처리

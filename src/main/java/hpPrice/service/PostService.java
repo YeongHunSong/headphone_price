@@ -1,6 +1,7 @@
 package hpPrice.service;
 
 import hpPrice.common.paging.PageDto;
+import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.Post;
 import hpPrice.domain.common.SearchCond;
 import hpPrice.domain.dc.PostItem;
@@ -53,5 +54,11 @@ public class PostService {
 
     public Integer countNvPostItems(SearchCond cond, int category) {
         return postRepository.countNaverPostItemsBySearchCond(cond, category);
+    }
+
+    // MAIN
+
+    public void sendFeedback(Feedback feedback) {
+        postRepository.newFeedback(feedback);
     }
 }
