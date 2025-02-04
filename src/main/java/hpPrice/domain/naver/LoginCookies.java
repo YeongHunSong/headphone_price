@@ -4,20 +4,20 @@ import lombok.Data;
 
 @Data
 public class LoginCookies {
-    private String desc;
+    private String cookieDesc;
 
     private String jsonCookies;
 
     private LoginCookies() {
     }
 
-    private LoginCookies(String desc, String jsonCookies) {
-        this.desc = desc;
+    private LoginCookies(String cookieDesc, String jsonCookies) {
+        this.cookieDesc = cookieDesc;
         this.jsonCookies = jsonCookies;
     }
 
-    public static LoginCookies newLoginCookies(String desc, String jsonCookies) {
-        return new LoginCookies(desc, jsonCookies);
+    public static LoginCookies newLoginCookies(String cookieDesc, String jsonCookies) {
+        return new LoginCookies(cookieDesc, jsonCookies);
     }
 }
 

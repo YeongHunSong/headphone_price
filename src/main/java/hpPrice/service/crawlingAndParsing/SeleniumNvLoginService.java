@@ -11,6 +11,7 @@ import hpPrice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class SeleniumNvLoginService {
 
     public Set<Cookie> getNaverLoginCookie() {
         try {
-            return objectMapper.readValue(postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"),
+            return objectMapper.readValue(postRepository.findLatestLoginCookiesByCookieDesc("naverLoginCookies"),
                             new TypeReference<Set<CookieConvert>>() {}).stream()
                     .map(CookieConvert::toSeleniumCookie)
                     .collect(Collectors.toSet());
@@ -92,7 +93,7 @@ public class SeleniumNvLoginService {
                 driver.manage().timeouts().implicitlyWait(Duration.ofMillis(LOGIN_SLEEP_TIME));
                 sleep(SLEEP_TIME);
                 return;
-            } catch (TimeoutException | InterruptedException e) {
+            } catch (TimeoutException | InterruptedException  e) {
                 log.info("timeout -> refresh");
                 log.error("TimeoutException -> ", e);
                 driver.navigate().refresh();
@@ -155,6 +156,6 @@ public class SeleniumNvLoginService {
     @Deprecated
     public Map<String, String> getCookieToJsoup() throws JsonProcessingException {
         return objectMapper.readValue(
-                postRepository.findLatestLoginCookiesByDesc("naverLoginCookies"), new TypeReference<>() {});
+                postRepository.findLatestLoginCookiesByCookieDesc("naverLoginCookies"), new TypeReference<>() {});
     }
 }

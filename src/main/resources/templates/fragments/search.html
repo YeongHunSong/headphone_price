@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <body>
-    <form th:fragment="nvSearchBar" th:action method="get" class="d-flex">
+    <form th:fragment="nvSearchBar" th:action method="get" class="d-flex gap-2 mb-1">
         <div class="col-auto">
             <label>
                 <select class="form-select" th:field="${cond.searchType}">
@@ -21,7 +21,7 @@
         </div>
     </form>
 
-    <form th:fragment="dcSearchBar" th:action method="get" class="d-flex">
+    <form th:fragment="dcSearchBar" th:action method="get" class="d-flex gap-2 mb-1">
         <div class="col-auto">
             <label>
                 <select class="form-select" th:field="${cond.searchType}">

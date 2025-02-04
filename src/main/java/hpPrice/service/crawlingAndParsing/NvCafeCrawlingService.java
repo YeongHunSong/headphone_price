@@ -10,18 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.InvalidCookieDomainException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 
 import static hpPrice.common.CommonConst.*;
+import static java.lang.Thread.sleep;
 
 
 @Slf4j
@@ -55,10 +55,7 @@ public class NvCafeCrawlingService {
                         // '=' DB 마지막 저장값과 파싱값이 동일. (일반적인 경우)
                         // '>' DB 마지막 저장값보다 파싱값이 작음. (마지막 저장값에 해당하는 게시글이 삭제된 경우)
 
-                        seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + postNum);
-                        Elements naverCafePost = Jsoup.parse(
-                                driver.findElement(By.className("ArticleContentBox")).getAttribute("outerHTML"))
-                                .select(".ArticleContentBox > div");
+                        Elements naverCafePost = getNaverCafePost(driver, postNum);
 
                         /// ### POST_ITEM & POST Save ###
                         saveNaverPostAndPostItem(postItem, category, naverCafePost);
@@ -75,6 +72,21 @@ public class NvCafeCrawlingService {
             driver.quit();
             log.info("NAVER CAFE 크롤링 종료 [{}]", DateTimeUtils.getCurrentDateTime());
         }
+    }
+
+    private Elements getNaverCafePost(ChromeDriver driver, long postNum) {
+        for (int tryCount = 0; tryCount < MAX_RETRY_COUNT; tryCount++) {
+            try {
+                seleniumNvLoginService.getDriverAndWait(driver, NV_POST_URL + postNum);
+                return Jsoup.parse(
+                                driver.findElement(By.className("ArticleContentBox")).getAttribute("outerHTML"))
+                        .select(".ArticleContentBox > div");
+            } catch (NoSuchElementException e) { // findElement 를 할 때 해당 값이 없으면 발생.
+                log.error("NoSuchElementException -> ", e);
+            }
+        }
+        driver.quit();
+        throw new RuntimeException("페이지 로드 실패");
     }
 
     private ChromeDriver naverLoginCookieReady() {

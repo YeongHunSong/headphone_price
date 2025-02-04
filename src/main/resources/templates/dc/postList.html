@@ -38,7 +38,7 @@
                 </tr>
                 </tbody>
             </table>
-            <span class="text-center" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</span>
+            <span class="text-center mb-4" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</span>
         </div>
         <nav th:replace="~{fragments/paging :: pageBar}"></nav><!-- paging 관련 -->
     </div>

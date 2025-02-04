@@ -72,9 +72,9 @@
 
     <insert id="newLoginCookies">
         INSERT INTO
-        LOGIN_COOKIES (DESC, JSON_COOKIES, LOGIN_DATE)
+        LOGIN_COOKIES (COOKIE_DESC, JSON_COOKIES, LOGIN_DATE)
         VALUES
-        (#{desc}, #{jsonCookies}, now())
+        (#{cookieDesc}, #{jsonCookies}, now())
     </insert>
 
     <insert id="newNaverPostItem">
@@ -161,12 +161,12 @@
         <include refid="search"/>
     </select>
 
-    <select id="findLatestLoginCookiesByDesc" resultType="String">
+    <select id="findLatestLoginCookiesByCookieDesc" resultType="String">
         SELECT
         JSON_COOKIES
         FROM
         LOGIN_COOKIES
-        WHERE DESC = #{desc}
+        WHERE COOKIE_DESC = #{cookieDesc}
         ORDER BY LOGIN_DATE DESC
         LIMIT 1
     </select>

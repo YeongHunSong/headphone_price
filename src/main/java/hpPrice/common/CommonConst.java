@@ -31,7 +31,7 @@ public class CommonConst {
     public static final int MAX_RETRY_COUNT = 5;
     public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 500;
-    public static final int LOGIN_SLEEP_TIME = 2111;
+    public static final int LOGIN_SLEEP_TIME = 3000;
 
 
     public static final Pattern REMOVE_PATTERN = Pattern.compile("번호 :|연락처 :|번호:|연락처:|010-" +

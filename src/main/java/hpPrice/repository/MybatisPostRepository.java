@@ -88,8 +88,8 @@ public class MybatisPostRepository implements PostRepository {
     }
 
     @Override
-    public String findLatestLoginCookiesByDesc(String desc) {
-        return postMapper.findLatestLoginCookiesByDesc(desc);
+    public String findLatestLoginCookiesByCookieDesc(String cookieDesc) {
+        return postMapper.findLatestLoginCookiesByCookieDesc(cookieDesc);
     }
 
     @Override
