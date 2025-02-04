@@ -8,13 +8,14 @@
 </head>
 
 <body>
-<div class="container mt-3" style="max-width: 900px">
+<div class="container mt-3 container-xl">
     <div class="form-control">
         <div class="py-2">
             <nav th:replace="~{fragments/nav :: navBar}"></nav>
         </div>
         <h3 class="my-3"><span th:text="${postItem.title}">제목</span></h3>
-        <span th:utext="|${postItem.nickname}  ${postItem.memLevel} ${postItem.memLevelIcon}|">닉네임[회원등급]</span>
+        <span th:text="|${postItem.nickname}|" class="fw-bold">닉네임</span>
+        <span th:utext="|  ${postItem.memLevel} ${postItem.memLevelIcon}|">회원등급[아이콘]</span>
         <span class="px-1" th:text="|${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}|">작성일자</span>
         <a class="px-1" th:text="|원 게시글|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
         <br><br>

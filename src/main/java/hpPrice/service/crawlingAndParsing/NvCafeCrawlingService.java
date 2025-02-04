@@ -32,7 +32,7 @@ public class NvCafeCrawlingService {
     private final SeleniumNvLoginService seleniumNvLoginService;
     private final JsoupDcCrawlingService jsoupDcCrawlingService;
 
-    @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
+//    @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostCrawling() {
         log.info("NAVER CAFE 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
         ChromeDriver driver = naverLoginCookieReady();

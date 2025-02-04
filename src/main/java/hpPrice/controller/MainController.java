@@ -60,6 +60,12 @@ public class MainController {
 
     // MAIN
 
+    @GetMapping("/")
+    public String indexPage() {
+        return "redirect:/drhp/21";
+    }
+
+
     @GetMapping("/feedback")
     public String feedbackForm(@ModelAttribute Feedback feedback) {
         return "main/feedback";
@@ -80,7 +86,7 @@ public class MainController {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
         model.addAttribute("postItems", postService.findPostItems(pageDto, cond));
         model.addAttribute("type", "dcinside");
-        model.addAttribute("pageTitle", "SFF 갤러리 거래 글목록");
+        model.addAttribute("pageTitle", "SFF갤 거래");
         return "dc/postList";
 
         // TODO 저장할 때부터 모든 내용을 소문자로 DB에 넣는다거나?

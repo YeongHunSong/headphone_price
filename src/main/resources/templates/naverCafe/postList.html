@@ -10,9 +10,9 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container container-xl">
     <br>
-    <div class="form-control" style="max-width: 1250px">
+    <div class="form-control">
         <div class="row">
             <div class="py-2">
                 <nav th:replace="~{fragments/nav :: navBar}"></nav>
@@ -21,7 +21,7 @@
             <table class="table table-hover table-light text-center align-middle rounded" style="table-layout: fixed">
                 <thead class="table-success">
                 <tr>
-                    <th class="col-1">글번호</th>
+<!--                    <th class="col-1">글번호</th>-->
                     <th class="col-4">제목</th>
                     <th class="col-1">작성자</th>
                     <th class="col-1">작성일</th>
@@ -30,7 +30,7 @@
                 </thead>
                 <tbody class="table-group-divider">
                 <tr th:each="postItem : ${postItems}">
-                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>
+<!--                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>-->
                     <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/drhp/post/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
                     <td class="p-2"><span th:utext="|${postItem.nickname} ${postItem.memLevelIcon}|" class="mx-auto text-truncate text-nowrap">닉네임 회원등급</span></td>
                     <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
