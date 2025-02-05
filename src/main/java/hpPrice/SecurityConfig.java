@@ -27,7 +27,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/static/**").permitAll() //   CSS JS 접근 허용
                         .anyRequest().denyAll() // 그 외 전부 차단
                 );
+
+        http
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self';" +
+                                        "img-src 'self' https://dcimg1.dcinside.co.kr https://dcimg3.dcinside.co.kr " +
+                                        "https://dcimg4.dcinside.co.kr https://dcimg1.dcinside.com " +
+                                        "https://cafe.pstatic.net ;" +
+                                        "style-src 'unsafe-inline' 'self';")));
         return http.build();
     }
-
 }
