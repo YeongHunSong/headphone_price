@@ -35,7 +35,8 @@ public class SecurityConfig {
                                         "img-src 'self' https://dcimg1.dcinside.co.kr https://dcimg3.dcinside.co.kr " +
                                         "https://dcimg4.dcinside.co.kr https://dcimg1.dcinside.com " +
                                         "https://cafe.pstatic.net ;" +
-                                        "style-src 'unsafe-inline' 'self';")));
+                                        "style-src 'self' 'unsafe-inline';" +
+                                        "script-src 'self' 'unsafe-inline'")));
         return http.build();
     }
 }
