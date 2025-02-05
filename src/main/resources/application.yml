@@ -1,4 +1,8 @@
 spring:
+  security:
+    user:
+      name: user
+      password: user1234
 
 #  datasource:
 #    driver-class-name: org.h2.Driver
