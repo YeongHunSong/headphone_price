@@ -22,9 +22,11 @@ bin/
 *.iws
 *.iml
 *.ipr
+*.yml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+/src/main/resources/application.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -35,5 +37,4 @@ out/
 
 ### VS Code ###
 .vscode/
-/src/main/java/hpPrice/common/LoginInfo.java
-/src/main/resources/application.yml
+/src/main/java/hpPrice/common/naverCafe/LoginInfo.java
