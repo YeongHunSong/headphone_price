@@ -32,11 +32,11 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("default-src 'self';" +
-                                        "img-src 'self' https://dcimg1.dcinside.co.kr https://dcimg3.dcinside.co.kr " +
+                                        "img-src 'self' data: https://dcimg1.dcinside.co.kr https://dcimg3.dcinside.co.kr " +
                                         "https://dcimg4.dcinside.co.kr https://dcimg1.dcinside.com " +
                                         "https://cafe.pstatic.net ;" +
                                         "style-src 'self' 'unsafe-inline';" +
-                                        "script-src 'self' 'unsafe-inline'")));
+                                        "script-src 'self' 'unsafe-inline';")));
         return http.build();
     }
 }

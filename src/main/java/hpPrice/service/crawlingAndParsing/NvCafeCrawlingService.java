@@ -41,7 +41,7 @@ public class NvCafeCrawlingService {
                 long latestPostNum = latestPostNum(category);
                 parsingLogic:
                 for (int page = 1; page <= 3; page++) {
-                    log.info("현재 페이지 -> [{}]page : 현재 카테고리 -> {}", page, CategoryType.getName(category));
+//                    log.info("현재 페이지 -> [{}]page : 현재 카테고리 -> {}", page, CategoryType.getName(category)); // 어차피 1페이지만 계속 돌아감
                     /// ### POST_ITEM Parsing ###
                     Elements naverPostList = jsoupDcCrawlingService.jsoupConnectAndParsing(
                             NV_POST_LIST_URL + category + NV_PAGE_QUERY + page,
@@ -145,7 +145,7 @@ public class NvCafeCrawlingService {
 
     public void saveNaverPostItem(NaverPostItem postItem) {
         postRepository.newNaverPostItem(postItem);
-        log.info("저장한 게시글 - {} {}", postItem.getPostNum(), postItem.getTitle());
+        log.info("저장 - {} {} {}", CategoryType.getName(postItem.getCategory()), postItem.getPostNum(), postItem.getTitle());
     }
 
     public void saveNaverPost(Post post) {
