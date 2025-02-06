@@ -40,7 +40,8 @@ public class JsoupDcCrawlingService {
             int lastPage = findLastPage(); // 해당 탭 게시글 마지막 페이지 값 받이오기
             int startPage = findErrorPage(errorCheck, lastPage); // ERROR 발생했는지 확인 후 발생했었다면 ERROR 발생한 페이지 반환, 발생하지 않았었다면 1 반환.
 
-            for (int page = startPage; page <= lastPage; page++) { log.info("현재 페이지 -> [{}]page", page);
+            for (int page = startPage; page <= lastPage; page++) {
+//                log.info("현재 페이지 -> [{}]page", page); // 어차피 1페이지만 계속 돌아감
                 /// ### POST_ITEM Parsing ###
                 for (Element postItem : jsoupConnectAndParsing(DC_GALL_URL + DC_TAB_PAGE_QUERY + page, ".gall_list .us-post")) {
                     postNum = Long.parseLong(postItem.selectFirst(".gall_num").text());
