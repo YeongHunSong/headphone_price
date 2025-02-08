@@ -1,21 +1,17 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
-<head>
-    <meta charset="utf-8">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<head th:insert="~{fragments/link :: head}">
     <title>건의사항 등록</title>
 </head>
 
 <body>
-<div class="container text-center" style="max-width: 500px">
-    <br><br><br><br>
-    <div class="form-control">
+<div class="container text-center" style="max-width: 500px"> <!-- 나중에 수정하기 style 에서 container-~~ -->
+    <div class="form-control mt-5">
         <div class="d-flex justify-content-center align-items-center text-center">
-            <nav th:replace="~{fragments/nav :: navBar}"></nav>
-            <br><br><br>
+            <div th:replace="~{fragments/nav :: navBar}"></div>
         </div>
-        <form th:action method="post" th:object="${feedback}">
+        <form th:action method="post" th:object="${feedback}" class="mt-1">
             <legend class="float-none w-auto mb-1">건의사항</legend>
             <div class="mb-1">
                 <label for="title" class="form-label"></label>
@@ -25,14 +21,14 @@
                 <label for="content" class="form-label"></label>
                 <textarea class="form-control" th:field="*{content}" id="content" rows="3" required placeholder="건의하실 내용을 적어주세요. &#13;&#10;문제되는 게시글이 있다면 URL을 알려주세요."></textarea>
             </div>
-            <br>
-            <div class="d-flex gap-2 mb-1">
+            <div class="d-flex gap-4 my-4">
                 <button class="btn w-100 btn-secondary bth-sm" type="submit">등록</button>
                 <button class="btn w-100 btn-dark bth-sm" type="button" th:onclick="|location.href='@{/drhp/21}'|">취소</button>
             </div>
         </form>
     </div>
 </div> <!-- /container -->
-<script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+<script th:replace="~{fragments/link :: script}"></script>
 </body>
 </html>

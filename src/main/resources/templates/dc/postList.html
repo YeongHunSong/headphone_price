@@ -1,50 +1,42 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
-<head>
-    <meta charset="utf-8">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/pagination.css}" rel="stylesheet">
-    <link th:href="@{/css/table.css}" rel="stylesheet">
-    <title th:text="|${pageTitle}|">SFF갤 거래</title>
+<head th:insert="~{fragments/link :: head}">
+    <title th:text="${pageTitle}">제목</title>
 </head>
 
 <body>
-<div class="container container-xl">
-    <br>
-    <div class="form-control">
-        <div class="row">
-            <div class="py-2">
-                <nav th:replace="~{fragments/nav :: navBar}"></nav>
-            </div>
+<div class="container container-xl mt-3">
+    <div class="form-control mb-5">
+        <div th:replace="~{fragments/nav :: navBar}"></div>
 
+        <div class="row">
             <table class="table table-hover table-light text-center align-middle rounded" style="table-layout: fixed">
                 <thead class="table-primary">
-                <tr>
-<!--                    <th class="col-1">글번호</th>-->
-                    <th class="col-4">제목</th>
-                    <th class="col-3">작성자</th>
-<!--                    <th class="col-1">갤로그</th>-->
-                    <th class="col-1">작성일</th>
-                </tr>
+                    <tr>
+                        <!--                    <th class="col-1">글번호</th>-->
+                        <th class="col-4">제목</th>
+                        <th class="col-3">작성자</th>
+                        <!--                    <th class="col-1">갤로그</th>-->
+                        <th class="col-1">작성일</th>
+                    </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                <tr th:each="postItem : ${postItems}">
-<!--                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>-->
-                    <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
-                    <td class="p-2"><span th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</span></td>
-<!--                    <td class="p-2"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" class="text-decoration-none" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>-->
-                    <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
-                </tr>
+                    <tr th:each="postItem : ${postItems}">
+                        <!--                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>-->
+                        <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
+                        <td class="p-2"><span th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</span></td>
+                        <!--                    <td class="p-2"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" class="text-decoration-none" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>-->
+                        <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
+                    </tr>
                 </tbody>
             </table>
             <span class="text-center mb-4" th:if="${#lists.size(postItems) == 0}">게시글이 없습니다.</span>
         </div>
         <nav th:replace="~{fragments/paging :: pageBar}"></nav><!-- paging 관련 -->
     </div>
-    <br>
 </div> <!-- /container -->
 
-<script th:src="@{/js/bootstrap.bundle.js}"></script>
+<script th:replace="~{fragments/link :: script}"></script>
 </body>
 </html>

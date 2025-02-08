@@ -1,51 +1,53 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <body>
-<nav th:fragment="navBar" class="navbar navbar-expand-sm"> <!-- bg-body-tertiary -->
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown"> <!-- 닥터헤드폰 -->
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">닥터헤드폰</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" th:href="@{|/drhp/21|}">중고[헤드폰]</a></li>
-                        <li><a class="dropdown-item" th:href="@{|/drhp/102|}">중고[이어폰]</a></li>
-                        <li><a class="dropdown-item" th:href="@{|/drhp/192|}">중고[디바이스/앰프/DAC]</a></li>
-                        <li><a class="dropdown-item" th:href="@{|/drhp/42|}">중고[케이블/악세사리/기타]</a></li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item" href="https://cafe.naver.com/drhp" target="_blank" rel="noopener noreferrer">닥터헤드폰 카페 링크</a></li>
-                    </ul>
-                </li>
+<div th:fragment="navBar" class="py-2">
+    <nav class="navbar navbar-expand-sm"> <!-- bg-body-tertiary -->
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown"> <!-- 닥터헤드폰 -->
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">닥터헤드폰</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{|/drhp/21|}">중고[헤드폰]</a></li>
+                            <li><a class="dropdown-item" th:href="@{|/drhp/102|}">중고[이어폰]</a></li>
+                            <li><a class="dropdown-item" th:href="@{|/drhp/192|}">중고[디바이스/앰프/DAC]</a></li>
+                            <li><a class="dropdown-item" th:href="@{|/drhp/42|}">중고[케이블/악세사리/기타]</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item" href="https://cafe.naver.com/drhp" target="_blank" rel="noopener noreferrer">닥터헤드폰 카페 링크</a></li>
+                        </ul>
+                    </li>
 
-                <li class="nav-item dropdown"> <!-- DC 인사이드 -->
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">DC 인사이드</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" th:href="@{|/dcsff|}">SFF 갤러리 거래</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="https://gall.dcinside.com/mgallery/board/lists?id=sff" target="_blank" rel="noopener noreferrer">SFF 갤러리 링크</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{|/feedback|}">건의사항</a>
-                </li>
-            </ul>
+                    <li class="nav-item dropdown"> <!-- DC 인사이드 -->
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">DC 인사이드</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{|/dcsff|}">SFF 갤러리 거래</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="https://gall.dcinside.com/mgallery/board/lists?id=sff" target="_blank" rel="noopener noreferrer">SFF 갤러리 링크</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{|/feedback|}">건의사항</a>
+                    </li>
+                </ul>
 
-            <div th:if="${type != null}" class="mx-auto navbar-text">
-                <h4 th:text="${pageTitle}"></h4>
-            </div>
-
-            <div th:switch="${type}">
-                <div th:case="'naverCafe'">
-                    <th:block th:replace="~{fragments/search :: nvSearchBar}"></th:block>
+                <div th:if="${type != null}" class="mx-auto navbar-text">
+                    <h4 th:text="${pageTitle}"></h4>
                 </div>
-                <div th:case="'dcinside'">
-                    <th:block th:replace="~{fragments/search :: dcSearchBar}"></th:block>
+
+                <div th:switch="${type}">
+                    <div th:case="'naverCafe'">
+                        <th:block th:replace="~{fragments/search :: nvSearchBar}"></th:block>
+                    </div>
+                    <div th:case="'dcinside'">
+                        <th:block th:replace="~{fragments/search :: dcSearchBar}"></th:block>
+                    </div>
+                    <div th:otherwise></div>
                 </div>
-                <div th:otherwise></div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>
 
 </body>
 </html>
