@@ -12,14 +12,14 @@
             <div th:replace="~{fragments/nav :: navBar}"></div>
         </div>
         <form th:action method="post" th:object="${feedback}" class="mt-1">
-            <legend class="float-none w-auto mb-1">건의사항</legend>
+            <legend class="float-none w-auto mb-1">문의</legend>
             <div class="mb-1">
                 <label for="title" class="form-label"></label>
                 <input type="text" class="form-control" th:field="*{title}" id="title" placeholder="제목을 적어주세요. (50자 제한)" required maxlength="50">
             </div>
             <div class="mb-1">
                 <label for="content" class="form-label"></label>
-                <textarea class="form-control" th:field="*{content}" id="content" rows="3" required placeholder="건의하실 내용을 적어주세요. &#13;&#10;문제되는 게시글이 있다면 URL을 알려주세요."></textarea>
+                <textarea class="form-control" th:field="*{content}" id="content" rows="3" required placeholder="건의&문의하실 내용을 적어주세요. &#13;&#10;문제되는 게시글이 있다면 URL을 알려주세요."></textarea>
             </div>
             <div class="d-flex gap-4 my-4">
                 <button class="btn w-100 btn-secondary bth-sm" type="submit">등록</button>

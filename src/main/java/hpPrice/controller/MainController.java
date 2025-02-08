@@ -86,7 +86,7 @@ public class MainController {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countPostItems(cond)));
         model.addAttribute("postItems", postService.findPostItems(pageDto, cond));
         model.addAttribute("type", "dcinside");
-        model.addAttribute("pageTitle", "SFF갤 거래");
+        model.addAttribute("pageTitle", "SFF거래");
         return "dc/postList";
 
         // TODO 저장할 때부터 모든 내용을 소문자로 DB에 넣는다거나?
@@ -117,7 +117,7 @@ public class MainController {
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countNvPostItems(cond, category)));
         model.addAttribute("postItems", postService.findNaverPostItems(pageDto, cond, category));
         model.addAttribute("type", "naverCafe");
-        model.addAttribute("pageTitle", "중고" + CategoryType.getName(category));
+        model.addAttribute("pageTitle", CategoryType.getName(category));
         return "naverCafe/postList";
     }
 

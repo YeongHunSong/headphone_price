@@ -16,7 +16,7 @@
                     <tr>
                         <!--                    <th class="col-1">글번호</th>-->
                         <th class="col-4">제목</th>
-                        <th class="col-3">작성자</th>
+                        <th class="col-1">작성자</th>
                         <!--                    <th class="col-1">갤로그</th>-->
                         <th class="col-1">작성일</th>
                     </tr>
@@ -25,9 +25,10 @@
                     <tr th:each="postItem : ${postItems}">
                         <!--                    <td class="p-2"><span th:text="|${postItem.postNum}|">글 번호</span></td>-->
                         <td class="p-2"><a th:text="|${postItem.title}|" th:href="@{|/dcsff/${postItem.postNum}|}" class="text-start d-inline-block text-truncate text-nowrap w-100 text-decoration-none" target="_blank" rel="noopener noreferrer">제목</a></td>
-                        <td class="p-2"><span th:text="|${postItem.nickname}(${postItem.userId})|" class="d-inline-block text-truncate text-nowrap w-100">닉네임(아이디)</span></td>
+                        <td class="p-2"><span th:text="|${postItem.nickname}|" class="d-inline-block text-truncate text-nowrap w-100">닉네임</span></td>
+<!--                        <td class="p-2"><span th:text="|${postItem.userId}|" class="d-inline-block text-truncate text-nowrap w-100">아이디</span></td>-->
                         <!--                    <td class="p-2"><a th:text="링크" th:href="@{|${postItem.userUrl}|}" class="text-decoration-none" th:classappend="${postItem.userUrl.isEmpty()} ? 'd-none' : '' " target="_blank" rel="noopener noreferrer"></a></td>-->
-                        <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}" class="text-nowrap w-100">작성일</span></td>
+                        <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="text-nowrap w-100 text-end">작성일</span></td>
                     </tr>
                 </tbody>
             </table>

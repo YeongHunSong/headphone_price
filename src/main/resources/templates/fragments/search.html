@@ -4,7 +4,7 @@
     <form th:fragment="nvSearchBar" th:action method="get" class="d-flex gap-2 mb-1">
         <div class="col-auto">
             <label>
-                <select class="form-select" th:field="${cond.searchType}">
+                <select class="form-select form-select-sm" th:field="${cond.searchType}">
                     <option th:value="title" selected>제목</option>
                     <option th:value="content">내용</option>
                     <option th:value="nickname">닉네임</option>
@@ -13,18 +13,18 @@
         </div>
         <div class="col-auto">
             <label>
-                <input type="text" class="form-control" placeholder="검색어를 입력해주세요" th:field="${cond.keyword}" required>
+                <input type="text" class="form-control form-control-sm" th:field="${cond.keyword}" required>
             </label>
         </div>
         <div class="col-auto">
-            <button class="btn btn-secondary" type="submit">검색</button>
+            <button class="btn btn-sm btn-secondary" type="submit">검색</button>
         </div>
     </form>
 
     <form th:fragment="dcSearchBar" th:action method="get" class="d-flex gap-2 mb-1">
         <div class="col-auto">
             <label>
-                <select class="form-select" th:field="${cond.searchType}">
+                <select class="form-select form-select-sm" th:field="${cond.searchType}">
                     <option th:value="title" selected>제목</option>
                     <option th:value="content">내용</option>
                     <option th:value="nickname">닉네임</option>
@@ -34,11 +34,11 @@
         </div>
         <div class="col-auto">
             <label>
-                <input type="text" class="form-control" placeholder="검색어를 입력해주세요" th:field="${cond.keyword}" required>
+                <input type="text" class="form-control form-control-sm" th:field="${cond.keyword}" required>
             </label>
         </div>
         <div class="col-auto">
-            <button class="btn btn-secondary" type="submit">검색</button>
+            <button class="btn btn-sm btn-secondary" type="submit">검색</button>
         </div>
     </form>
 </body>
