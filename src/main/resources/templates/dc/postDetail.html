@@ -17,10 +17,10 @@
         <h3 class="my-3"><span th:text="${postItem.title}">제목</span></h3>
         <span th:text="|${postItem.nickname}[${postItem.userId}]|" th:classappend="${postItem.userUrl.isEmpty()} ? 'text-body-secondary' : '' ">작성자 닉네임[아이디]</span>
         <span class="px-1" th:text="|${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}|">작성일자</span>
-        <a class="px-1" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
-        <a class="px-1" th:text="|갤로그|" th:href="@{|${postItem.userUrl}|}" target="_blank" rel="noopener noreferrer">갤로그 링크</a>
+        <a class="px-1 text-decoration-none" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
+        <a class="px-1 text-decoration-none" th:text="|갤로그|" th:href="@{|${postItem.userUrl}|}" target="_blank" rel="noopener noreferrer">갤로그 링크</a>
         <br><br>
-        <span class="mx-auto text-wrap" style="word-wrap: break-word; white-space: pre-wrap;" th:utext="${post.content}">게시글 내용</span>
+        <span class="mx-auto text-wrap text-decoration-none" style="word-wrap: break-word; white-space: pre-wrap;" th:utext="${post.content}">게시글 내용</span>
         <br>
     </div>
 </div> <!-- /container -->
