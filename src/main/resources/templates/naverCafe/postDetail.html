@@ -17,9 +17,9 @@
         <span th:text="|${postItem.nickname}|" class="fw-bold">닉네임</span>
         <span th:utext="|  ${postItem.memLevel} ${postItem.memLevelIcon}|">회원등급[아이콘]</span>
         <span class="px-1" th:text="|${#temporals.format(postItem.wDate, 'yy-MM-dd HH:mm')}|">작성일자</span>
-        <a class="px-1" th:text="|원 게시글|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
+        <a class="px-1 text-decoration-none" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
         <br><br>
-        <span class="mx-auto text-wrap" style="word-wrap: break-word; white-space: pre-wrap;" th:utext="${post.content}">게시글 내용</span>
+        <span class="mx-auto text-wrap text-decoration-none" style="word-wrap: break-word; white-space: pre-wrap;" th:utext="${post.content}">게시글 내용</span>
         <br>
     </div>
 </div> <!-- /container -->
