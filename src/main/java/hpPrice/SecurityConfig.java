@@ -37,6 +37,11 @@ public class SecurityConfig {
                                         "https://cafe.pstatic.net ;" +
                                         "style-src 'self' 'unsafe-inline';" +
                                         "script-src 'self' 'unsafe-inline';")));
+
+        http
+                .requiresChannel(channel -> channel
+                        .anyRequest().requiresSecure()
+                );
         return http.build();
     }
 }
