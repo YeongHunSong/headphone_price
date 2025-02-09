@@ -78,6 +78,8 @@ public class SeleniumNvLoginService {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("--user-agent=" + USER_AGENT)
+                .addArguments("--log-level=3")
+                .addArguments("--disable-loging")
                 .addArguments("--headless") /// 아래 모두 headless 설정
                 .addArguments("--no-sandbox")
                 .addArguments("--window-size=1920x1080")
