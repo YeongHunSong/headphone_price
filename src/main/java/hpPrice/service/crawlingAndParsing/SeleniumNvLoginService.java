@@ -79,9 +79,6 @@ public class SeleniumNvLoginService {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("--user-agent=" + USER_AGENT)
-                .addArguments("--log-level=3") /// 아래 CDP Version 로그 삭제
-                .addArguments("--disable-loging")
-                .setExperimentalOption("excludeSwitches", List.of("enable-logging"))
                 .addArguments("--headless") /// 아래 headless 설정
                 .addArguments("--no-sandbox")
                 .addArguments("--window-size=1920x1080")

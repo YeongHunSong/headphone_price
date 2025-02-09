@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static hpPrice.common.CommonConst.*;
 import static java.lang.Thread.sleep;
@@ -35,6 +37,7 @@ public class NvCafeCrawlingService {
 //    @Scheduled(fixedDelay = 90 * 1000) // return 은 void / 매개 변수 받을 수 없음.
     public void naverCafePostCrawling() {
         log.info("NAVER CAFE 크롤링 시작 [{}]", DateTimeUtils.getCurrentDateTime());
+        Logger.getLogger("org.openqa.selenium.devtools.CdpVersionFinder").setLevel(Level.OFF); /// CDP Version log 제거
         ChromeDriver driver = naverLoginCookieReady();
         try {
             for (int category : CategoryType.getCategoryNumbers()) {
