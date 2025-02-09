@@ -98,6 +98,15 @@
         (#{title}, #{content}, now())
     </insert>
 
+    <insert id="newVisitor">
+        INSERT INTO
+        VISITOR (IP_ADDRESS, REQUEST_URI, VISIT_DATE)
+        VALUES
+        (#{ipAddress}, #{requestUri}, now())
+    </insert>
+
+
+
 
     <!-- SELECT -->
     <select id="findPagedPostItemsBySearchCond" resultType="PostItem">

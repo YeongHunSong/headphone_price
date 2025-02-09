@@ -1,4 +1,4 @@
-package hpPrice;
+package hpPrice.config;
 
 
 import org.springframework.context.annotation.Bean;
@@ -38,10 +38,10 @@ public class SecurityConfig {
                                         "style-src 'self' 'unsafe-inline';" +
                                         "script-src 'self' 'unsafe-inline';")));
 
-        http
-                .requiresChannel(channel -> channel
-                        .anyRequest().requiresSecure()
-                );
+//        http
+//                .requiresChannel(channel -> channel
+//                        .anyRequest().requiresSecure()
+//                );
         return http.build();
     }
 }

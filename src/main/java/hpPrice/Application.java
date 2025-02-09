@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Slf4j
 @EnableScheduling
 @SpringBootApplication
-@MapperScan("hpPrice.repository.mybatis")
+//@MapperScan("hpPrice.repository.mybatis")
 public class Application {
 
 	public static void main(String[] args) {

@@ -3,6 +3,7 @@ package hpPrice.repository;
 import hpPrice.common.paging.PageDto;
 import hpPrice.domain.common.Feedback;
 import hpPrice.domain.common.SearchCond;
+import hpPrice.domain.common.Visitor;
 import hpPrice.domain.dc.ErrorDto;
 import hpPrice.domain.dc.ErrorPost;
 import hpPrice.domain.common.Post;
@@ -55,6 +56,12 @@ public class MybatisPostRepository implements PostRepository {
     public void newFeedback(Feedback feedback) {
         postMapper.newFeedback(feedback);
     }
+
+    @Override
+    public void newVisitor(Visitor visitor) {
+        postMapper.newVisitor(visitor);
+    }
+
 
 
     @Override
