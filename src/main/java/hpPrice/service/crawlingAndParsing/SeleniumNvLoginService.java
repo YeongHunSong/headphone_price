@@ -20,6 +20,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.time.Duration;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static hpPrice.common.CommonConst.*;
@@ -78,9 +79,10 @@ public class SeleniumNvLoginService {
         return new ChromeDriver(new ChromeOptions()
                 .addArguments("--remote-allow-origins=*")
                 .addArguments("--user-agent=" + USER_AGENT)
-                .addArguments("--log-level=3")
+                .addArguments("--log-level=3") /// 아래 CDP Version 로그 삭제
                 .addArguments("--disable-loging")
-                .addArguments("--headless") /// 아래 모두 headless 설정
+                .setExperimentalOption("excludeSwitches", List.of("enable-logging"))
+                .addArguments("--headless") /// 아래 headless 설정
                 .addArguments("--no-sandbox")
                 .addArguments("--window-size=1920x1080")
                 .addArguments("--disable-gpu"));
