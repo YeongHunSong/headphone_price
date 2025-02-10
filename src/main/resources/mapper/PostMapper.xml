@@ -100,9 +100,9 @@
 
     <insert id="newVisitor">
         INSERT INTO
-        VISITOR (IP_ADDRESS, REQUEST_URI, VISIT_DATE)
+        VISITOR (IP_ADDRESS, REQUEST_URL, VISIT_DATE)
         VALUES
-        (#{ipAddress}, #{requestUri}, now())
+        (#{ipAddress}, #{requestUrl}, now())
     </insert>
 
 

@@ -10,13 +10,13 @@ public class Visitor {
     private Long id;
     private LocalDateTime visitDate;
     private String ipAddress;
-    private String requestUri;
+    private String requestUrl;
 
     private Visitor() {}
 
-    private Visitor(String ipAddress, String requestUri) {
+    private Visitor(String ipAddress, String requestUrl) {
         this.ipAddress = ipAddress;
-        this.requestUri = requestUri;
+        this.requestUrl = requestUrl;
     }
 
     public static Visitor newVisitor(String ipAddress, String requestUrl) {

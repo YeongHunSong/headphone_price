@@ -21,9 +21,10 @@ public class VisitorService {
 //    }
 
     @Async
-    public void recordVisitor(String ipAddress, String requestUri) {
+    public void recordVisitor(String ipAddress, String requestUrl) {
         CompletableFuture.runAsync(() -> {
-            postRepository.newVisitor(Visitor.newVisitor(ipAddress, requestUri));
+            System.out.println("requestUrl -> " + requestUrl);
+            postRepository.newVisitor(Visitor.newVisitor(ipAddress, requestUrl));
         });
     }
 
