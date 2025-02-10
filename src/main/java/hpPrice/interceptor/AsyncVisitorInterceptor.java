@@ -19,7 +19,7 @@ public class AsyncVisitorInterceptor implements AsyncHandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestUrl = request.getRequestURL().toString();
         String query = request.getQueryString();
-        if (query != null) requestUrl += query;
+        if (query != null) requestUrl += "?" + query;
         visitorService.recordVisitor(request.getRemoteAddr(), requestUrl);
         return true;
     }
