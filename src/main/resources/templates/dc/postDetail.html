@@ -1,7 +1,8 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
-<head th:insert="~{fragments/link :: head}">
+<head>
+    <th:block th:replace="~{fragments/link :: head}"></th:block>
     <title th:text="${postItem.title}"></title>
 </head>
 

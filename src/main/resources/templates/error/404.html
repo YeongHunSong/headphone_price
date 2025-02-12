@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head>
-  <meta charset="utf-8">
-  <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+  <th:block th:replace="~{fragments/link :: head}"></th:block>
   <title>페이지를 찾을 수 없습니다.</title>
 </head>
 
@@ -20,6 +19,6 @@
     <br>
   </div>
 </div> <!-- /container -->
-<script th:src="@{/js/bootstrap.bundle.js}"></script>
+<script th:replace="~{fragments/link :: script}"></script>
 </body>
 </html>
