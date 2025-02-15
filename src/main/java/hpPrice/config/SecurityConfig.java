@@ -25,6 +25,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/js/**").permitAll() //       JS 허용
                         .requestMatchers(HttpMethod.GET, "/css/**").permitAll() //      CSS 허용
                         .requestMatchers(HttpMethod.GET, "/static/**").permitAll() //   CSS JS 접근 허용
+                        .requestMatchers(HttpMethod.GET, "/error/**").permitAll() //    에러페이지 허용
                         .anyRequest().denyAll() // 그 외 전부 차단
                 );
 
@@ -42,6 +43,7 @@ public class SecurityConfig {
 //                .requiresChannel(channel -> channel
 //                        .anyRequest().requiresSecure()
 //                );
+
         return http.build();
     }
 }
