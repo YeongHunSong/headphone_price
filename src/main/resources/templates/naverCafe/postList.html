@@ -32,7 +32,7 @@
                                 <span th:utext="|${postItem.memLevelIcon}|" class="flex-shrink-0" style="width: 11px">회원등급</span>
                             </div>
                         </td>
-                        <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="text-nowrap">작성일</span></td>
+                        <td class="p-2"><span th:text="${#temporals.format(postItem.wDate, 'MM-dd HH:mm')}" class="d-inline-block text-nowrap text-truncate w-100">작성일</span></td>
                         <td class="p-2"><span th:text="|${postItem.price}|" class="d-inline-block text-truncate text-nowrap w-100">가격</span></td>
                     </tr>
                 </tbody>
