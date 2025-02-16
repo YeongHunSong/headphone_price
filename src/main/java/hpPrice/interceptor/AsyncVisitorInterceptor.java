@@ -20,7 +20,7 @@ public class AsyncVisitorInterceptor implements AsyncHandlerInterceptor {
         String requestUrl = request.getRequestURL().toString();
         String query = request.getQueryString();
         if (query != null) requestUrl += "?" + query;
-        visitorService.recordVisitor(request.getRemoteAddr(), requestUrl);
+        visitorService.recordVisitor(IpBlockFilter.getClientIp(request), requestUrl);
         return true;
     }
 

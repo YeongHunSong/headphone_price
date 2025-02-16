@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Component
 public class IpBlockFilter extends OncePerRequestFilter {
 
@@ -21,11 +23,20 @@ public class IpBlockFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String clientIp = request.getRemoteAddr();
+        String clientIp = getClientIp(request);
         if (blockedIps.contains(clientIp)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+            log.info("차단된 IP 접근 시도 -> " + clientIp);
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    public static String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }
