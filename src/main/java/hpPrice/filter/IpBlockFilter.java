@@ -1,5 +1,6 @@
-package hpPrice.interceptor;
+package hpPrice.filter;
 
+import hpPrice.common.ipBlock.IpAddressUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,20 +24,12 @@ public class IpBlockFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String clientIp = getClientIp(request);
+        String clientIp = IpAddressUtil.getClientIp(request);
         if (blockedIps.contains(clientIp)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
             log.info("차단된 IP 접근 시도 -> " + clientIp);
             return;
         }
         filterChain.doFilter(request, response);
-    }
-
-    public static String getClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }

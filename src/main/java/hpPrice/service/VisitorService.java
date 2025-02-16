@@ -16,10 +16,6 @@ public class VisitorService {
 
     private final PostRepository postRepository;
 
-//    public void recordVisitor(String ipAddress) {
-//        postRepository.newVisitor(Visitor.newVisitor(ipAddress));
-//    }
-
     @Async
     public void recordVisitor(String ipAddress, String requestUrl) {
         CompletableFuture.runAsync(() -> {
