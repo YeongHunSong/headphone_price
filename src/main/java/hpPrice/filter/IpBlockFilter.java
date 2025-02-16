@@ -25,7 +25,7 @@ public class IpBlockFilter extends OncePerRequestFilter {
             Arrays.asList("/css/**", "/js/**", "/error/**", "/favicon/**", "/feedback");
 
     private final Set<String> blockedIps = new HashSet<>
-            (Arrays.asList("45.148.10.90", "195.178.110.163", "118.235.80.48"));
+            (Arrays.asList("45.148.10.90", "195.178.110.163"));
 
 
     @Override
