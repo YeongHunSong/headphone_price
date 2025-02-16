@@ -33,7 +33,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/favicon/**").permitAll() //      favicon 허용
                         .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll() //     favicon 허용
                         .anyRequest().denyAll() // 그 외 전부 차단
-
                 );
 
         http
@@ -54,8 +53,7 @@ public class SecurityConfig {
                                         "accelerometer=(), autoplay=(), camera=(), document-domain=(), encrypted-media=(), " +
                                         "fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), " +
                                         "microphone=(), midi=(), payment=(), publickey-credentials-get=(), " +
-                                        "screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()")
-                        )
+                                        "screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()"))
                 );
 
 //        http
