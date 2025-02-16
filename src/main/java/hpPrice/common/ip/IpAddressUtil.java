@@ -1,4 +1,4 @@
-package hpPrice.common.ipBlock;
+package hpPrice.common.ip;
 
 import jakarta.servlet.http.HttpServletRequest;
 

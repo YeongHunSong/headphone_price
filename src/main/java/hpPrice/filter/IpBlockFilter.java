@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static hpPrice.common.ipBlock.IpAddressUtil.*;
+import static hpPrice.common.ip.IpAddressUtil.*;
 
 @Slf4j
 @Component

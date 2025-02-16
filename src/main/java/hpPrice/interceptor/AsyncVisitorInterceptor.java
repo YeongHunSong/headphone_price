@@ -1,6 +1,6 @@
 package hpPrice.interceptor;
 
-import hpPrice.common.ipBlock.IpAddressUtil;
+import hpPrice.common.ip.IpAddressUtil;
 import hpPrice.service.VisitorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
