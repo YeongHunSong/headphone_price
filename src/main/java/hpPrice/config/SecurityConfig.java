@@ -27,15 +27,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/feedback").permitAll()   // /feedback    GET 허용
                         .requestMatchers(HttpMethod.POST, "/feedback").permitAll()  // /feedback    POST 허용
 
-                        .requestMatchers(HttpMethod.GET, "/js/**").permitAll() //       JS 허용
-                        .requestMatchers(HttpMethod.GET, "/css/**").permitAll() //      CSS 허용
-                        .requestMatchers(HttpMethod.GET, "/favicon/**").permitAll() // favicon 허용
-                        .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll() // favicon 허용
-                        .requestMatchers(HttpMethod.GET, "/templates/error/**").permitAll() //    에러페이지 허용
-                        .anyRequest().denyAll()) // 그 외 전부 차단
+                        .requestMatchers(HttpMethod.GET, "/js/**").permitAll() //           JS 허용
+                        .requestMatchers(HttpMethod.GET, "/css/**").permitAll() //          CSS 허용
+                        .requestMatchers(HttpMethod.GET, "/error/**").permitAll() //        에러페이지 허용
+                        .requestMatchers(HttpMethod.GET, "/favicon/**").permitAll() //      favicon 허용
+                        .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll() //     favicon 허용
+                        .anyRequest().denyAll() // 그 외 전부 차단
 
-                .exceptionHandling(exceptions -> exceptions
-                        .accessDeniedPage("/error/403")
                 );
 
         http
