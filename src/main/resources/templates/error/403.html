@@ -3,20 +3,17 @@
 
 <head>
   <th:block th:replace="~{fragments/link :: head}"></th:block>
+  <th:block th:replace="~{fragments/link :: errorAndFeedbackStyle}"></th:block>
   <title>페이지를 찾을 수 없습니다.</title>
 </head>
 
 <body>
-<div class="container text-center" style="max-width: 500px">
-  <br><br><br><br><br>
-  <div class="form-control">
-    <br>
+<div class="container container-sm text-center" id="container">
+  <div class="form-control mt-5">
     <div class="d-flex justify-content-center align-items-center text-center">
       <nav th:replace="~{fragments/nav :: navBar}"></nav>
-      <br><br><br>
     </div>
-    <h3>페이지를 찾을 수 없습니다.</h3>
-    <br>
+    <h3 class="my-4">페이지를 찾을 수 없습니다.</h3>
   </div>
 </div> <!-- /container -->
 <script th:replace="~{fragments/link :: script}"></script>

@@ -3,11 +3,12 @@
 
 <head>
     <th:block th:replace="~{fragments/link :: head}"></th:block>
+    <th:block th:replace="~{fragments/link :: errorAndFeedbackStyle}"></th:block>
     <title>건의사항 전송 완료</title>
 </head>
 
 <body>
-<div class="container container-sm text-center" style="max-width: 540px">
+<div class="container container-sm text-center" id="container">
     <div class="form-control mt-5">
         <div class="d-flex justify-content-center align-items-center text-center mt-1">
             <div th:replace="~{fragments/nav :: navBar}"></div>

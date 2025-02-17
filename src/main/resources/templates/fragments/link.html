@@ -6,14 +6,24 @@
   <link th:href="@{/css/pagination.css}" rel="stylesheet">
   <link th:href="@{/css/table.css}" rel="stylesheet">
 
-  <link rel="icon" type="image/x-icon" th:href="@{/favicon/favicon.ico}">
-  <link rel="icon" type="image/png" sizes="16x16" th:href="@{/favicon/favicon-16x16.png}">
-  <link rel="icon" type="image/png" sizes="32x32" th:href="@{/favicon/favicon-32x32.png}">
-  <link rel="apple-touch-icon" sizes="180x180" th:href="@{/favicon/apple-touch-icon.png}">
-  <link rel="manifest" th:href="@{/favicon/site.webmanifest}">
+  <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+  <link rel="icon" type="image/png" sizes="16x16" th:href="@{/favicon-16x16.png}">
+  <link rel="icon" type="image/png" sizes="32x32" th:href="@{/favicon-32x32.png}">
+  <link rel="apple-touch-icon" sizes="180x180" th:href="@{/apple-touch-icon.png}">
+  <link rel="manifest" th:href="@{/site.webmanifest}">
 
 </head>
 
-<script th:fragment="script" th:src="@{/js/bootstrap.bundle.js}"></script>
+<script th:attr="nonce=${cspNonce}" th:fragment="script" th:src="@{/js/bootstrap.bundle.js}"></script>
+
+<style th:fragment="errorAndFeedbackStyle" th:attr="nonce=${cspNonce}">
+  #container { max-width: 540px; }
+</style>
+
+<style th:fragment="mainStyle" th:attr="nonce=${cspNonce}">
+  #container { max-width: 900px; }
+  #table { table-layout: fixed; }
+  #content { word-wrap: break-word; white-space: pre-wrap; }
+</style>
 
 </html>

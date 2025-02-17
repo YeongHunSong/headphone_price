@@ -3,16 +3,17 @@
 
 <head>
     <th:block th:replace="~{fragments/link :: head}"></th:block>
+    <th:block th:replace="~{fragments/link :: mainStyle}"></th:block>
     <title th:text="|SFF 갤러리 거래 게시글 목록|">제목</title>
 </head>
 
 <body>
-<div class="container container-lg container-fluid mt-3" style="max-width: 900px">
+<div class="container container-lg container-fluid mt-3" id="container">
     <div class="form-control mb-5">
         <div th:replace="~{fragments/nav :: navBar}"></div>
 
         <div class="row">
-            <table class="table table-hover table-light text-center align-middle rounded" style="table-layout: fixed">
+            <table class="table table-hover table-light text-center align-middle rounded" id="table">
                 <thead class="table-primary">
                     <tr>
                         <!--                    <th class="col-1">글번호</th>-->

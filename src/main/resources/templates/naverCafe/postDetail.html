@@ -3,11 +3,12 @@
 
 <head>
     <th:block th:replace="~{fragments/link :: head}"></th:block>
+    <th:block th:replace="~{fragments/link :: mainStyle}"></th:block>
     <title th:text="|닥터헤드폰 - ${postItem.title}|"></title>
 </head>
 
 <body>
-<div class="container container-lg container-fluid mt-3" style="max-width: 900px">
+<div class="container container-lg container-fluid mt-3" id="container">
     <div class="form-control mb-5">
         <div th:replace="~{fragments/nav :: navBar}"></div>
 
@@ -18,7 +19,7 @@
         <a class="px-1 text-decoration-none" th:text="|링크|" th:href="@{|${postItem.url}|}" target="_blank" rel="noopener noreferrer">원게시글 링크</a>
 
         <div class="mt-5">
-            <span class="mx-auto text-wrap text-decoration-none" style="word-wrap: break-word; white-space: pre-wrap;" th:utext="${post.content}">게시글 내용</span>
+            <span class="mx-auto text-wrap text-decoration-none" id="content" th:utext="${post.content}">게시글 내용</span>
         </div>
     </div>
 </div> <!-- /container -->

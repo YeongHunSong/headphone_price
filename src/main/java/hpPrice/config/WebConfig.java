@@ -3,9 +3,12 @@ package hpPrice.config;
 import hpPrice.interceptor.AsyncVisitorInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.time.Duration;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,8 +24,10 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon.ico")
-                .addResourceLocations("classpath:/static/favicon/");
+        registry.addResourceHandler("/favicon/**", "/favicon-*.png", "/apple-touch-icon.png",
+                        "/android-chrome-*.png", "/favicon.ico", "/site.webmanifest")
+                .addResourceLocations("classpath:/static/favicon/")
+                .setCacheControl(CacheControl.maxAge(Duration.ofDays(30)));
     }
 
 //    @Bean
