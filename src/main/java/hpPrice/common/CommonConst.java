@@ -28,7 +28,7 @@ public class CommonConst {
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
-    public static final int MAX_RETRY_COUNT = 5;
+    public static final int MAX_RETRY_COUNT = 10;
     public static final int TIME_OUT = 60000;
     public static final int SLEEP_TIME = 500;
     public static final int LOGIN_SLEEP_TIME = 3000;

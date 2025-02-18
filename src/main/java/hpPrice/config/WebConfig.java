@@ -20,12 +20,17 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(asyncVisitorInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/css/**", "/js/**", "/favicon/**");
+                .excludePathPatterns("/css/**", "/js/**",
+                        "/site.webmanifest", "/favicon.ico", "/apple-touch-icon.png",
+                        "/favicon-16x16.png", "/favicon-32x32.png",
+                        "/android-chrome-192x192.png", "/android-chrome-512x512.png"
+                );
     }
 
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon/**", "/favicon-*.png", "/apple-touch-icon.png",
-                        "/android-chrome-*.png", "/favicon.ico", "/site.webmanifest")
+        registry.addResourceHandler("/site.webmanifest", "/favicon.ico",
+                        "/favicon-16x16.png", "/favicon-32x32.png", "/apple-touch-icon.png",
+                        "/android-chrome-192x192.png", "/android-chrome-512x512.png")
                 .addResourceLocations("classpath:/static/favicon/")
                 .setCacheControl(CacheControl.maxAge(Duration.ofDays(30)));
     }

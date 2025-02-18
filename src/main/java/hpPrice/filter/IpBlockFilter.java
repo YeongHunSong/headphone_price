@@ -27,6 +27,7 @@ public class IpBlockFilter extends OncePerRequestFilter {
     private final Set<String> blockedIps = new HashSet<>
             (Arrays.asList(
                     "45.148.10.90",
+                    "57.152.56.111",
                     "195.178.110.163",
                     "92.255.57.58",
                     "47.251.93.227",
