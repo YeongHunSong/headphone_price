@@ -24,11 +24,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET, "/", "/drhp/**", "/dcsff/**", "/feedback", "/error").permitAll() // GET
+                        .requestMatchers("/error", "/error/**").permitAll() // error
+                        .requestMatchers(HttpMethod.GET, "/", "/drhp/**", "/dcsff/**", "/feedback").permitAll() // GET
                         .requestMatchers(HttpMethod.POST, "/feedback").permitAll() // feedback POST
 
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // staticResources
-                        .requestMatchers(HttpMethod.GET, "/error/**").permitAll() // resources GET
                         .requestMatchers(HttpMethod.GET,  "/favicon.ico", "/favicon-16x16.png", "/favicon-32x32.png",
                                 "/apple-touch-icon.png", "/site.webmanifest", "/android-chrome-192x192.png", "/android-chrome-512x512.png").permitAll() // favicon GET
                         .anyRequest().denyAll()) // 그 외 전부 차단

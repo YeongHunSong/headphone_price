@@ -65,7 +65,6 @@ public class MainController {
         return "redirect:/drhp/21";
     }
 
-
     @GetMapping("/feedback")
     public String feedbackForm(@ModelAttribute Feedback feedback) {
         return "main/feedback";
@@ -97,7 +96,7 @@ public class MainController {
     @GetMapping("/dcsff/{postNum:[1-9]\\d*}")
     public String dcsffPostDetail(Model model, @PathVariable("postNum") Long postNum) { // 여기도 @PathVariable 제약 걸기
         PostItem postItem = postService.findPostItem(postNum);
-        if (postItem == null) return "redirect:/NotFound";
+        if (postItem == null) return "redirect:/error";
         Post post = postService.findPost(postNum);
 
         model.addAttribute("postItem", postItem);
@@ -111,7 +110,7 @@ public class MainController {
     @GetMapping("/drhp/{category:[1-9]\\d*}")
     public String drhpPostList(@ModelAttribute(name = "pageDto") PageDto pageDto, @ModelAttribute(name = "cond") SearchCond cond, Model model,
                                @PathVariable("category") Integer category) {
-        if (!CategoryType.isCategory(category)) return "redirect:/NotFound";
+        if (!CategoryType.isCategory(category)) return "redirect:/error";
 
         pageDto.setPageView(15);// 네이버 카페 기본값 15
         model.addAttribute("pageControl", PageControl.createPage(pageDto, postService.countNvPostItems(cond, category)));
@@ -124,7 +123,7 @@ public class MainController {
     @GetMapping("/drhp/post/{postNum:[1-9]\\d*}")
     public String drhpPostDetail(Model model, @PathVariable("postNum") Long postNum) {
         NaverPostItem postItem = postService.findNaverPostItem(postNum);
-        if (postItem == null) return "redirect:/NotFound";
+        if (postItem == null) return "redirect:/error";
         Post post = postService.findNaverPost(postNum);
 
         model.addAttribute("postItem", postItem);
