@@ -25,7 +25,6 @@ public class IpBlockTomcatCustomizer implements WebServerFactoryCustomizer<Tomca
                 + "|92\\.255\\.57\\.58"
                 + "|47\\.251\\.93\\.227"
                 + "|185\\.91\\.69\\.5"
-                + "|192\\.168\\.0\\.2"
         );
 
         valve.setDenyStatus(404);
