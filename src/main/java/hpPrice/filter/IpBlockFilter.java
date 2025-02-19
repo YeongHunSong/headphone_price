@@ -19,19 +19,15 @@ import static hpPrice.common.ip.IpAddressUtil.*;
 
 @Slf4j
 @Component
-public class IpBlockFilter extends OncePerRequestFilter {
+public class IpBlockFilter extends OncePerRequestFilter { // 이 방식의 Filter 차단의 경우 애플리케이션 단까지 들어온 다음에 차단됨.
 
     private final List<String> allowedPaths =
             Arrays.asList("/css/**", "/js/**", "/error/**", "/favicon/**", "/feedback");
 
     private final Set<String> blockedIps = new HashSet<>
             (Arrays.asList(
-                    "45.148.10.90",
-                    "57.152.56.111",
-                    "195.178.110.163",
-                    "92.255.57.58",
-                    "47.251.93.227",
-                    "185.91.69.5"));
+                    "192.168.0.24",
+                    "192.168.0.25"));
 
 
     @Override
