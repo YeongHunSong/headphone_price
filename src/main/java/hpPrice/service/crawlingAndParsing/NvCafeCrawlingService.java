@@ -136,7 +136,7 @@ public class NvCafeCrawlingService {
                     Post.newPost(postNum,
                             postContent.outerHtml()));
         } catch (DuplicateKeyException e) {
-            log.info("이미 저장된 게시글로 저장되지 않음 -> {} {} {} \n", CategoryType.getName(category), postNum, title, e);
+            log.info("이미 저장된 게시글로 저장되지 않음 -> {} {} {} \n", CategoryType.getName(category), postNum, title);
             // e message 일단 안 띄우는 방식으로 하기.
         } // 해당 페이지 내 마지막 글을 데이터베이스에 저장하던 도중 새로운 글이 작성되어 다음 페이지 첫번째 글로 넘어가면서 중복 오류가 발생한 건에 대해서만 예외 처리.
     }

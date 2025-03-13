@@ -25,6 +25,4 @@ public class AsyncVisitorInterceptor implements AsyncHandlerInterceptor {
         visitorService.recordVisitor(IpAddressUtil.getClientIp(request), requestUrl);
         return true;
     }
-
-
 }

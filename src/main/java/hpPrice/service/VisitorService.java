@@ -19,11 +19,7 @@ public class VisitorService {
     @Async
     public void recordVisitor(String ipAddress, String requestUrl) {
         CompletableFuture.runAsync(() -> {
-            System.out.println("requestUrl -> " + requestUrl);
             postRepository.newVisitor(Visitor.newVisitor(ipAddress, requestUrl));
         });
     }
-
-    
-    // TODO 다른 기능 추가 하기
 }
