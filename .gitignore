@@ -38,5 +38,5 @@ src/main/resources/application.yml
 
 ### VS Code ###
 .vscode/
-/src/main/java/hpPrice/common/naverCafe/LoginInfo.java
-/src/main/resources/ssl/
+src/main/java/hpPrice/common/naverCafe/LoginInfo.java
+src/main/resources/ssl/
