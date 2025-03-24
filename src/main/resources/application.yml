@@ -1,8 +1,4 @@
 spring:
-  mvc:
-    favicon:
-      enabled: false
-
   security:
     user:
       name: user
